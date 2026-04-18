@@ -7,21 +7,21 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e0f11;
-    --surface: #16181c;
-    --surface2: #1e2026;
-    --border: #2a2d35;
-    --border2: #353840;
-    --accent: #4ade80;
-    --accent2: #22c55e;
-    --accent-dim: rgba(74,222,128,0.1);
-    --accent-dim2: rgba(74,222,128,0.05);
-    --text: #e8eaed;
-    --text2: #9aa0ad;
-    --text3: #5a6070;
-    --red: #f87171;
-    --red-dim: rgba(248,113,113,0.1);
-    --amber: #fbbf24;
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface2: #f0f1f4;
+    --border: #dde0e8;
+    --border2: #c8ccd6;
+    --accent: #16a34a;
+    --accent2: #15803d;
+    --accent-dim: rgba(22,163,74,0.08);
+    --accent-dim2: rgba(22,163,74,0.04);
+    --text: #1a1d23;
+    --text2: #4b5264;
+    --text3: #8b92a5;
+    --red: #dc2626;
+    --red-dim: rgba(220,38,38,0.08);
+    --amber: #d97706;
     --mono: 'IBM Plex Mono', monospace;
     --sans: 'IBM Plex Sans', sans-serif;
     --radius: 6px;
@@ -34,8 +34,6 @@
     font-size: 14px;
     min-height: 100vh;
   }
-
-  /* TOP BAR */
   .topbar {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -47,6 +45,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
   .topbar-brand {
     display: flex; align-items: center; gap: 10px;
@@ -68,11 +67,7 @@
     border-radius: 20px;
   }
   .stat-badge b { color: var(--accent); font-weight: 500; }
-
-  /* MAIN LAYOUT */
   .layout { display: flex; height: calc(100vh - 52px); }
-
-  /* SIDEBAR */
   .sidebar {
     width: 280px;
     min-width: 280px;
@@ -83,7 +78,7 @@
     overflow: hidden;
   }
   .sidebar-section {
-    padding: 16px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--border);
   }
   .sidebar-label {
@@ -92,27 +87,22 @@
     letter-spacing: 0.12em;
     color: var(--text3);
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
-  .sidebar-label .dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--accent);
-  }
+  .sidebar-label .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
   .sidebar-label .dot.red { background: var(--red); }
-
   .tag-area {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 8px;
-    min-height: 64px;
+    padding: 7px;
+    min-height: 54px;
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 4px;
     align-content: flex-start;
     cursor: text;
     transition: border-color 0.15s;
@@ -123,8 +113,8 @@
   .tag {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 3px 8px;
+    gap: 4px;
+    padding: 2px 7px;
     border-radius: 4px;
     font-family: var(--mono);
     font-size: 11px;
@@ -132,18 +122,10 @@
     cursor: default;
     max-width: 220px;
   }
-  .tag.include { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(74,222,128,0.25); }
-  .tag.exclude { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.25); }
+  .tag.include { background: var(--accent-dim); color: var(--accent2); border: 1px solid rgba(22,163,74,0.2); }
+  .tag.exclude { background: var(--red-dim); color: var(--red); border: 1px solid rgba(220,38,38,0.2); }
   .tag-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .tag-del {
-    cursor: pointer;
-    opacity: 0.5;
-    font-size: 13px;
-    line-height: 1;
-    padding: 0 2px;
-    transition: opacity 0.1s;
-    flex-shrink: 0;
-  }
+  .tag-del { cursor: pointer; opacity: 0.4; font-size: 13px; line-height: 1; padding: 0 2px; transition: opacity 0.1s; flex-shrink: 0; }
   .tag-del:hover { opacity: 1; }
   .tag-input {
     background: transparent;
@@ -157,33 +139,10 @@
     padding: 2px 4px;
   }
   .tag-input::placeholder { color: var(--text3); font-size: 12px; }
-
-  .hint {
-    font-size: 11px;
-    color: var(--text3);
-    margin-top: 6px;
-    line-height: 1.5;
-  }
-  .hint code {
-    font-family: var(--mono);
-    color: var(--text2);
-    background: var(--surface2);
-    padding: 1px 4px;
-    border-radius: 3px;
-  }
-
-  /* Options */
-  .options-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .opt-label {
-    font-size: 12px;
-    color: var(--text3);
-    white-space: nowrap;
-  }
+  .hint { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.5; }
+  .hint code { font-family: var(--mono); color: var(--text2); background: var(--surface2); padding: 1px 4px; border-radius: 3px; }
+  .options-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .opt-label { font-size: 12px; color: var(--text3); white-space: nowrap; }
   .opt-input {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -209,62 +168,34 @@
     flex: 1;
     cursor: pointer;
   }
-
-  /* Column picker */
-  .col-picker {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px 16px;
-  }
+  .col-picker { flex: 1; overflow-y: auto; padding: 10px 16px; }
   .col-picker::-webkit-scrollbar { width: 4px; }
   .col-picker::-webkit-scrollbar-track { background: transparent; }
   .col-picker::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-  .col-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 4px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.1s;
-  }
+  .col-item { display: flex; align-items: center; gap: 8px; padding: 4px; border-radius: 4px; cursor: pointer; transition: background 0.1s; }
   .col-item:hover { background: var(--surface2); }
   .col-check {
     width: 14px; height: 14px;
     border: 1px solid var(--border2);
     border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     transition: all 0.1s;
   }
-  .col-check.checked {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
+  .col-check.checked { background: var(--accent); border-color: var(--accent); }
   .col-check.checked::after {
     content: '';
     width: 8px; height: 5px;
-    border-left: 1.5px solid #0e0f11;
-    border-bottom: 1.5px solid #0e0f11;
+    border-left: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
     transform: rotate(-45deg) translate(1px, -1px);
     display: block;
   }
-  .col-name {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text2);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* SEARCH BTN */
+  .col-name { font-family: var(--mono); font-size: 11px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .search-btn {
     margin: 12px 16px;
     background: var(--accent);
-    color: #0e0f11;
+    color: #ffffff;
     border: none;
     border-radius: var(--radius);
     padding: 10px 16px;
@@ -275,18 +206,15 @@
     cursor: pointer;
     width: calc(100% - 32px);
     transition: opacity 0.15s, transform 0.1s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
   }
-  .search-btn:hover { opacity: 0.9; }
+  .search-btn:hover { opacity: 0.88; }
   .search-btn:active { transform: scale(0.98); }
   .search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
   .search-btn .spinner {
     width: 12px; height: 12px;
-    border: 2px solid rgba(0,0,0,0.2);
-    border-top-color: #0e0f11;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
     display: none;
@@ -294,36 +222,17 @@
   .search-btn.loading .spinner { display: block; }
   .search-btn.loading .btn-text { display: none; }
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* MAIN CONTENT */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  /* RESULTS HEADER */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .results-header {
-    padding: 12px 20px;
+    padding: 10px 20px;
     border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     background: var(--surface);
     flex-shrink: 0;
   }
-  .results-info {
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text3);
-  }
+  .results-info { font-family: var(--mono); font-size: 12px; color: var(--text3); }
   .results-info b { color: var(--accent); }
-  .results-time {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text3);
-  }
+  .results-time { font-family: var(--mono); font-size: 11px; color: var(--text3); }
   .export-btn {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -334,30 +243,18 @@
     padding: 5px 12px;
     cursor: pointer;
     transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    display: flex; align-items: center; gap: 6px;
   }
   .export-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* TABLE */
-  .table-wrap {
-    flex: 1;
-    overflow: auto;
-  }
+  .table-wrap { flex: 1; overflow: auto; }
   .table-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
-  .table-wrap::-webkit-scrollbar-track { background: var(--surface); }
+  .table-wrap::-webkit-scrollbar-track { background: var(--surface2); }
   .table-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
   thead th {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 14px;
+    background: var(--surface2);
+    border-bottom: 2px solid var(--border);
+    padding: 9px 14px;
     text-align: left;
     font-family: var(--mono);
     font-size: 10px;
@@ -366,102 +263,43 @@
     color: var(--text3);
     text-transform: uppercase;
     white-space: nowrap;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    cursor: pointer;
-    user-select: none;
+    position: sticky; top: 0; z-index: 10;
+    cursor: pointer; user-select: none;
     transition: color 0.1s;
   }
   thead th:hover { color: var(--text2); }
   thead th.sorted { color: var(--accent); }
   thead th .sort-icon { opacity: 0.4; margin-left: 4px; }
   thead th.sorted .sort-icon { opacity: 1; }
-
-  tbody tr {
-    border-bottom: 1px solid var(--border);
-    transition: background 0.1s;
-  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.08s; }
   tbody tr:hover { background: var(--accent-dim2); }
-  tbody td {
-    padding: 9px 14px;
-    color: var(--text);
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  tbody td { padding: 8px 14px; color: var(--text); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   tbody td.mono { font-family: var(--mono); font-size: 12px; color: var(--text2); }
-  .row-num {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--text3);
-    width: 40px;
-  }
-
-  /* EMPTY / PLACEHOLDER */
-  .placeholder {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 40px;
-  }
-  .placeholder-icon {
-    font-size: 40px;
-    opacity: 0.15;
-  }
-  .placeholder-text {
-    color: var(--text3);
-    font-size: 13px;
-    text-align: center;
-    line-height: 1.8;
-  }
+  .row-num { font-family: var(--mono); font-size: 11px; color: var(--text3); width: 40px; }
+  .placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px; }
+  .placeholder-icon { font-size: 36px; opacity: 0.12; }
+  .placeholder-text { color: var(--text3); font-size: 13px; text-align: center; line-height: 1.8; }
   .placeholder-text b { color: var(--text2); }
-
-  /* CONFIG BANNER */
   .config-banner {
-    background: rgba(251,191,36,0.08);
-    border: 1px solid rgba(251,191,36,0.2);
+    background: rgba(217,119,6,0.08);
+    border: 1px solid rgba(217,119,6,0.2);
     border-radius: var(--radius);
-    padding: 12px 16px;
-    margin: 16px;
-    font-size: 12px;
-    color: var(--amber);
-    line-height: 1.7;
+    padding: 12px 16px; margin: 16px;
+    font-size: 12px; color: var(--amber); line-height: 1.7;
   }
-  .config-banner code {
-    font-family: var(--mono);
-    background: rgba(251,191,36,0.1);
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-size: 11px;
-  }
-
-  /* ERROR */
+  .config-banner code { font-family: var(--mono); background: rgba(217,119,6,0.1); padding: 1px 5px; border-radius: 3px; font-size: 11px; }
   .error-msg {
     background: var(--red-dim);
-    border: 1px solid rgba(248,113,113,0.2);
+    border: 1px solid rgba(220,38,38,0.2);
     border-radius: var(--radius);
-    padding: 10px 14px;
-    color: var(--red);
-    font-size: 12px;
-    margin: 12px 16px;
+    padding: 10px 14px; color: var(--red);
+    font-size: 12px; margin: 12px 16px;
     font-family: var(--mono);
   }
-
-  mark {
-    background: rgba(74,222,128,0.25);
-    color: var(--accent);
-    border-radius: 2px;
-    padding: 0 1px;
-  }
+  mark { background: rgba(22,163,74,0.15); color: var(--accent2); border-radius: 2px; padding: 0 1px; }
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <div class="topbar-brand">
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -479,42 +317,32 @@
 </div>
 
 <div class="layout">
-  <!-- SIDEBAR -->
   <div class="sidebar">
-    <!-- Include -->
     <div class="sidebar-section">
       <div class="sidebar-label"><span class="dot"></span> Từ khoá TÌM (include)</div>
       <div class="tag-area include" id="include-area" onclick="focusInput(this)">
-        <input class="tag-input" id="include-input" placeholder="Nhập + Enter (tối đa 20 từ)" maxlength="200">
+        <input class="tag-input" id="include-input" placeholder="Nhập + Enter để thêm tag (OR)" maxlength="200">
       </div>
-      <div class="hint">Nhập từ khoá → <code>Enter</code> để thêm. Nhiều từ = điều kiện OR</div>
+      <div class="hint">Gõ thẳng rồi bấm <code>TÌM KIẾM</code>, hoặc <code>Enter</code> để tạo tag OR</div>
     </div>
-
-    <!-- Include 2 -->
     <div class="sidebar-section">
       <div class="sidebar-label"><span class="dot"></span> Từ khoá TÌM thêm (AND)</div>
       <div class="tag-area include" id="include2-area" onclick="focusInput(this)">
-        <input class="tag-input" id="include2-input" placeholder="Từ khoá nhóm 2 (OR trong nhóm)">
+        <input class="tag-input" id="include2-input" placeholder="Nhóm 2 — OR trong nhóm, AND với nhóm 1">
       </div>
     </div>
-
-    <!-- Include 3 -->
     <div class="sidebar-section">
       <div class="sidebar-label"><span class="dot"></span> Từ khoá TÌM thêm (AND)</div>
       <div class="tag-area include" id="include3-area" onclick="focusInput(this)">
-        <input class="tag-input" id="include3-input" placeholder="Từ khoá nhóm 3 (OR trong nhóm)">
+        <input class="tag-input" id="include3-input" placeholder="Nhóm 3 — OR trong nhóm, AND với nhóm 1,2">
       </div>
     </div>
-
-    <!-- Exclude -->
     <div class="sidebar-section">
       <div class="sidebar-label"><span class="dot red"></span> Từ khoá LOẠI TRỪ (exclude)</div>
       <div class="tag-area exclude" id="exclude-area" onclick="focusInput(this)">
         <input class="tag-input" id="exclude-input" placeholder="Nhập + Enter để loại trừ">
       </div>
     </div>
-
-    <!-- Options -->
     <div class="sidebar-section">
       <div class="sidebar-label">Tuỳ chọn kết quả</div>
       <div class="options-row" style="margin-bottom:8px">
@@ -529,8 +357,6 @@
         </select>
       </div>
     </div>
-
-    <!-- Column picker -->
     <div class="sidebar-section" style="padding-bottom:8px">
       <div class="sidebar-label" style="justify-content:space-between">
         <span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:var(--amber)"></span>Cột hiển thị</span>
@@ -538,14 +364,12 @@
       </div>
     </div>
     <div class="col-picker" id="col-picker"></div>
-
     <button class="search-btn" id="search-btn" onclick="doSearch()">
       <div class="spinner"></div>
       <span class="btn-text">🔍 TÌM KIẾM</span>
     </button>
   </div>
 
-  <!-- MAIN -->
   <div class="main">
     <div class="results-header">
       <div class="results-info" id="results-info">Nhập từ khoá và bấm Tìm kiếm</div>
@@ -568,32 +392,27 @@
 
 <script>
 // ============================================================
-// CONFIG — THAY 2 DÒNG NÀY SAU KHI TẠO SUPABASE
+// CONFIG
 // ============================================================
-const SUPABASE_URL = 'https://exetmxphracifekirprk.supabase.co';
+const SUPABASE_URL    = 'https://exetmxphracifekirprk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4ZXRteHBocmFjaWZla2lycHJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzIxMzYsImV4cCI6MjA5MjA0ODEzNn0.owRWH-EZRUlthrIxLKS-PuZGwDj5HaGJraEb7IY86kI';
-const TABLE_NAME = 'danhmuc';
-const SEARCH_COLUMN = 'TTChung'; // Cột chính dùng để tìm kiếm (cột T của bạn)
+const TABLE_NAME      = 'danhmuc';
+const SEARCH_COLUMN   = 'ttchung'; // ← chữ thường, đúng với tên cột Supabase
 // ============================================================
 
 const isConfigured = () => !SUPABASE_URL.includes('XXXX');
 
-// State
-let allColumns = [];
+let allColumns   = [];
 let selectedCols = new Set();
-let lastResults = [];
-let totalCount = 0;
-let sortState = { col: null, asc: true };
-
-// Tags state
-const tagState = { include: [], include2: [], include3: [], exclude: [] };
+let lastResults  = [];
+let lastSearchKws = [];
+let totalCount   = 0;
+let sortState    = { col: null, asc: true };
+const tagState   = { include: [], include2: [], include3: [], exclude: [] };
 
 // ---- INIT ----
 async function init() {
-  if (!isConfigured()) {
-    showConfigBanner();
-    return;
-  }
+  if (!isConfigured()) { showConfigBanner(); return; }
   try {
     const res = await supaFetch(`${TABLE_NAME}?limit=1`);
     if (res.ok) {
@@ -603,13 +422,13 @@ async function init() {
         buildColPicker();
         buildSortSelect();
       }
-      updateStatus('● Đã kết nối', '#4ade80');
+      updateStatus('● Đã kết nối', '#16a34a');
       fetchCount();
     } else {
-      updateStatus('● Lỗi kết nối', '#f87171');
+      updateStatus('● Lỗi kết nối', '#dc2626');
     }
   } catch(e) {
-    updateStatus('● Không kết nối được', '#f87171');
+    updateStatus('● Không kết nối được', '#dc2626');
   }
 }
 
@@ -639,19 +458,13 @@ function supaFetch(path, extraHeaders = {}) {
 function buildColPicker() {
   const picker = document.getElementById('col-picker');
   picker.innerHTML = '';
-  // Default: first 8 cols selected
   selectedCols = new Set(allColumns.slice(0, 8));
-  // Always include search column
   selectedCols.add(SEARCH_COLUMN);
-
   allColumns.forEach(col => {
     const item = document.createElement('div');
     item.className = 'col-item';
-    item.dataset.col = col;
     const checked = selectedCols.has(col);
-    item.innerHTML = `
-      <div class="col-check ${checked ? 'checked' : ''}" id="chk-${col}"></div>
-      <div class="col-name" title="${col}">${col}</div>`;
+    item.innerHTML = `<div class="col-check ${checked ? 'checked' : ''}" id="chk-${col}"></div><div class="col-name" title="${col}">${col}</div>`;
     item.onclick = () => toggleCol(col);
     picker.appendChild(item);
   });
@@ -689,8 +502,7 @@ function buildSortSelect() {
   sel.innerHTML = '<option value="">— Mặc định —</option>';
   allColumns.forEach(col => {
     const opt = document.createElement('option');
-    opt.value = col;
-    opt.textContent = col;
+    opt.value = col; opt.textContent = col;
     sel.appendChild(opt);
   });
 }
@@ -723,11 +535,9 @@ function removeTag(group, idx, areaId, inputId) {
 }
 
 function renderTags(group, areaId, inputId) {
-  const area = document.getElementById(areaId);
+  const area  = document.getElementById(areaId);
   const input = document.getElementById(inputId);
-  // Remove existing tags
   area.querySelectorAll('.tag').forEach(t => t.remove());
-  // Re-add before input
   const cls = group === 'exclude' ? 'exclude' : 'include';
   tagState[group].forEach((text, i) => {
     const tag = document.createElement('div');
@@ -737,17 +547,26 @@ function renderTags(group, areaId, inputId) {
   });
 }
 
-function focusInput(area) {
-  area.querySelector('.tag-input').focus();
+function focusInput(area) { area.querySelector('.tag-input').focus(); }
+
+// Lấy từ khoá: tags đã tạo + text đang gõ dở (không cần bấm Enter)
+function getTerms(tagGroup, inputId) {
+  const terms = [...tagGroup];
+  const typed = document.getElementById(inputId)?.value?.trim();
+  if (typed) terms.push(typed);
+  return terms;
 }
 
 // ---- SEARCH ----
 async function doSearch() {
   if (!isConfigured()) { showConfigBanner(); return; }
 
-  const groups = [tagState.include, tagState.include2, tagState.include3];
-  const hasAnyInclude = groups.some(g => g.length > 0);
-  if (!hasAnyInclude) {
+  const g1  = getTerms(tagState.include,  'include-input');
+  const g2  = getTerms(tagState.include2, 'include2-input');
+  const g3  = getTerms(tagState.include3, 'include3-input');
+  const gEx = getTerms(tagState.exclude,  'exclude-input');
+
+  if (!g1.length && !g2.length && !g3.length) {
     showError('Nhập ít nhất 1 từ khoá tìm kiếm.');
     return;
   }
@@ -755,27 +574,22 @@ async function doSearch() {
   const btn = document.getElementById('search-btn');
   btn.disabled = true;
   btn.classList.add('loading');
-
   const t0 = performance.now();
   clearError();
 
   try {
-    const cols = [...selectedCols].join(',');
-    const limit = Math.min(parseInt(document.getElementById('limit-input').value) || 500, 10000);
+    const cols    = [...selectedCols].join(',');
+    const limit   = Math.min(parseInt(document.getElementById('limit-input').value) || 500, 10000);
     const sortCol = document.getElementById('sort-col-select').value;
 
-    // Build filter — each group is OR internally, groups combined with AND
     let filters = [];
-    groups.forEach(group => {
+    [g1, g2, g3].forEach(group => {
       if (group.length > 0) {
-        // OR within group using ilike
         const orParts = group.map(kw => `${SEARCH_COLUMN}.ilike.*${encodeURIComponent(kw)}*`).join(',');
         filters.push(`or=(${orParts})`);
       }
     });
-
-    // Exclude (NOT ilike for each)
-    tagState.exclude.forEach(kw => {
+    gEx.forEach(kw => {
       filters.push(`${SEARCH_COLUMN}=not.ilike.*${encodeURIComponent(kw)}*`);
     });
 
@@ -785,12 +599,13 @@ async function doSearch() {
     const res = await supaFetch(url, { 'Prefer': 'count=exact' });
     if (!res.ok) throw new Error(await res.text());
 
-    const data = await res.json();
-    const cr = res.headers.get('content-range');
-    const total = cr ? parseInt(cr.split('/')[1]) : data.length;
+    const data    = await res.json();
+    const cr      = res.headers.get('content-range');
+    const total   = cr ? parseInt(cr.split('/')[1]) : data.length;
     const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
 
-    lastResults = data;
+    lastResults   = data;
+    lastSearchKws = [...g1, ...g2, ...g3];
     renderResults(data, total, elapsed, [...selectedCols]);
   } catch(e) {
     showError('Lỗi: ' + e.message);
@@ -801,20 +616,15 @@ async function doSearch() {
 }
 
 function renderResults(data, total, elapsed, cols) {
-  const infoEl = document.getElementById('results-info');
-  const timeEl = document.getElementById('results-time');
-  infoEl.innerHTML = `Tìm thấy <b>${data.length.toLocaleString('vi-VN')}</b> / ${total.toLocaleString('vi-VN')} kết quả`;
-  timeEl.textContent = `${elapsed}s`;
+  document.getElementById('results-info').innerHTML =
+    `Tìm thấy <b>${data.length.toLocaleString('vi-VN')}</b> / ${total.toLocaleString('vi-VN')} kết quả`;
+  document.getElementById('results-time').textContent = elapsed ? `${elapsed}s` : '';
 
   const mc = document.getElementById('main-content');
-
   if (data.length === 0) {
     mc.innerHTML = `<div class="placeholder"><div class="placeholder-icon">◻</div><div class="placeholder-text">Không tìm thấy kết quả nào<br>Thử thay đổi từ khoá tìm kiếm</div></div>`;
     return;
   }
-
-  // Keywords for highlight
-  const allKws = [...tagState.include, ...tagState.include2, ...tagState.include3];
 
   let html = `<div class="table-wrap"><table><thead><tr><th class="row-num">#</th>`;
   cols.forEach(col => {
@@ -828,9 +638,8 @@ function renderResults(data, total, elapsed, cols) {
     cols.forEach(col => {
       let val = row[col] ?? '';
       let str = String(val);
-      // Highlight matches in search column
-      if (col === SEARCH_COLUMN && allKws.length > 0) {
-        allKws.forEach(kw => {
+      if (col === SEARCH_COLUMN && lastSearchKws.length > 0) {
+        lastSearchKws.forEach(kw => {
           const re = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
           str = str.replace(re, m => `<mark>${m}</mark>`);
         });
@@ -848,15 +657,10 @@ function renderResults(data, total, elapsed, cols) {
 }
 
 function sortBy(col) {
-  if (sortState.col === col) {
-    sortState.asc = !sortState.asc;
-  } else {
-    sortState.col = col;
-    sortState.asc = true;
-  }
+  if (sortState.col === col) sortState.asc = !sortState.asc;
+  else { sortState.col = col; sortState.asc = true; }
   const sorted = [...lastResults].sort((a, b) => {
-    const va = a[col] ?? '';
-    const vb = b[col] ?? '';
+    const va = a[col] ?? '', vb = b[col] ?? '';
     if (va < vb) return sortState.asc ? -1 : 1;
     if (va > vb) return sortState.asc ? 1 : -1;
     return 0;
@@ -867,35 +671,23 @@ function sortBy(col) {
 function exportCSV() {
   if (!lastResults.length) return;
   const cols = [...selectedCols];
-  const header = cols.join(',');
-  const rows = lastResults.map(r => cols.map(c => {
-    const v = String(r[c] ?? '').replace(/"/g, '""');
-    return `"${v}"`;
-  }).join(','));
-  const csv = [header, ...rows].join('\n');
+  const rows = lastResults.map(r => cols.map(c => `"${String(r[c] ?? '').replace(/"/g,'""')}"`).join(','));
+  const csv  = [cols.join(','), ...rows].join('\n');
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url;
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
   a.download = `tracuu_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
 
-// ---- UI HELPERS ----
 function updateStatus(text, color) {
   const el = document.getElementById('db-status');
-  el.textContent = text;
-  el.style.color = color;
+  el.textContent = text; el.style.color = color;
 }
 
 function showConfigBanner() {
-  const mc = document.getElementById('main-content');
-  mc.innerHTML = `<div class="config-banner">
-    ⚠ Chưa cấu hình Supabase.<br>
-    Mở file <code>index.html</code>, tìm phần <code>CONFIG</code> và điền:<br>
-    • <code>SUPABASE_URL</code> — URL project của bạn<br>
-    • <code>SUPABASE_ANON_KEY</code> — anon/public key<br>
-    • <code>SEARCH_COLUMN</code> — tên cột dùng để tìm kiếm (tương đương cột T)
-  </div>`;
+  document.getElementById('main-content').innerHTML = `<div class="config-banner">
+    ⚠ Chưa cấu hình Supabase. Mở file index.html, tìm phần CONFIG và điền URL + ANON_KEY.</div>`;
 }
 
 function showError(msg) {
@@ -904,20 +696,14 @@ function showError(msg) {
   err.className = 'error-msg'; err.id = 'err-msg'; err.textContent = msg;
   document.getElementById('main-content').prepend(err);
 }
-function clearError() {
-  document.getElementById('err-msg')?.remove();
-}
+function clearError() { document.getElementById('err-msg')?.remove(); }
 
-// Keyboard: Enter in any input → search
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.ctrlKey) doSearch();
-});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.ctrlKey) doSearch(); });
 
-// Setup tag inputs
-setupTagInput('include-input', 'include-area', 'include');
+setupTagInput('include-input',  'include-area',  'include');
 setupTagInput('include2-input', 'include2-area', 'include2');
 setupTagInput('include3-input', 'include3-area', 'include3');
-setupTagInput('exclude-input', 'exclude-area', 'exclude');
+setupTagInput('exclude-input',  'exclude-area',  'exclude');
 
 init();
 </script>
