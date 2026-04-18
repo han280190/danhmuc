@@ -585,8 +585,11 @@ async function doSearch() {
     let filters = [];
     [g1, g2, g3].forEach(group => {
       if (group.length > 0) {
-        const orParts = group.map(kw => `${SEARCH_COLUMN}.ilike.*${encodeURIComponent(kw)}*`).join(',');
-        filters.push(`or=(${orParts})`);
+        // Full-text search — nhanh hơn ilike nhiều lần, dùng index gin
+        const ftsQuery = group.map(kw =>
+          kw.trim().split(/\s+/).map(w => w + ':*').join(' & ')
+        ).join(' | ');
+        filters.push(`ttchung=fts(simple).${encodeURIComponent(ftsQuery)}`);
       }
     });
     gEx.forEach(kw => {
