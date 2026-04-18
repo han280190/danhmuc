@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Import dữ liệu</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0e0f11;--surface:#16181c;--surface2:#1e2026;
+    --border:#2a2d35;--border2:#353840;
+    --accent:#4ade80;--red:#f87171;--amber:#fbbf24;--blue:#60a5fa;
+    --text:#e8eaed;--text2:#9aa0ad;--text3:#5a6070;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;}
+  .brand{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--amber);display:flex;align-items:center;gap:8px;}
+  .back-link{font-family:var(--mono);font-size:11px;color:var(--text3);text-decoration:none;padding:5px 12px;border:1px solid var(--border);border-radius:var(--radius);transition:all 0.15s;}
+  .back-link:hover{color:var(--accent);border-color:var(--accent);}
+  .container{max-width:900px;margin:0 auto;padding:32px 24px;}
+  h2{font-size:15px;font-weight:500;color:var(--text);margin-bottom:4px;}
+  .section{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:20px;}
+  .section-title{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  label{font-size:12px;color:var(--text2);display:block;margin-bottom:6px;}
+  input[type=text],textarea,select{
+    width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+    color:var(--text);font-family:var(--mono);font-size:12px;padding:9px 12px;outline:none;
+    transition:border-color 0.15s;resize:vertical;
+  }
+  input[type=text]:focus,textarea:focus,select:focus{border-color:var(--accent);}
+  textarea{min-height:140px;line-height:1.5;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .full{margin-bottom:16px;}
+  .hint{font-size:11px;color:var(--text3);margin-top:5px;line-height:1.5;}
+  .hint code{font-family:var(--mono);background:var(--surface2);padding:1px 4px;border-radius:3px;color:var(--text2);}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:10px 20px;border-radius:var(--radius);border:none;
+    font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;
+    transition:opacity 0.15s,transform 0.1s;letter-spacing:0.03em;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .btn-primary{background:var(--accent);color:#0e0f11;}
+  .btn-primary:hover:not(:disabled){opacity:0.9;}
+  .btn-danger{background:rgba(248,113,113,0.15);color:var(--red);border:1px solid rgba(248,113,113,0.3);}
+  .btn-danger:hover:not(:disabled){background:rgba(248,113,113,0.25);}
+  .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+  .btn-secondary:hover:not(:disabled){border-color:var(--border2);color:var(--text);}
+
+  .spinner{width:12px;height:12px;border:2px solid rgba(0,0,0,0.2);border-top-color:#0e0f11;border-radius:50%;animation:spin 0.6s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .log{
+    background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px;font-family:var(--mono);font-size:11px;line-height:1.8;
+    max-height:280px;overflow-y:auto;margin-top:16px;
+  }
+  .log::-webkit-scrollbar{width:4px;}
+  .log::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .log-line{display:flex;gap:10px;}
+  .log-line .ts{color:var(--text3);flex-shrink:0;}
+  .log-line.ok .msg{color:var(--accent);}
+  .log-line.err .msg{color:var(--red);}
+  .log-line.info .msg{color:var(--text2);}
+  .log-line.warn .msg{color:var(--amber);}
+
+  .progress-wrap{margin-top:12px;}
+  .progress-bar-bg{background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;}
+  .progress-bar{height:100%;background:var(--accent);border-radius:4px;transition:width 0.2s;width:0%;}
+  .progress-label{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:5px;}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+  .stat-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+  .stat-value{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--accent);margin-bottom:3px;}
+  .stat-key{font-size:11px;color:var(--text3);}
+
+  .tag{display:inline-block;padding:2px 8px;border-radius:4px;font-family:var(--mono);font-size:11px;}
+  .tag-ok{background:rgba(74,222,128,0.1);color:var(--accent);}
+  .tag-err{background:rgba(248,113,113,0.1);color:var(--red);}
+
+  .warning-box{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius);padding:12px 16px;font-size:12px;color:var(--amber);line-height:1.7;margin-bottom:16px;}
+
+  .tab-row{display:flex;gap:2px;margin-bottom:16px;background:var(--surface2);padding:4px;border-radius:var(--radius);width:fit-content;}
+  .tab{padding:6px 16px;border-radius:4px;font-family:var(--mono);font-size:11px;cursor:pointer;color:var(--text3);transition:all 0.15s;border:none;background:transparent;}
+  .tab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.3);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">⚙ ADMIN — IMPORT DỮ LIỆU</div>
+  <a href="index.html" class="back-link">← Về trang tìm kiếm</a>
+</div>
+
+<div class="container">
+
+  <!-- CONFIG -->
+  <div class="section">
+    <div class="section-title">Cấu hình Supabase</div>
+    <div class="row">
+      <div>
+        <label>Supabase URL</label>
+        <input type="text" id="cfg-url" placeholder="https://XXXXXXXX.supabase.co" oninput="saveConfig()">
+      </div>
+      <div>
+        <label>Anon Key (public)</label>
+        <input type="text" id="cfg-key" placeholder="eyJ..." oninput="saveConfig()">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Service Role Key (để upsert/delete)</label>
+        <input type="text" id="cfg-service-key" placeholder="eyJ... (service_role key)" oninput="saveConfig()">
+        <div class="hint">⚠ Key này có quyền xoá dữ liệu — chỉ dùng trên máy của bạn, không share</div>
+      </div>
+      <div>
+        <label>Tên bảng (table)</label>
+        <input type="text" id="cfg-table" value="danhmuc" oninput="saveConfig()">
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="testConnection()">🔌 Kiểm tra kết nối</button>
+    <span id="conn-status" style="margin-left:12px;font-family:var(--mono);font-size:12px;color:var(--text3)"></span>
+  </div>
+
+  <!-- DB STATS -->
+  <div class="section">
+    <div class="section-title">Thống kê bảng dữ liệu</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="st-total">—</div><div class="stat-key">Tổng số dòng</div></div>
+      <div class="stat-card"><div class="stat-value" id="st-cols">—</div><div class="stat-key">Số cột</div></div>
+      <div class="stat-card"><div class="stat-value" id="st-updated">—</div><div class="stat-key">Lần import gần nhất</div></div>
+    </div>
+    <button class="btn btn-secondary" onclick="loadStats()">↻ Tải lại</button>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="section">
+    <div class="section-title">Import dữ liệu mới</div>
+
+    <div class="tab-row">
+      <button class="tab active" onclick="switchTab('csv')" id="tab-csv">Paste CSV / TSV</button>
+      <button class="tab" onclick="switchTab('file')" id="tab-file">Upload file .csv</button>
+    </div>
+
+    <div id="panel-csv">
+      <div class="full">
+        <label>Paste dữ liệu CSV hoặc copy từ Google Sheet (Ctrl+A, Ctrl+C rồi paste vào đây)</label>
+        <textarea id="csv-input" placeholder="Dán dữ liệu vào đây. Hàng đầu tiên phải là tên cột (header).&#10;Ví dụ:&#10;ma_vt,ten_vat_tu,don_vi,don_gia&#10;VT001,Ống thép DN100,cái,150000&#10;..."></textarea>
+        <div class="hint">Hỗ trợ CSV (dấu phẩy), TSV (tab). Dữ liệu copy từ Google Sheet tự động là TSV — hoạt động tốt.</div>
+      </div>
+    </div>
+
+    <div id="panel-file" style="display:none">
+      <div class="full">
+        <label>Chọn file .csv từ máy tính</label>
+        <input type="file" id="file-input" accept=".csv,.tsv,.txt" style="background:var(--surface2);border:1px solid var(--border);padding:10px;border-radius:var(--radius);color:var(--text2);font-family:var(--mono);font-size:12px;">
+        <div class="hint">File CSV UTF-8, có header ở hàng đầu tiên.</div>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:4px">
+      <div>
+        <label>Chế độ import</label>
+        <select id="import-mode">
+          <option value="upsert">Upsert — thêm mới + cập nhật trùng (khuyến nghị)</option>
+          <option value="append">Append — chỉ thêm mới, bỏ qua trùng</option>
+          <option value="replace">Replace — XOÁ HẾT rồi import lại</option>
+        </select>
+        <div class="hint" id="mode-hint">Cập nhật dòng đã có (theo cột <code>id</code>), thêm dòng mới.</div>
+      </div>
+      <div>
+        <label>Batch size (dòng mỗi lần gửi)</label>
+        <input type="text" id="batch-size" value="500">
+        <div class="hint">500–1000 là ổn. Nếu bị timeout giảm xuống 200.</div>
+      </div>
+    </div>
+
+    <div id="preview-section" style="display:none;margin-bottom:16px">
+      <label>Xem trước (5 dòng đầu)</label>
+      <div id="preview-table" style="overflow-x:auto;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-family:var(--mono);font-size:11px;color:var(--text2);white-space:pre;line-height:1.6"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-secondary" onclick="parsePreview()">👁 Xem trước</button>
+      <button class="btn btn-primary" id="import-btn" onclick="startImport()">
+        <span class="btn-text">▲ BẮT ĐẦU IMPORT</span>
+      </button>
+    </div>
+
+    <div class="progress-wrap" id="progress-wrap" style="display:none">
+      <div class="progress-bar-bg"><div class="progress-bar" id="progress-bar"></div></div>
+      <div class="progress-label" id="progress-label">Đang chuẩn bị...</div>
+    </div>
+    <div class="log" id="log" style="display:none"></div>
+  </div>
+
+  <!-- DANGER ZONE -->
+  <div class="section">
+    <div class="section-title">Vùng nguy hiểm</div>
+    <div class="warning-box">⚠ Các thao tác dưới đây không thể hoàn tác. Hãy chắc chắn trước khi thực hiện.</div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-danger" onclick="confirmDelete()">🗑 Xoá toàn bộ dữ liệu trong bảng</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- CONFIG PERSISTENCE ----
+function loadConfig() {
+  const cfg = JSON.parse(localStorage.getItem('supa_admin_cfg') || '{}');
+  document.getElementById('cfg-url').value = cfg.url || '';
+  document.getElementById('cfg-key').value = cfg.key || '';
+  document.getElementById('cfg-service-key').value = cfg.serviceKey || '';
+  document.getElementById('cfg-table').value = cfg.table || 'danhmuc';
+}
+function saveConfig() {
+  localStorage.setItem('supa_admin_cfg', JSON.stringify({
+    url: document.getElementById('cfg-url').value.trim(),
+    key: document.getElementById('cfg-key').value.trim(),
+    serviceKey: document.getElementById('cfg-service-key').value.trim(),
+    table: document.getElementById('cfg-table').value.trim() || 'danhmuc'
+  }));
+}
+function getCfg() {
+  return JSON.parse(localStorage.getItem('supa_admin_cfg') || '{}');
+}
+function getKey() {
+  const cfg = getCfg();
+  return cfg.serviceKey || cfg.key;
+}
+
+// ---- API ----
+function supaFetch(path, opts = {}, useService = true) {
+  const cfg = getCfg();
+  const key = useService ? (cfg.serviceKey || cfg.key) : cfg.key;
+  return fetch(`${cfg.url}/rest/v1/${path}`, {
+    headers: {
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+      ...opts.headers
+    },
+    method: opts.method || 'GET',
+    body: opts.body
+  });
+}
+
+async function testConnection() {
+  const cfg = getCfg();
+  if (!cfg.url) { document.getElementById('conn-status').textContent = '⚠ Chưa nhập URL'; return; }
+  try {
+    const res = await supaFetch(`${cfg.table || 'danhmuc'}?limit=1`);
+    if (res.ok) {
+      document.getElementById('conn-status').style.color = 'var(--accent)';
+      document.getElementById('conn-status').textContent = '● Kết nối thành công';
+      loadStats();
+    } else {
+      const e = await res.json();
+      document.getElementById('conn-status').style.color = 'var(--red)';
+      document.getElementById('conn-status').textContent = '✗ Lỗi: ' + (e.message || res.status);
+    }
+  } catch(e) {
+    document.getElementById('conn-status').style.color = 'var(--red)';
+    document.getElementById('conn-status').textContent = '✗ Không kết nối được';
+  }
+}
+
+async function loadStats() {
+  const cfg = getCfg();
+  if (!cfg.url) return;
+  try {
+    const res = await supaFetch(`${cfg.table || 'danhmuc'}?limit=1`, { headers: { 'Prefer': 'count=exact', 'Range': '0-0' } });
+    const cr = res.headers.get('content-range');
+    if (cr) document.getElementById('st-total').textContent = parseInt(cr.split('/')[1]).toLocaleString('vi-VN');
+    const data = await res.json();
+    if (data.length > 0) document.getElementById('st-cols').textContent = Object.keys(data[0]).length;
+  } catch(e) {}
+  const lastImport = localStorage.getItem('last_import');
+  if (lastImport) document.getElementById('st-updated').textContent = lastImport;
+}
+
+// ---- CSV PARSING ----
+function detectDelimiter(text) {
+  const firstLine = text.split('\n')[0];
+  const tabs = (firstLine.match(/\t/g) || []).length;
+  const commas = (firstLine.match(/,/g) || []).length;
+  return tabs >= commas ? '\t' : ',';
+}
+
+function parseCSV(text) {
+  const delim = detectDelimiter(text);
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
+  if (lines.length < 2) throw new Error('Cần ít nhất 1 hàng header và 1 hàng dữ liệu');
+
+  const headers = parseRow(lines[0], delim).map(h => h.toLowerCase().trim().replace(/\s+/g, '_').replace(/[^a-z0-9_\u00c0-\u024f]/gi, ''));
+
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseRow(lines[i], delim);
+    if (vals.every(v => !v.trim())) continue;
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = vals[idx] ?? ''; });
+    rows.push(obj);
+  }
+  return { headers, rows };
+}
+
+function parseRow(line, delim) {
+  if (delim === '\t') return line.split('\t').map(v => v.trim());
+  // Proper CSV parsing for comma-delimited
+  const cols = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"' && !inQ) { inQ = true; continue; }
+    if (c === '"' && inQ && line[i+1] === '"') { cur += '"'; i++; continue; }
+    if (c === '"' && inQ) { inQ = false; continue; }
+    if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; continue; }
+    cur += c;
+  }
+  cols.push(cur.trim());
+  return cols;
+}
+
+function getText() {
+  const mode = document.getElementById('tab-csv').classList.contains('active') ? 'csv' : 'file';
+  if (mode === 'csv') return document.getElementById('csv-input').value;
+  return null;
+}
+
+async function getFileText() {
+  const file = document.getElementById('file-input').files[0];
+  if (!file) return null;
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.onerror = () => rej(new Error('Không đọc được file'));
+    r.readAsText(file, 'UTF-8');
+  });
+}
+
+// ---- PREVIEW ----
+async function parsePreview() {
+  try {
+    let text = getText();
+    if (!text) text = await getFileText();
+    if (!text) { alert('Chưa có dữ liệu'); return; }
+    const { headers, rows } = parseCSV(text);
+    const preview = [headers.join(' | '), '─'.repeat(80)];
+    rows.slice(0, 5).forEach(r => preview.push(headers.map(h => String(r[h] ?? '').substring(0, 20)).join(' | ')));
+    preview.push(`\n... Tổng ${rows.length.toLocaleString('vi-VN')} dòng dữ liệu, ${headers.length} cột`);
+    document.getElementById('preview-table').textContent = preview.join('\n');
+    document.getElementById('preview-section').style.display = 'block';
+  } catch(e) {
+    alert('Lỗi parse: ' + e.message);
+  }
+}
+
+// ---- IMPORT ----
+let importing = false;
+async function startImport() {
+  if (importing) return;
+  const cfg = getCfg();
+  if (!cfg.url) { alert('Chưa cấu hình Supabase URL'); return; }
+  if (!getKey()) { alert('Chưa có API key'); return; }
+
+  const importMode = document.getElementById('import-mode').value;
+  if (importMode === 'replace') {
+    if (!confirm('⚠ Chế độ REPLACE sẽ XOÁ TOÀN BỘ dữ liệu hiện có rồi import lại.\nBạn có chắc không?')) return;
+  }
+
+  try {
+    let text = getText();
+    if (!text) text = await getFileText();
+    if (!text?.trim()) { alert('Chưa có dữ liệu để import'); return; }
+
+    const { headers, rows } = parseCSV(text);
+    if (!rows.length) { alert('Không có dữ liệu sau khi parse'); return; }
+
+    importing = true;
+    const btn = document.getElementById('import-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Đang import...';
+
+    document.getElementById('log').style.display = 'block';
+    document.getElementById('progress-wrap').style.display = 'block';
+    document.getElementById('log').innerHTML = '';
+
+    log('info', `Chuẩn bị import ${rows.length.toLocaleString('vi-VN')} dòng, ${headers.length} cột...`);
+    log('info', `Cột: ${headers.join(', ')}`);
+
+    const table = cfg.table || 'danhmuc';
+    const batchSize = parseInt(document.getElementById('batch-size').value) || 500;
+
+    // Replace: delete first
+    if (importMode === 'replace') {
+      log('warn', 'Đang xoá dữ liệu cũ...');
+      const del = await supaFetch(`${table}?id=gte.0`, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+      if (!del.ok && del.status !== 404) {
+        // Try delete all
+        await supaFetch(`${table}`, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+      }
+      log('ok', 'Đã xoá dữ liệu cũ');
+    }
+
+    let inserted = 0, errors = 0;
+    const batches = Math.ceil(rows.length / batchSize);
+
+    for (let b = 0; b < batches; b++) {
+      const batch = rows.slice(b * batchSize, (b + 1) * batchSize);
+      const pref = importMode === 'upsert' ? 'resolution=merge-duplicates,return=minimal' : 'return=minimal';
+
+      const res = await supaFetch(table, {
+        method: 'POST',
+        headers: { 'Prefer': pref },
+        body: JSON.stringify(batch)
+      });
+
+      if (res.ok || res.status === 201) {
+        inserted += batch.length;
+        const pct = Math.round(((b + 1) / batches) * 100);
+        document.getElementById('progress-bar').style.width = pct + '%';
+        document.getElementById('progress-label').textContent = `${inserted.toLocaleString('vi-VN')} / ${rows.length.toLocaleString('vi-VN')} dòng (${pct}%)`;
+        if (b % 5 === 0 || b === batches - 1) log('ok', `Batch ${b + 1}/${batches}: ${inserted.toLocaleString('vi-VN')} dòng ✓`);
+      } else {
+        errors++;
+        const errBody = await res.text();
+        log('err', `Batch ${b + 1} lỗi (${res.status}): ${errBody.substring(0, 120)}`);
+        if (errors > 3) { log('err', 'Quá nhiều lỗi, dừng import.'); break; }
+      }
+
+      // Small delay to avoid rate limiting
+      if (b < batches - 1) await new Promise(r => setTimeout(r, 100));
+    }
+
+    log(errors === 0 ? 'ok' : 'warn',
+      `✓ Hoàn thành: ${inserted.toLocaleString('vi-VN')} dòng thành công${errors > 0 ? `, ${errors} batch lỗi` : ''}`);
+
+    localStorage.setItem('last_import', new Date().toLocaleString('vi-VN'));
+    loadStats();
+
+  } catch(e) {
+    log('err', 'Lỗi: ' + e.message);
+  }
+
+  importing = false;
+  const btn = document.getElementById('import-btn');
+  btn.disabled = false;
+  btn.innerHTML = '<span class="btn-text">▲ BẮT ĐẦU IMPORT</span>';
+}
+
+async function confirmDelete() {
+  const cfg = getCfg();
+  if (!cfg.url) { alert('Chưa cấu hình'); return; }
+  const ok = prompt('Nhập "XOA HET" để xác nhận xoá toàn bộ dữ liệu:');
+  if (ok !== 'XOA HET') { alert('Huỷ.'); return; }
+  try {
+    const table = cfg.table || 'danhmuc';
+    const res = await supaFetch(`${table}?id=gte.0`, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+    alert(res.ok ? '✓ Đã xoá toàn bộ dữ liệu' : 'Lỗi: ' + res.status);
+    loadStats();
+  } catch(e) { alert('Lỗi: ' + e.message); }
+}
+
+// ---- UI HELPERS ----
+function log(type, msg) {
+  const el = document.getElementById('log');
+  const line = document.createElement('div');
+  line.className = `log-line ${type}`;
+  const ts = new Date().toLocaleTimeString('vi-VN');
+  line.innerHTML = `<span class="ts">[${ts}]</span><span class="msg">${msg}</span>`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-csv').classList.toggle('active', tab === 'csv');
+  document.getElementById('tab-file').classList.toggle('active', tab === 'file');
+  document.getElementById('panel-csv').style.display = tab === 'csv' ? '' : 'none';
+  document.getElementById('panel-file').style.display = tab === 'file' ? '' : 'none';
+}
+
+document.getElementById('import-mode').addEventListener('change', function() {
+  const hints = {
+    upsert: 'Cập nhật dòng đã có (theo cột <code>id</code>), thêm dòng mới.',
+    append: 'Chỉ thêm dòng mới. Dòng trùng id sẽ bị bỏ qua.',
+    replace: '⚠ XOÁ TOÀN BỘ rồi import lại từ đầu.'
+  };
+  document.getElementById('mode-hint').innerHTML = hints[this.value];
+});
+
+loadConfig();
+loadStats();
+</script>
+</body>
+</html>
