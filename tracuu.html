@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fef3e8">
+<title>Tra cứu Vật tư · MSC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Serif:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Warm light palette inspired by 热电词典 */
+    --bg: #fbf6ed;
+    --bg2: #f7efe2;
+    --paper: #ffffff;
+    --paper2: #fdf9f1;
+    --line: #ebe1ce;
+    --line2: #d9ccb0;
+    --text: #2a2520;
+    --text2: #5e554a;
+    --text3: #8a7f70;
+    --text4: #b4a895;
+
+    /* Accent system — warm orange/amber */
+    --accent: #d97706;
+    --accent2: #b45309;
+    --accent-bg: #fff4e1;
+    --accent-line: #fbd6a3;
+
+    /* Highlight (mark) — pale yellow-orange */
+    --hl-bg: #ffe7c2;
+    --hl-text: #92400e;
+
+    /* Reading green for success/values */
+    --ink: #15803d;
+    --ink2: #14532d;
+    --ink-bg: #ecfdf5;
+
+    /* Red for exclude */
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --red-line: #fecaca;
+
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --serif: 'Noto Serif', Georgia, serif;
+
+    --r: 8px;
+    --r2: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior: none; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(251, 214, 163, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.12) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ======================================================
+     TOP BAR
+     ====================================================== */
+  .topbar {
+    background: rgba(251, 246, 237, 0.85);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--line);
+    padding: 11px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-mark::after {
+    content: '热';
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    font-style: normal;
+  }
+  .brand-text { line-height: 1.15; }
+  .brand-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .brand-title .vi-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 13px;
+  }
+  .brand-sub {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--text3);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .stat-mini {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text2);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 5px 11px;
+    border-radius: 20px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.04);
+  }
+  .stat-mini::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ink);
+    box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .stat-mini b { color: var(--accent); font-weight: 700; }
+
+  /* ======================================================
+     SEARCH PANEL — 4 columns × 5 rows, no labels
+     ====================================================== */
+  .panel {
+    padding: 16px 16px 0;
+  }
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .col {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    padding: 9px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.03);
+    position: relative;
+  }
+  .col::before {
+    content: '';
+    position: absolute;
+    top: 9px; left: 9px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+  .col.exclude::before { background: var(--red); }
+
+  .col:focus-within {
+    border-color: var(--accent-line);
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.1);
+  }
+  .col.exclude:focus-within {
+    border-color: var(--red-line);
+    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.08);
+  }
+
+  .field-input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    padding: 7px 10px 7px 18px;
+    margin-bottom: 3px;
+    outline: none;
+    transition: all 0.15s;
+    height: 32px;
+    font-weight: 500;
+  }
+  .field-input:last-child { margin-bottom: 0; }
+  .field-input::placeholder {
+    color: var(--text4);
+    font-size: 12.5px;
+    font-weight: 400;
+    font-style: italic;
+  }
+  .field-input:focus {
+    background: var(--accent-bg);
+    border-color: var(--accent-line);
+  }
+  .col.exclude .field-input:focus {
+    background: var(--red-bg);
+    border-color: var(--red-line);
+  }
+  .field-input:not(:placeholder-shown) {
+    background: var(--paper2);
+    border-color: var(--line);
+  }
+  .col:not(.exclude) .field-input:not(:placeholder-shown) {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  .col.exclude .field-input:not(:placeholder-shown) {
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  /* ======================================================
+     ACTION BAR
+     ====================================================== */
+  .action-bar {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 8px;
+    padding: 12px 16px 0;
+    align-items: center;
+  }
+  .search-btn {
+    background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
+    color: #fff;
+    border: none;
+    border-radius: var(--r2);
+    padding: 0 22px;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 16px rgba(217, 119, 6, 0.28);
+  }
+  .search-btn:hover { box-shadow: 0 6px 22px rgba(217, 119, 6, 0.4); }
+  .search-btn:active { transform: translateY(1px); box-shadow: 0 2px 10px rgba(217, 119, 6, 0.3); }
+  .search-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .search-btn .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .search-btn.loading .spinner { display: block; }
+  .search-btn.loading .btn-txt { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .meta-input {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 0 10px;
+    height: 46px;
+    text-align: center;
+    width: 76px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .meta-input:focus { border-color: var(--accent-line); }
+
+  .icon-btn {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    color: var(--text2);
+    height: 46px;
+    width: 46px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-family: var(--mono);
+  }
+  .icon-btn:hover { border-color: var(--accent-line); color: var(--accent); background: var(--accent-bg); }
+  .icon-btn:active { transform: scale(0.95); }
+
+  /* ======================================================
+     RESULTS BAR
+     ====================================================== */
+  .results-bar {
+    padding: 18px 16px 10px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .results-info {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .results-info b {
+    color: var(--accent);
+    font-size: 22px;
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: none;
+  }
+  .results-info-divider {
+    color: var(--text4);
+    margin: 0 4px;
+  }
+  .results-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text4);
+    letter-spacing: 0.05em;
+  }
+
+  /* ======================================================
+     RESULT TABLE — content-based widths, scroll on overflow
+     ====================================================== */
+  .table-wrap {
+    margin: 0 16px 100px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(120, 80, 30, 0.06);
+  }
+  .table-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    max-width: 100%;
+  }
+  .table-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+  .table-scroll::-webkit-scrollbar-track { background: var(--paper2); }
+  .table-scroll::-webkit-scrollbar-thumb {
+    background: var(--line2); border-radius: 5px;
+    border: 2px solid var(--paper2);
+  }
+  .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent-line); }
+
+  table {
+    border-collapse: collapse;
+    font-size: 13px;
+    width: 100%;
+    table-layout: auto;
+  }
+  thead {
+    background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  thead th {
+    padding: 13px 14px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--accent-line);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+    vertical-align: middle;
+  }
+  thead th:hover { background: var(--accent-bg); }
+  thead th.sorted { color: var(--accent); background: rgba(251, 191, 36, 0.15); }
+  thead th .sort-i { margin-left: 5px; opacity: 0.4; font-size: 9px; }
+  thead th.sorted .sort-i { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--paper2); }
+  tbody tr:hover { background: var(--accent-bg) !important; }
+
+  tbody td {
+    padding: 11px 13px;
+    color: var(--text);
+    vertical-align: top;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;       /* GIỮ \n từ database */
+  }
+  td.num {
+    width: 38px;
+    text-align: center;
+    font-family: var(--mono);
+    color: var(--text4);
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--paper2);
+    white-space: nowrap;
+  }
+  td.mono {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+  td.price {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: right;
+    white-space: nowrap;
+  }
+  td.price.warm { color: var(--accent); }
+  td.empty { color: var(--text4); font-style: italic; font-size: 11px; white-space: nowrap; }
+
+  /* Specific column widths — chặt hơn để giá lên trước */
+  .col-tengoi   { min-width: 220px; max-width: 320px; }
+  .col-danhmuc  { min-width: 160px; max-width: 240px; }
+  .col-cauhinh  { min-width: 200px; max-width: 320px; }
+  .col-hangsx, .col-nhanhieu { min-width: 110px; max-width: 170px; }
+  .col-xuatxu   { min-width: 90px;  max-width: 150px; }
+  .col-kymahieu { min-width: 110px; max-width: 180px; white-space: pre-wrap; }
+
+  td.col-tengoi { font-size: 12.5px; }
+  td.col-tengoi .head {
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+    margin-bottom: 4px;
+    line-height: 1.45;
+  }
+  td.col-tengoi .meta {
+    display: block;
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.55;
+    padding-left: 8px;
+    border-left: 2px solid var(--accent-line);
+    margin-top: 2px;
+  }
+  td.col-tengoi .meta-key {
+    color: var(--text3);
+    font-weight: 500;
+    font-size: 10.5px;
+    margin-right: 3px;
+    text-transform: lowercase;
+    font-variant: all-small-caps;
+    letter-spacing: 0.04em;
+  }
+
+  td.col-cauhinh { font-size: 12px; line-height: 1.5; }
+  td.col-cauhinh .head {
+    display: block;
+    color: var(--text);
+  }
+
+  mark {
+    background: var(--hl-bg);
+    color: var(--hl-text);
+    border-radius: 3px;
+    padding: 1px 3px;
+    font-weight: 600;
+    font-style: normal;
+    box-shadow: 0 1px 0 rgba(217, 119, 6, 0.15);
+  }
+
+  /* ======================================================
+     PLACEHOLDER & ERROR
+     ====================================================== */
+  .placeholder {
+    padding: 80px 30px;
+    text-align: center;
+    color: var(--text2);
+  }
+  .placeholder-mark {
+    width: 64px; height: 64px;
+    margin: 0 auto 20px;
+    border: 1.5px dashed var(--accent-line);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+    font-size: 26px;
+    font-family: var(--serif);
+    background: var(--paper);
+  }
+  .placeholder-title {
+    font-size: 17px;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .placeholder-sub {
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.8;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+  .placeholder-sub kbd {
+    font-family: var(--mono);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 1px 0 var(--line2);
+  }
+
+  .err {
+    background: var(--red-bg);
+    border: 1px solid var(--red-line);
+    border-radius: var(--r);
+    padding: 11px 16px;
+    color: var(--red);
+    font-size: 12.5px;
+    margin: 12px 16px;
+    font-family: var(--mono);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* ======================================================
+     RESPONSIVE
+     ====================================================== */
+  @media (max-width: 900px) {
+    .columns { grid-template-columns: repeat(2, 1fr); }
+    .panel { padding: 14px 12px 0; }
+  }
+  @media (max-width: 520px) {
+    body { font-size: 13.5px; }
+    .topbar { padding: 9px 12px; }
+    .brand-title { font-size: 13.5px; }
+    .brand-title .vi-sub { font-size: 12px; }
+    .brand-sub { font-size: 9px; }
+    .logo-mark { width: 32px; height: 32px; }
+    .logo-mark::after { font-size: 16px; }
+    .stat-mini { font-size: 9.5px; padding: 4px 9px; }
+
+    .panel { padding: 10px 10px 0; }
+    .columns { grid-template-columns: 1fr; gap: 8px; }
+    .col { padding: 8px; }
+    .field-input { font-size: 13px; height: 30px; padding: 6px 9px 6px 16px; }
+
+    .action-bar { padding: 10px 10px 0; grid-template-columns: 1fr auto auto; }
+    .icon-btn:nth-child(4) { display: none; }
+    .search-btn { font-size: 13px; height: 44px; padding: 0 18px; }
+    .meta-input, .icon-btn { height: 44px; }
+
+    .results-bar { padding: 14px 12px 8px; }
+    .results-info b { font-size: 19px; }
+
+    .table-wrap { margin: 0 10px 80px; border-radius: 10px; }
+    table { font-size: 12.5px; }
+    thead th { padding: 11px 11px; font-size: 9.5px; }
+    tbody td { padding: 10px 11px; }
+    td.num { width: 36px; font-size: 10.5px; }
+
+    .col-tengoi   { min-width: 200px; max-width: 280px; }
+    .col-danhmuc  { min-width: 150px; max-width: 220px; }
+    .col-cauhinh  { min-width: 180px; max-width: 280px; }
+    td.col-tengoi { font-size: 12px; }
+    td.col-tengoi .meta { font-size: 10.5px; }
+    td.col-cauhinh { font-size: 11.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="logo-mark"></div>
+    <div class="brand-text">
+      <div class="brand-title">物资查询 <span class="vi-sub">tra cứu vật tư</span></div>
+      <div class="brand-sub">MSC · TENDER DATABASE</div>
+    </div>
+  </div>
+  <div class="stat-mini"><b id="total-count">—</b> dòng</div>
+</div>
+
+<div class="panel">
+  <div class="columns">
+
+    <div class="col exclude">
+      <input class="field-input ex" placeholder="loại trừ 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+    <div class="col">
+      <input class="field-input g1" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+    <div class="col">
+      <input class="field-input g2" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+    <div class="col">
+      <input class="field-input g3" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+  </div>
+</div>
+
+<div class="action-bar">
+  <button class="search-btn" id="search-btn" onclick="doSearch()">
+    <div class="spinner"></div>
+    <span class="btn-txt">▸ TÌM KIẾM</span>
+  </button>
+  <input type="number" class="meta-input" id="limit" value="200" min="1" max="2000" title="Số kết quả tối đa">
+  <button class="icon-btn" onclick="clearAll()" title="Xoá tất cả">⌫</button>
+  <button class="icon-btn" onclick="exportCSV()" title="Xuất CSV">↓</button>
+</div>
+
+<div class="results-bar">
+  <div class="results-info" id="results-info">▸ Sẵn sàng tra cứu</div>
+  <div class="results-time" id="results-time"></div>
+</div>
+
+<div id="results-container">
+  <div class="placeholder">
+    <div class="placeholder-mark">⌕</div>
+    <div class="placeholder-title">Bắt đầu tìm kiếm</div>
+    <div class="placeholder-sub">
+      Nhập từ khoá vào 3 cột bên phải · cùng cột là <kbd>OR</kbd> · khác cột là <kbd>AND</kbd> · cột bên trái để loại trừ
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const CF_WORKER_URL = 'https://danhmuc-search.han280190.workers.dev';
+
+const RESULT_COLS = [
+  { key: 'ten_goi',                                                 label: 'Tên gói',           cls: 'col-tengoi'  },
+  { key: 'stt',                                                     label: 'STT',               cls: 'mono'        },
+  { key: 'danh_muc_hang_hoa',                                       label: 'Danh mục',          cls: 'col-danhmuc' },
+  { key: 'ky_ma_hieu',                                              label: 'Ký mã hiệu',        cls: 'col-kymahieu' },
+  { key: 'nhan_hieu',                                               label: 'Nhãn hiệu',         cls: 'col-nhanhieu' },
+  { key: 'nam_san_xuat',                                            label: 'Năm SX',            cls: 'mono'        },
+  { key: 'xuat_xu_quoc_gia_vung_lanh_tho_san_xuat',                 label: 'Xuất xứ',           cls: 'col-xuatxu'  },
+  { key: 'hang_san_xuat',                                           label: 'Hãng SX',           cls: 'col-hangsx'  },
+  { key: 'cau_hinh_tinh_nang_ky_thuat_co_ban',                      label: 'Cấu hình KT',       cls: 'col-cauhinh' },
+  { key: 'don_vi_tinh',                                             label: 'ĐVT',               cls: 'mono'        },
+  { key: 'khoi_luong',                                              label: 'KL',                cls: 'mono'        },
+  { key: 'xuat_xu_2',                                               label: 'Xuất xứ chi tiết',  cls: 'col-xuatxu'  },
+  { key: 'don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co',       label: 'Đơn giá',           cls: 'price'       },
+  { key: 'thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co',            label: 'Thành tiền',        cls: 'price warm'  },
+  { key: 'time_cap',                                                label: 'Time cấp',          cls: 'mono'        }
+];
+
+let lastResults = [];
+let lastKws = [];
+let sortState = { col: null, asc: true };
+
+// ============================================================
+// HELPERS
+// ============================================================
+function readGroup(cls) {
+  return Array.from(document.querySelectorAll('.field-input.' + cls))
+    .map(el => el.value.trim())
+    .filter(Boolean);
+}
+
+function fmtVND(v) {
+  if (v === null || v === undefined || v === '') return '';
+  const n = Number(String(v).replace(/[^\d.-]/g, ''));
+  if (!isFinite(n) || n === 0) return String(v);
+  return n.toLocaleString('vi-VN');
+}
+
+function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function highlight(text, kws) {
+  let s = escapeHtml(text);
+  if (!kws.length) return s;
+  const sorted = [...new Set(kws)].sort((a, b) => b.length - a.length);
+  sorted.forEach(kw => {
+    if (!kw) return;
+    const re = new RegExp(escapeRegex(kw), 'gi');
+    s = s.replace(re, m => `<mark>${m}</mark>`);
+  });
+  return s;
+}
+
+// Format cột Tên gói: tách tiêu đề và các meta line "_..."
+function formatTenGoi(text, kws) {
+  if (!text) return '';
+  // Chuẩn hoá xuống dòng
+  const lines = String(text).split(/\n+/).map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return '';
+
+  // Dòng đầu là tiêu đề
+  const head = highlight(lines[0], kws);
+  if (lines.length === 1) return `<span class="head">${head}</span>`;
+
+  // Các dòng còn lại: "_key: value" hoặc text thường
+  const meta = lines.slice(1).map(line => {
+    // Bỏ dấu "_" đầu dòng
+    const clean = line.replace(/^_+/, '').trim();
+    const m = clean.match(/^([^:]+):\s*(.+)$/);
+    if (m) {
+      const key = highlight(m[1].trim(), kws);
+      const val = highlight(m[2].trim(), kws);
+      return `<span class="meta"><span class="meta-key">${key}:</span>${val}</span>`;
+    }
+    return `<span class="meta">${highlight(clean, kws)}</span>`;
+  }).join('');
+
+  return `<span class="head">${head}</span>${meta}`;
+}
+
+// ============================================================
+// LOAD COUNT
+// ============================================================
+async function loadCount() {
+  try {
+    const res = await fetch(CF_WORKER_URL + '/count');
+    if (res.ok) {
+      const body = await res.json();
+      if (body.count !== undefined) {
+        document.getElementById('total-count').textContent =
+          Number(body.count).toLocaleString('vi-VN');
+        return;
+      }
+    }
+  } catch(e) {}
+  document.getElementById('total-count').textContent = '●';
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+async function doSearch() {
+  const a = readGroup('ex');
+  const b = readGroup('g1');
+  const c = readGroup('g2');
+  const d = readGroup('g3');
+
+  if (!b.length && !c.length && !d.length) {
+    showError('Cần ít nhất 1 từ khoá ở cột 2, 3 hoặc 4');
+    return;
+  }
+
+  const limit = Math.min(parseInt(document.getElementById('limit').value) || 200, 2000);
+
+  const parts = [];
+  b.forEach(k => parts.push('g1=' + encodeURIComponent(k)));
+  c.forEach(k => parts.push('g2=' + encodeURIComponent(k)));
+  d.forEach(k => parts.push('g3=' + encodeURIComponent(k)));
+  a.forEach(k => parts.push('ex=' + encodeURIComponent(k)));
+  parts.push('limit=' + limit);
+  parts.push('cols=' + RESULT_COLS.map(c => c.key).join(','));
+
+  const url = CF_WORKER_URL + '/search?' + parts.join('&');
+
+  const btn = document.getElementById('search-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  clearError();
+
+  const t0 = performance.now();
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const body = await res.json();
+    if (!body.data) throw new Error(body.error || 'Không có dữ liệu');
+
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+    lastResults = body.data;
+    lastKws = [...b, ...c, ...d];
+    renderTable(body.data, elapsed, body.elapsed);
+  } catch(e) {
+    showError('Lỗi kết nối: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+}
+
+// ============================================================
+// RENDER TABLE
+// ============================================================
+function renderTable(data, elapsed, serverMs) {
+  const info = document.getElementById('results-info');
+  const time = document.getElementById('results-time');
+  const out  = document.getElementById('results-container');
+
+  info.innerHTML = `<b>${data.length.toLocaleString('vi-VN')}</b> kết quả`;
+  time.textContent = (serverMs ? `server ${serverMs}ms · ` : '') + `total ${elapsed}s`;
+
+  if (!data.length) {
+    out.innerHTML = `
+      <div class="placeholder">
+        <div class="placeholder-mark">⊘</div>
+        <div class="placeholder-title">Không có kết quả</div>
+        <div class="placeholder-sub">Thử bỏ bớt điều kiện hoặc thay đổi từ khoá</div>
+      </div>`;
+    return;
+  }
+
+  let head = '<tr><th class="num">#</th>';
+  RESULT_COLS.forEach(col => {
+    const sorted = sortState.col === col.key;
+    head += `<th class="${sorted ? 'sorted' : ''}" onclick="sortBy('${col.key}')">${col.label}<span class="sort-i">${sorted ? (sortState.asc ? '▲' : '▼') : '↕'}</span></th>`;
+  });
+  head += '</tr>';
+
+  let rows = '';
+  data.forEach((row, i) => {
+    rows += `<tr>`;
+    rows += `<td class="num">${i + 1}</td>`;
+    RESULT_COLS.forEach(col => {
+      const raw = row[col.key];
+      const isPrice = col.cls.includes('price');
+      const isEmpty = raw === null || raw === undefined || raw === '';
+
+      if (isEmpty) {
+        rows += `<td class="empty">—</td>`;
+      } else if (isPrice) {
+        rows += `<td class="${col.cls}">${fmtVND(raw)}</td>`;
+      } else if (col.key === 'ten_goi') {
+        // Tách tiêu đề và meta cho dễ đọc
+        rows += `<td class="${col.cls}">${formatTenGoi(String(raw), lastKws)}</td>`;
+      } else {
+        const highlighted = highlight(String(raw), lastKws);
+        rows += `<td class="${col.cls}">${highlighted}</td>`;
+      }
+    });
+    rows += `</tr>`;
+  });
+
+  out.innerHTML = `
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>${head}</thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// SORT
+// ============================================================
+function sortBy(key) {
+  if (sortState.col === key) sortState.asc = !sortState.asc;
+  else { sortState.col = key; sortState.asc = true; }
+
+  const sorted = [...lastResults].sort((a, b) => {
+    let va = a[key] ?? '', vb = b[key] ?? '';
+    const na = Number(String(va).replace(/[^\d.-]/g, ''));
+    const nb = Number(String(vb).replace(/[^\d.-]/g, ''));
+    if (!isNaN(na) && !isNaN(nb) && va !== '' && vb !== '') {
+      return sortState.asc ? na - nb : nb - na;
+    }
+    va = String(va); vb = String(vb);
+    if (va < vb) return sortState.asc ? -1 : 1;
+    if (va > vb) return sortState.asc ? 1 : -1;
+    return 0;
+  });
+
+  const t = document.getElementById('results-time').textContent;
+  const m = t.match(/server (\d+)ms/);
+  renderTable(sorted, '0', m ? m[1] : null);
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+  if (!lastResults.length) {
+    showError('Chưa có kết quả để xuất');
+    return;
+  }
+  const headers = RESULT_COLS.map(c => c.label);
+  const csvRows = [headers.join(',')];
+  lastResults.forEach(row => {
+    const r = RESULT_COLS.map(col => {
+      const v = String(row[col.key] ?? '').replace(/"/g, '""');
+      return `"${v}"`;
+    });
+    csvRows.push(r.join(','));
+  });
+  const csv = '\ufeff' + csvRows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `tracuu_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function clearAll() {
+  document.querySelectorAll('.field-input').forEach(el => el.value = '');
+  document.querySelector('.field-input.g1').focus();
+}
+
+// ============================================================
+// ERRORS
+// ============================================================
+function showError(msg) {
+  clearError();
+  const c = document.getElementById('results-container');
+  const err = document.createElement('div');
+  err.className = 'err';
+  err.id = 'err-msg';
+  err.innerHTML = `<span style="font-size:14px">⚠</span> ${msg}`;
+  c.prepend(err);
+}
+function clearError() {
+  document.getElementById('err-msg')?.remove();
+}
+
+// ============================================================
+// KEY HANDLERS
+// ============================================================
+document.querySelectorAll('.field-input, #limit').forEach(el => {
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      el.blur();
+      doSearch();
+    }
+  });
+});
+
+loadCount();
+</script>
+</body>
+</html>
