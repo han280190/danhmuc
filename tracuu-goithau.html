@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fef3e8">
+<title>Tra cứu Gói thầu · MSC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Serif:ital,wght@1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fbf6ed;
+    --bg2: #f7efe2;
+    --paper: #ffffff;
+    --paper2: #fdf9f1;
+    --line: #ebe1ce;
+    --line2: #d9ccb0;
+    --text: #2a2520;
+    --text2: #5e554a;
+    --text3: #8a7f70;
+    --text4: #b4a895;
+
+    --accent: #d97706;
+    --accent2: #b45309;
+    --accent-bg: #fff4e1;
+    --accent-line: #fbd6a3;
+
+    --hl-bg: #ffe7c2;
+    --hl-text: #92400e;
+
+    --ink: #15803d;
+    --ink2: #14532d;
+    --ink-bg: #ecfdf5;
+
+    --red: #b91c1c;
+    --red-bg: #fef2f2;
+    --red-line: #fecaca;
+
+    --blue: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --blue-line: #bfdbfe;
+
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+    --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --serif: 'Noto Serif', Georgia, serif;
+
+    --r: 8px;
+    --r2: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior: none; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(251, 214, 163, 0.4) 0%, transparent 50%),
+      radial-gradient(circle at 100% 0%, rgba(251, 191, 36, 0.12) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ======================================================
+     TOP BAR
+     ====================================================== */
+  .topbar {
+    background: rgba(251, 246, 237, 0.92);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid var(--line);
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; flex-shrink: 0; }
+  .logo-mark {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-mark::after {
+    content: '标';
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 600;
+    font-style: normal;
+  }
+  .brand-text { line-height: 1.15; min-width: 0; }
+  .brand-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--text);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .brand-title .vi-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--accent);
+    font-weight: 500;
+    font-size: 12px;
+  }
+  .brand-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  .topbar-search {
+    background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
+    color: #fff;
+    border: none;
+    border-radius: 9px;
+    padding: 0 18px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 3px 12px rgba(217, 119, 6, 0.28);
+    margin-left: auto;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .topbar-search:hover { box-shadow: 0 5px 18px rgba(217, 119, 6, 0.4); }
+  .topbar-search:active { transform: translateY(1px); }
+  .topbar-search:disabled { opacity: 0.55; cursor: not-allowed; }
+  .topbar-search .spinner {
+    width: 12px; height: 12px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .topbar-search.loading .spinner { display: block; }
+  .topbar-search.loading .btn-txt { display: none; }
+  .topbar-search.loading::after {
+    content: 'Đang tìm...';
+    font-size: 12.5px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .stat-mini {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text2);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 5px 11px;
+    border-radius: 20px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.04);
+    flex-shrink: 0;
+  }
+  .stat-mini::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ink);
+    box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
+    animation: pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  .stat-mini.loading::before { background: var(--accent); animation: pulse 1s ease-in-out infinite; }
+  .stat-mini.error::before  { background: var(--red);    animation: none; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  .stat-mini b { color: var(--accent); font-weight: 700; }
+  .stat-mini .stat-label { color: var(--text3); font-size: 9.5px; letter-spacing: 0.06em; }
+
+  /* ======================================================
+     SEARCH PANEL — 4 cột × 5 dòng
+     ====================================================== */
+  .panel { padding: 16px 16px 0; }
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .col {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    padding: 9px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.03);
+    position: relative;
+  }
+  .col::before {
+    content: '';
+    position: absolute;
+    top: 9px; left: 9px;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+  .col.exclude::before { background: var(--red); }
+
+  .col:focus-within {
+    border-color: var(--accent-line);
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.1);
+  }
+  .col.exclude:focus-within {
+    border-color: var(--red-line);
+    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.08);
+  }
+
+  .field-input {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    padding: 7px 10px 7px 18px;
+    margin-bottom: 3px;
+    outline: none;
+    transition: all 0.15s;
+    height: 32px;
+    font-weight: 500;
+  }
+  .field-input:last-child { margin-bottom: 0; }
+  .field-input::placeholder {
+    color: var(--text4);
+    font-size: 12.5px;
+    font-weight: 400;
+    font-style: italic;
+  }
+  .field-input:focus {
+    background: var(--accent-bg);
+    border-color: var(--accent-line);
+  }
+  .col.exclude .field-input:focus {
+    background: var(--red-bg);
+    border-color: var(--red-line);
+  }
+  .field-input:not(:placeholder-shown) {
+    background: var(--paper2);
+    border-color: var(--line);
+  }
+  .col:not(.exclude) .field-input:not(:placeholder-shown) {
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  .col.exclude .field-input:not(:placeholder-shown) {
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  /* ======================================================
+     ACTION BAR — limit min money + max ko kq + max có kq
+     ====================================================== */
+  .action-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 0;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .action-bar .info-text {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    min-width: 0;
+  }
+
+  .meta-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 0 10px;
+    height: 38px;
+    transition: border-color 0.15s;
+  }
+  .meta-input-wrap:focus-within { border-color: var(--accent-line); }
+  .meta-input-wrap label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .meta-input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 0;
+    height: 100%;
+    text-align: right;
+    width: 70px;
+    outline: none;
+  }
+  .meta-input.wide { width: 110px; }
+  .meta-input::placeholder { color: var(--text4); }
+
+  .icon-btn {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    color: var(--text2);
+    height: 38px;
+    width: 38px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-family: var(--mono);
+  }
+  .icon-btn:hover { border-color: var(--accent-line); color: var(--accent); background: var(--accent-bg); }
+  .icon-btn:active { transform: scale(0.95); }
+
+  /* ======================================================
+     RESULTS BAR
+     ====================================================== */
+  .results-bar {
+    padding: 18px 16px 10px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .results-info {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .results-info b {
+    color: var(--accent);
+    font-size: 22px;
+    font-family: var(--sans);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: none;
+  }
+  .results-info .sub {
+    font-family: var(--sans);
+    font-size: 11.5px;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text2);
+  }
+  .results-info .sub b { font-size: 13px; }
+  .results-info-divider { color: var(--text4); margin: 0 4px; }
+  .results-time {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text4);
+    letter-spacing: 0.05em;
+  }
+
+  /* ======================================================
+     RESULT TABLE
+     ====================================================== */
+  .table-wrap {
+    margin: 0 16px 100px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--r2);
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(120, 80, 30, 0.06);
+  }
+  .table-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    max-width: 100%;
+  }
+  .table-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
+  .table-scroll::-webkit-scrollbar-track { background: var(--paper2); }
+  .table-scroll::-webkit-scrollbar-thumb {
+    background: var(--line2); border-radius: 5px;
+    border: 2px solid var(--paper2);
+  }
+  .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent-line); }
+
+  table {
+    border-collapse: collapse;
+    font-size: 13px;
+    width: 100%;
+    table-layout: auto;
+  }
+  thead {
+    background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  thead th {
+    padding: 13px 14px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 2px solid var(--accent-line);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+    vertical-align: middle;
+  }
+  thead th:hover { background: var(--accent-bg); }
+  thead th.sorted { color: var(--accent); background: rgba(251, 191, 36, 0.15); }
+  thead th .sort-i { margin-left: 5px; opacity: 0.4; font-size: 9px; }
+  thead th.sorted .sort-i { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--line);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) { background: var(--paper2); }
+  tbody tr:hover { background: var(--accent-bg) !important; }
+
+  /* Highlight nhẹ cho row chưa có kết quả trúng thầu */
+  tbody tr.row-pending           { background: rgba(217, 119, 6, 0.04) !important; }
+  tbody tr.row-pending:nth-child(even) { background: rgba(217, 119, 6, 0.07) !important; }
+  tbody tr.row-pending:hover     { background: rgba(217, 119, 6, 0.13) !important; }
+
+  tbody td {
+    padding: 11px 13px;
+    color: var(--text);
+    vertical-align: top;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+  }
+  td.num {
+    width: 38px;
+    text-align: center;
+    font-family: var(--mono);
+    color: var(--text4);
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--paper2);
+    white-space: nowrap;
+  }
+  td.mono {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+  td.price {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+    text-align: right;
+    white-space: nowrap;
+  }
+  td.price.warm { color: var(--accent); }
+  td.empty { color: var(--text4); font-style: italic; font-size: 11px; white-space: nowrap; }
+
+  /* Sticky cột # — tiện đối chiếu STT khi cuộn ngang */
+  thead th.num-th,
+  tbody td.num {
+    position: sticky;
+    left: 0;
+    z-index: 4;
+  }
+  thead th.num-th {
+    z-index: 7;
+    background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
+  }
+
+  /* Cột widths */
+  .col-link      { min-width: 76px;  max-width: 96px;  text-align: center; white-space: nowrap; }
+  .col-plant     { min-width: 110px; max-width: 160px; }
+  .col-notify    { min-width: 130px; max-width: 180px; font-family: var(--mono); font-size: 11.5px; }
+  .col-ttchung   { min-width: 280px; max-width: 460px; }
+  .col-date      { min-width: 100px; max-width: 130px; }
+  .col-status    { min-width: 100px; max-width: 130px; white-space: nowrap; }
+  .col-money     { min-width: 130px; max-width: 170px; }
+  .col-cdt       { min-width: 180px; max-width: 280px; font-size: 12px; }
+  .col-year      { min-width: 60px;  max-width: 80px;  }
+  .col-planno    { min-width: 130px; max-width: 170px; font-family: var(--mono); font-size: 11.5px; }
+  .col-id        { min-width: 130px; max-width: 220px; font-family: var(--mono); font-size: 11px; }
+  .col-mode      { min-width: 80px;  max-width: 130px; }
+
+  td.col-ttchung .head {
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+    margin-bottom: 5px;
+    line-height: 1.45;
+    font-size: 12.5px;
+  }
+  td.col-ttchung .meta {
+    display: block;
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.6;
+    padding-left: 8px;
+    border-left: 2px solid var(--accent-line);
+    margin-top: 2px;
+  }
+  td.col-ttchung .meta-key {
+    color: var(--text3);
+    font-weight: 500;
+    font-size: 10.5px;
+    margin-right: 3px;
+    text-transform: lowercase;
+    font-variant: all-small-caps;
+    letter-spacing: 0.04em;
+  }
+
+  /* Status pill */
+  .status-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 11px;
+    font-size: 10px;
+    font-family: var(--mono);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .status-pill.publish { background: var(--ink-bg); color: var(--ink2); border: 1px solid #bbf7d0; }
+  .status-pill.cancel  { background: var(--red-bg); color: var(--red);  border: 1px solid var(--red-line); }
+  .status-pill.other   { background: var(--bg2);    color: var(--text2);border: 1px solid var(--line); }
+
+  /* Link buttons — KQLCNT (đã trúng) xanh, KQMT (mở thầu) cam */
+  .link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .link-btn.kqlcnt {
+    background: var(--blue-bg);
+    color: var(--blue);
+    border: 1px solid var(--blue-line);
+  }
+  .link-btn.kqlcnt:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .link-btn.kqmt {
+    background: var(--accent-bg);
+    color: var(--accent2);
+    border: 1px solid var(--accent-line);
+  }
+  .link-btn.kqmt:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  mark {
+    background: var(--hl-bg);
+    color: var(--hl-text);
+    border-radius: 3px;
+    padding: 1px 3px;
+    font-weight: 600;
+    font-style: normal;
+    box-shadow: 0 1px 0 rgba(217, 119, 6, 0.15);
+  }
+
+  /* ======================================================
+     PLACEHOLDER & ERROR
+     ====================================================== */
+  .placeholder {
+    padding: 80px 30px;
+    text-align: center;
+    color: var(--text2);
+  }
+  .placeholder-mark {
+    width: 64px; height: 64px;
+    margin: 0 auto 20px;
+    border: 1.5px dashed var(--accent-line);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent);
+    font-size: 26px;
+    font-family: var(--serif);
+    background: var(--paper);
+  }
+  .placeholder-mark.spinning {
+    border-style: solid;
+    border-color: var(--accent-line);
+    border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+    color: transparent;
+  }
+  .placeholder-title {
+    font-size: 17px;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  .placeholder-sub {
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.8;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+  .placeholder-sub kbd {
+    font-family: var(--mono);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10.5px;
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 1px 0 var(--line2);
+  }
+
+  .err {
+    background: var(--red-bg);
+    border: 1px solid var(--red-line);
+    border-radius: var(--r);
+    padding: 11px 16px;
+    color: var(--red);
+    font-size: 12.5px;
+    margin: 12px 16px;
+    font-family: var(--mono);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    line-height: 1.5;
+  }
+
+  /* ======================================================
+     RESPONSIVE
+     ====================================================== */
+  @media (max-width: 900px) {
+    .columns { grid-template-columns: repeat(2, 1fr); }
+    .panel { padding: 14px 12px 0; }
+  }
+  @media (max-width: 520px) {
+    body { font-size: 13.5px; }
+    .topbar { padding: 8px 10px; gap: 8px; }
+    .brand { gap: 8px; }
+    .brand-text { display: none; }
+    .logo-mark { width: 34px; height: 34px; }
+    .logo-mark::after { font-size: 16px; }
+    .topbar-search { height: 34px; font-size: 12.5px; padding: 0 14px; }
+    .stat-mini { font-size: 10px; padding: 4px 8px; }
+    .stat-mini .stat-label { display: none; }
+
+    .panel { padding: 10px 10px 0; }
+    .columns { grid-template-columns: 1fr; gap: 8px; }
+    .col { padding: 8px; }
+    .field-input { font-size: 13px; height: 30px; padding: 6px 9px 6px 16px; }
+
+    .action-bar { padding: 8px 10px 0; gap: 6px; }
+    .action-bar .info-text { display: none; }
+    .meta-input-wrap, .icon-btn { height: 36px; }
+    .meta-input { font-size: 11.5px; width: 60px; }
+    .meta-input.wide { width: 92px; }
+    .meta-input-wrap label { font-size: 9px; letter-spacing: 0.04em; }
+    .meta-input-wrap { padding: 0 8px; gap: 5px; }
+
+    .results-bar { padding: 12px 12px 6px; }
+    .results-info b { font-size: 19px; }
+
+    .table-wrap { margin: 0 10px 80px; border-radius: 10px; }
+    table { font-size: 12.5px; }
+    thead th { padding: 11px 11px; font-size: 9.5px; }
+    tbody td { padding: 10px 11px; }
+    td.num { width: 32px; font-size: 10.5px; padding: 10px 4px; }
+
+    .col-ttchung { min-width: 240px; max-width: 320px; }
+    .col-cdt     { min-width: 160px; max-width: 220px; }
+    td.col-ttchung .head { font-size: 12px; }
+    td.col-ttchung .meta { font-size: 10.5px; }
+  }
+  @media (max-width: 380px) {
+    .topbar { padding: 7px 8px; }
+    .topbar-search { font-size: 12.5px; padding: 0 10px; }
+    .stat-mini { padding: 3px 7px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="logo-mark"></div>
+    <div class="brand-text">
+      <div class="brand-title">业主发标 <span class="vi-sub">gói thầu</span></div>
+      <div class="brand-sub">MSC · TENDER LIST</div>
+    </div>
+  </div>
+  <button class="topbar-search" id="search-btn" onclick="doSearch()">
+    <div class="spinner"></div>
+    <span class="btn-txt">▸ TÌM KIẾM</span>
+  </button>
+  <div class="stat-mini" id="stat-mini" title="Tổng số gói thầu trong sheet"><b id="total-count">⋯</b><span class="stat-label">GÓI</span></div>
+</div>
+
+<div class="panel">
+  <div class="columns">
+
+    <div class="col exclude">
+      <input class="field-input ex" placeholder="loại trừ 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input ex" placeholder="loại trừ 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+    <div class="col">
+      <input class="field-input g1" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input g1" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+    <div class="col">
+      <input class="field-input g2" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input g2" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+    <div class="col">
+      <input class="field-input g3" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 3" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
+      <input class="field-input g3" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
+    </div>
+
+  </div>
+</div>
+
+<div class="action-bar">
+  <div class="info-text">▸ <kbd style="font-family:var(--mono);background:var(--paper);border:1px solid var(--line);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--accent)">Enter</kbd> để tìm nhanh</div>
+  <div class="meta-input-wrap" title="Dự toán tối thiểu (VND) — bỏ trống = không lọc">
+    <label>≥ VND</label>
+    <input type="number" class="meta-input wide" id="min-money" placeholder="200000000" min="0">
+  </div>
+  <div class="meta-input-wrap" title="Số lượng tối đa hiển thị gói CHƯA có kết quả trúng thầu">
+    <label>Chưa kq</label>
+    <input type="number" class="meta-input" id="max-pending" value="1000" min="1">
+  </div>
+  <div class="meta-input-wrap" title="Số lượng tối đa hiển thị gói ĐÃ có kết quả trúng thầu">
+    <label>Có kq</label>
+    <input type="number" class="meta-input" id="max-done" value="3000" min="1">
+  </div>
+  <button class="icon-btn" onclick="clearAll()" title="Xoá tất cả">⌫</button>
+  <button class="icon-btn" onclick="exportCSV()" title="Xuất CSV">↓</button>
+  <button class="icon-btn" onclick="reloadData()" title="Tải lại dữ liệu Google Sheet">↻</button>
+</div>
+
+<div class="results-bar">
+  <div class="results-info" id="results-info">▸ Đang tải dữ liệu...</div>
+  <div class="results-time" id="results-time"></div>
+</div>
+
+<div id="results-container">
+  <div class="placeholder">
+    <div class="placeholder-mark spinning">⟳</div>
+    <div class="placeholder-title">Đang tải dữ liệu Google Sheet...</div>
+    <div class="placeholder-sub">
+      Lần đầu mở sẽ tải toàn bộ ~13–17k gói thầu vào trình duyệt. Sau đó tìm kiếm sẽ rất nhanh, không cần fetch lại.
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const GSHEET_ID = '1JAiwqymHihuwRH53TMvEniFvYCbgUpsc2yP70vmZ4R8';
+const GSHEET_NAME = '02. 业主发标';
+
+// Cấu trúc sheet 02. 业主发标:
+//   Row 1 = công thức (skip)
+//   Row 2 = HEADER thực: A=Year, F=plantName, H=notifyNo, ..., AE=TT Chung, AF=search text
+//   Row 3+ = data
+// → dùng range A2:AF20000 + headers=1 để gviz hiểu row 2 là header
+function buildGVizUrl() {
+  const range = 'A2:AF20000';
+  const tq = encodeURIComponent('select *');
+  return `https://docs.google.com/spreadsheets/d/${GSHEET_ID}/gviz/tq`
+    + `?tqx=out:csv`
+    + `&sheet=${encodeURIComponent(GSHEET_NAME)}`
+    + `&range=${range}`
+    + `&headers=1`
+    + `&tq=${tq}`;
+}
+
+// 16 cột hiển thị (mapping theo công thức QUERY: F,H,AE,M,P,Q,U,V,A,T,R,W,X,Y,Z,AA)
+// + cột Link virtual ở đầu
+const RESULT_COLS = [
+  { key: '__link',          label: 'Link',          cls: 'col-link',                      sortable: false },
+  { key: 'plantName',       label: 'Plant',         cls: 'col-plant'        },  // F
+  { key: 'notifyNo',        label: 'Số TBMT',       cls: 'col-notify'       },  // H
+  { key: 'TT Chung',        label: 'Thông tin',     cls: 'col-ttchung'      },  // AE
+  { key: 'publicDate',      label: 'Ngày đăng',     cls: 'col-date mono',   isDate: true }, // M
+  { key: 'status',          label: 'Trạng thái',    cls: 'col-status'       },  // P
+  { key: 'estimatePrice',   label: 'Dự toán',       cls: 'price col-money', isNum: true },  // Q
+  { key: 'contractorName',  label: 'ĐV trúng',      cls: 'col-cdt'          },  // U
+  { key: 'bidWinningPrice', label: 'Giá trúng',     cls: 'price warm col-money', isNum: true }, // V
+  { key: 'Year',            label: 'Năm',           cls: 'mono col-year'    },  // A
+  { key: 'planNo',          label: 'Plan No',       cls: 'col-planno'       },  // T
+  { key: 'bidSecurity',     label: 'Bid Security',  cls: 'col-id'           },  // R
+  { key: 'BidID',           label: 'BidID',         cls: 'col-id'           },  // W
+  { key: 'inputResultId',   label: 'Result ID',     cls: 'col-id'           },  // X
+  { key: 'bidMode',         label: 'Bid Mode',      cls: 'col-mode'         },  // Y
+  { key: 'processApply',    label: 'Process',       cls: 'col-mode'         },  // Z
+  { key: 'bidForm',         label: 'Bid Form',      cls: 'col-mode'         }   // AA
+];
+
+let allData = null;        // toàn bộ data đã parse + normalize
+let dataLoading = null;    // Promise đang chạy
+let lastResults = [];
+let lastKws = [];
+let sortState = { col: 'publicDate', asc: false };  // mặc định: ngày đăng mới nhất trước
+
+// ============================================================
+// NORMALIZATION (giống tracuu.html)
+// ============================================================
+function stripVietnameseTones(str) {
+  if (!str) return '';
+  return String(str)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+}
+function normalizeStrong(str) {
+  return stripVietnameseTones(str)
+    .toLowerCase()
+    .replace(/[\s\-_.,;:/\\()[\]{}'"]+/g, '');
+}
+function normalizeSoft(str) {
+  return stripVietnameseTones(String(str)).toLowerCase();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function readGroup(cls) {
+  return Array.from(document.querySelectorAll('.field-input.' + cls))
+    .map(el => el.value.trim())
+    .filter(Boolean);
+}
+
+function fmtVND(v) {
+  if (v === null || v === undefined || v === '') return '';
+  const n = Number(String(v).replace(/[^\d.-]/g, ''));
+  if (!isFinite(n) || n === 0) return String(v);
+  return n.toLocaleString('vi-VN');
+}
+
+function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function highlight(text, kws) {
+  if (!text) return '';
+  const safeText = escapeHtml(text);
+  if (!kws.length) return safeText;
+
+  const original = String(text);
+  const normalized = normalizeSoft(original);
+
+  const charMap = [];
+  for (let i = 0; i < original.length; i++) {
+    const norm = normalizeSoft(original[i]);
+    for (let j = 0; j < norm.length; j++) charMap.push(i);
+  }
+
+  const sorted = [...new Set(kws)].sort((a, b) => b.length - a.length);
+  const ranges = [];
+  sorted.forEach(kw => {
+    const nkw = normalizeSoft(kw);
+    if (!nkw) return;
+    let pos = 0;
+    while (pos < normalized.length) {
+      const found = normalized.indexOf(nkw, pos);
+      if (found === -1) break;
+      const startOrig = charMap[found];
+      const endOrig = charMap[found + nkw.length - 1] + 1;
+      if (startOrig !== undefined && endOrig !== undefined) {
+        ranges.push([startOrig, endOrig]);
+      }
+      pos = found + 1;
+    }
+  });
+
+  if (!ranges.length) return safeText;
+  ranges.sort((a, b) => a[0] - b[0]);
+  const merged = [ranges[0]];
+  for (let i = 1; i < ranges.length; i++) {
+    const last = merged[merged.length - 1];
+    if (ranges[i][0] <= last[1]) last[1] = Math.max(last[1], ranges[i][1]);
+    else merged.push(ranges[i]);
+  }
+
+  let result = '';
+  let cursor = 0;
+  merged.forEach(([s, e]) => {
+    result += escapeHtml(original.substring(cursor, s));
+    result += '<mark>' + escapeHtml(original.substring(s, e)) + '</mark>';
+    cursor = e;
+  });
+  result += escapeHtml(original.substring(cursor));
+  return result;
+}
+
+function formatTTChung(text, kws) {
+  if (!text) return '';
+  const lines = String(text).split(/\n+/).map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return '';
+
+  const head = highlight(lines[0], kws);
+  if (lines.length === 1) return `<span class="head">${head}</span>`;
+
+  const meta = lines.slice(1).map(line => {
+    const clean = line.replace(/^_+/, '').trim();
+    const m = clean.match(/^([^:]+):\s*(.+)$/);
+    if (m) {
+      const key = highlight(m[1].trim(), kws);
+      const val = highlight(m[2].trim(), kws);
+      return `<span class="meta"><span class="meta-key">${key}:</span>${val}</span>`;
+    }
+    return `<span class="meta">${highlight(clean, kws)}</span>`;
+  }).join('');
+
+  return `<span class="head">${head}</span>${meta}`;
+}
+
+// Parse date — hỗ trợ "13/02/2026", "2022-09-23 13:44:51", v.v.
+function parseDate(s) {
+  if (!s) return 0;
+  const str = String(s).trim();
+  let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return new Date(+m[3], +m[2] - 1, +m[1]).getTime();
+  m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2] - 1, +m[3]).getTime();
+  const t = Date.parse(str);
+  return isFinite(t) ? t : 0;
+}
+
+function fmtDate(s) {
+  const t = parseDate(s);
+  if (!t) return String(s || '');
+  const d = new Date(t);
+  return String(d.getDate()).padStart(2, '0') + '/'
+       + String(d.getMonth() + 1).padStart(2, '0') + '/'
+       + d.getFullYear();
+}
+
+function toNum(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  const n = Number(String(v).replace(/[^\d.-]/g, ''));
+  return isFinite(n) ? n : 0;
+}
+
+// ============================================================
+// CSV PARSER (RFC 4180 — handles quoted commas/newlines)
+// ============================================================
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let field = '';
+  let inQuotes = false;
+  let i = 0;
+  const n = text.length;
+
+  while (i < n) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (i + 1 < n && text[i + 1] === '"') { field += '"'; i += 2; }
+        else { inQuotes = false; i++; }
+      } else { field += c; i++; }
+    } else {
+      if (c === '"') { inQuotes = true; i++; }
+      else if (c === ',') { row.push(field); field = ''; i++; }
+      else if (c === '\r') { i++; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; }
+      else { field += c; i++; }
+    }
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+// ============================================================
+// BUILD LINK MUASAMCONG — replicate công thức cột Z trong sheet 03.F
+// ============================================================
+//   Nếu inputResultId (X)  → KQLCNT (đã có kết quả trúng thầu, step 4)
+//   Else if bidSecurity (R) → KQMT  (kết quả mở thầu, step 2)
+//   Else                    → null (không có link)
+//
+// Mapping (sheet 02. 业主发标 → param URL):
+//   id, notifyId  ← BidID  (W)
+//   bidOpenId     ← bidSecurity  (R)
+//   inputResultId ← inputResultId (X)
+//   notifyNo      ← notifyNo  (H)
+//   planNo        ← planNo  (T)
+//   bidMode       ← bidMode (Y)        default '1_MTHS'  → UPPER
+//   processApply  ← processApply (Z)   default 'LDT'     → UPPER
+//   bidForm       ← bidForm (AA)       default 'DTRR'    → UPPER
+function buildMSCLink(row) {
+  const id            = String(row['BidID'] || '').trim();
+  const bidOpenId     = String(row['bidSecurity'] || '').trim();
+  const inputResultId = String(row['inputResultId'] || '').trim();
+  const notifyNo      = String(row['notifyNo'] || '').trim();
+  const planNo        = String(row['planNo'] || '').trim();
+  const bidMode       = (String(row['bidMode'] || '').trim() || '1_MTHS').toUpperCase();
+  const processApply  = (String(row['processApply'] || '').trim() || 'LDT').toUpperCase();
+  const bidForm       = (String(row['bidForm'] || '').trim() || 'DTRR').toUpperCase();
+
+  if (!id) return null;
+
+  const enc = encodeURIComponent;
+  const baseUrl = 'https://muasamcong.mpi.gov.vn/web/guest/contractor-selection';
+  const portletPrefix = '_egpportalcontractorselectionv2_WAR_egpportalcontractorselectionv2';
+
+  if (inputResultId) {
+    // KQLCNT — đã có kết quả trúng thầu
+    const params = [
+      'p_p_id=egpportalcontractorselectionv2_WAR_egpportalcontractorselectionv2',
+      'p_p_lifecycle=0',
+      'p_p_state=normal',
+      'p_p_mode=view',
+      portletPrefix + '_render=detail-v2',
+      'type=es-notify-contractor',
+      'stepCode=notify-contractor-step-4-kqlcnt',
+      'id=' + enc(id),
+      'notifyId=' + enc(id),
+      'inputResultId=' + enc(inputResultId)
+    ];
+    if (bidOpenId) params.push('bidOpenId=' + enc(bidOpenId));
+    params.push('notifyNo=' + enc(notifyNo));
+    params.push('planNo=' + enc(planNo));
+    params.push('isInternet=1');
+    params.push('bidMode=' + enc(bidMode));
+    params.push('processApply=' + enc(processApply));
+    params.push('bidForm=' + enc(bidForm));
+    params.push('step=tbmt');
+    return { kind: 'KQLCNT', url: baseUrl + '?' + params.join('&') };
+  }
+
+  if (bidOpenId) {
+    // KQMT — kết quả mở thầu
+    const params = [
+      'p_p_id=egpportalcontractorselectionv2_WAR_egpportalcontractorselectionv2',
+      'p_p_lifecycle=0',
+      'p_p_state=normal',
+      'p_p_mode=view',
+      portletPrefix + '_render=detail-v2',
+      'type=es-notify-contractor',
+      'stepCode=notify-contractor-step-2-kqmt',
+      'id=' + enc(id),
+      'notifyId=' + enc(id),
+      'bidOpenId=' + enc(bidOpenId),
+      'notifyNo=' + enc(notifyNo),
+      'planNo=' + enc(planNo),
+      'isInternet=1',
+      'bidMode=' + enc(bidMode),
+      'processApply=' + enc(processApply),
+      'bidForm=' + enc(bidForm),
+      'step=tbmt'
+    ];
+    return { kind: 'KQMT', url: baseUrl + '?' + params.join('&') };
+  }
+
+  return null;
+}
+
+// ============================================================
+// LOAD DATA TỪ GOOGLE SHEET
+// ============================================================
+async function loadData(force = false) {
+  if (allData && !force) return allData;
+  if (dataLoading) return dataLoading;
+
+  const stat = document.getElementById('stat-mini');
+  const cnt = document.getElementById('total-count');
+  stat.classList.add('loading');
+  stat.classList.remove('error');
+  cnt.textContent = '⋯';
+
+  dataLoading = (async () => {
+    const t0 = performance.now();
+    try {
+      const res = await fetch(buildGVizUrl());
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' — sheet có "Anyone with the link" chưa?');
+      const text = await res.text();
+      if (!text || text.length < 50) throw new Error('Sheet rỗng hoặc không truy cập được');
+
+      const rows = parseCSV(text);
+      if (rows.length < 2) {
+        allData = [];
+        return [];
+      }
+
+      const headers = rows[0].map(h => (h || '').trim());
+
+      const data = [];
+      for (let r = 1; r < rows.length; r++) {
+        const arr = rows[r];
+        if (!arr.length) continue;
+        // Skip rows hoàn toàn rỗng
+        if (!arr.some(c => c && String(c).trim())) continue;
+
+        const obj = {};
+        for (let c = 0; c < headers.length; c++) {
+          obj[headers[c]] = arr[c] || '';
+        }
+
+        // Build search text — gộp các trường text quan trọng + cột AF gốc
+        // (cột AF index 31 là search text đã lowercase không dấu của sheet gốc)
+        const searchParts = [
+          obj['plantName'] || '',
+          obj['notifyNo'] || '',
+          obj['bidName'] || '',
+          obj['investorName'] || '',
+          obj['investorCode'] || '',
+          obj['provName'] || '',
+          obj['contractorName'] || '',
+          obj['planNo'] || '',
+          obj['BidID'] || '',
+          obj['TT Chung'] || '',
+          arr[31] || ''      // cột AF gốc
+        ];
+        obj.__search = normalizeStrong(searchParts.join(' '));
+        obj.__publicDateTs = parseDate(obj['publicDate']);
+        obj.__hasResult = toNum(obj['bidWinningPrice']) > 0;
+        data.push(obj);
+      }
+
+      allData = data;
+      cnt.textContent = data.length.toLocaleString('vi-VN');
+      stat.classList.remove('loading');
+      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+      console.log(`[gói thầu] Loaded ${data.length} rows in ${elapsed}s`);
+      return data;
+    } catch (err) {
+      stat.classList.remove('loading');
+      stat.classList.add('error');
+      cnt.textContent = '!';
+      throw err;
+    } finally {
+      dataLoading = null;
+    }
+  })();
+
+  return dataLoading;
+}
+
+async function reloadData() {
+  allData = null;
+  dataLoading = null;
+  document.getElementById('results-info').innerHTML = '▸ Đang tải lại...';
+  document.getElementById('results-container').innerHTML = `
+    <div class="placeholder">
+      <div class="placeholder-mark spinning">⟳</div>
+      <div class="placeholder-title">Đang tải lại Google Sheet...</div>
+      <div class="placeholder-sub">Vui lòng chờ vài giây.</div>
+    </div>`;
+  try {
+    await loadData(true);
+    showReady();
+  } catch (e) {
+    showError('Tải lại thất bại: ' + e.message);
+  }
+}
+
+function showReady() {
+  const cnt = allData ? allData.length.toLocaleString('vi-VN') : '?';
+  document.getElementById('results-info').innerHTML = `▸ Sẵn sàng · <b style="color:var(--text);font-size:13px;font-family:var(--sans)">${cnt}</b> gói trong sheet`;
+  document.getElementById('results-container').innerHTML = `
+    <div class="placeholder">
+      <div class="placeholder-mark">⌕</div>
+      <div class="placeholder-title">Đã sẵn sàng tra cứu</div>
+      <div class="placeholder-sub">
+        Nhập từ khoá vào 3 cột bên phải · cùng cột là <kbd>OR</kbd> · khác cột là <kbd>AND</kbd> · cột bên trái để loại trừ. Có thể lọc thêm theo <kbd>≥ VND</kbd>.
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+async function doSearch() {
+  const a = readGroup('ex');
+  const b = readGroup('g1');
+  const c = readGroup('g2');
+  const d = readGroup('g3');
+
+  const minMoney = Number(document.getElementById('min-money').value) || 0;
+  const maxPending = Math.max(1, parseInt(document.getElementById('max-pending').value) || 1000);
+  const maxDone = Math.max(1, parseInt(document.getElementById('max-done').value) || 3000);
+
+  const btn = document.getElementById('search-btn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  clearError();
+
+  const t0 = performance.now();
+  try {
+    const dataset = await loadData();
+    if (!dataset || !dataset.length) {
+      showError('Chưa có dữ liệu để tra cứu');
+      btn.disabled = false; btn.classList.remove('loading');
+      return;
+    }
+
+    // Pre-normalize keywords
+    const groups = [b, c, d].filter(g => g.length).map(g => g.map(normalizeStrong));
+    const exclude = a.map(normalizeStrong);
+
+    // FILTER chính
+    const filtered = dataset.filter(row => {
+      // Lọc theo dự toán tối thiểu (cột Q estimatePrice)
+      if (minMoney > 0) {
+        if (toNum(row['estimatePrice']) < minMoney) return false;
+      }
+
+      const haystack = row.__search;
+
+      // Match TẤT CẢ groups (AND giữa group, OR trong group)
+      if (groups.length) {
+        const allMatch = groups.every(grp => grp.some(kw => haystack.includes(kw)));
+        if (!allMatch) return false;
+      }
+
+      // Loại trừ
+      if (exclude.length && exclude.some(kw => haystack.includes(kw))) return false;
+
+      return true;
+    });
+
+    // Tách 2 nhóm: chưa kết quả vs đã có kết quả trúng thầu
+    const pending = [];
+    const done = [];
+    filtered.forEach(row => {
+      if (row.__hasResult) done.push(row);
+      else pending.push(row);
+    });
+
+    // Sort cả 2 nhóm theo publicDate desc (mới nhất trước)
+    const dateDesc = (x, y) => y.__publicDateTs - x.__publicDateTs;
+    pending.sort(dateDesc);
+    done.sort(dateDesc);
+
+    // Cắt theo limit
+    const pendingShown = pending.slice(0, maxPending);
+    const doneShown = done.slice(0, maxDone);
+
+    // Gộp: chưa có kết quả lên ĐẦU (vì user thường quan tâm gói đang mở thầu)
+    const finalData = [...pendingShown, ...doneShown];
+
+    const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
+    lastResults = finalData;
+    lastKws = [...b, ...c, ...d];
+    sortState = { col: 'publicDate', asc: false };
+
+    renderTable(finalData, elapsed, {
+      pending: pendingShown.length,
+      done: doneShown.length,
+      totalMatch: filtered.length,
+      pendingTotal: pending.length,
+      doneTotal: done.length
+    });
+
+  } catch(e) {
+    showError('Lỗi: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+}
+
+// ============================================================
+// RENDER TABLE
+// ============================================================
+function renderTable(data, elapsed, meta) {
+  const info = document.getElementById('results-info');
+  const time = document.getElementById('results-time');
+  const out  = document.getElementById('results-container');
+
+  if (meta) {
+    const truncatedPending = meta.pendingTotal > meta.pending ? ` <span style="color:var(--text4);font-family:var(--mono);font-size:10px">(/${meta.pendingTotal})</span>` : '';
+    const truncatedDone = meta.doneTotal > meta.done ? ` <span style="color:var(--text4);font-family:var(--mono);font-size:10px">(/${meta.doneTotal})</span>` : '';
+    info.innerHTML = `<b>${data.length.toLocaleString('vi-VN')}</b> kết quả`
+      + ` <span class="results-info-divider">·</span>`
+      + ` <span class="sub"><b style="color:var(--accent)">${meta.pending.toLocaleString('vi-VN')}</b>${truncatedPending} chưa kq</span>`
+      + ` <span class="results-info-divider">·</span>`
+      + ` <span class="sub"><b style="color:var(--ink)">${meta.done.toLocaleString('vi-VN')}</b>${truncatedDone} đã trúng</span>`;
+  } else {
+    info.innerHTML = `<b>${data.length.toLocaleString('vi-VN')}</b> kết quả`;
+  }
+  time.textContent = `total ${elapsed}s`;
+
+  if (!data.length) {
+    out.innerHTML = `
+      <div class="placeholder">
+        <div class="placeholder-mark">⊘</div>
+        <div class="placeholder-title">Không có kết quả</div>
+        <div class="placeholder-sub">Thử bỏ bớt điều kiện hoặc thay đổi từ khoá</div>
+      </div>`;
+    return;
+  }
+
+  let head = '<tr><th class="num-th">#</th>';
+  RESULT_COLS.forEach(col => {
+    const sorted = sortState.col === col.key;
+    let thCls = sorted ? 'sorted ' : '';
+    thCls += col.cls;
+    const onclick = col.sortable === false ? '' : ` onclick="sortBy('${col.key}')"`;
+    const sortIndicator = col.sortable === false
+      ? ''
+      : `<span class="sort-i">${sorted ? (sortState.asc ? '▲' : '▼') : '↕'}</span>`;
+    head += `<th class="${thCls.trim()}"${onclick}>${col.label}${sortIndicator}</th>`;
+  });
+  head += '</tr>';
+
+  let rows = '';
+  data.forEach((row, i) => {
+    const trCls = row.__hasResult ? '' : ' class="row-pending"';
+    rows += `<tr${trCls}>`;
+    rows += `<td class="num">${i + 1}</td>`;
+
+    RESULT_COLS.forEach(col => {
+      // Virtual link column
+      if (col.key === '__link') {
+        const link = buildMSCLink(row);
+        if (link) {
+          const cls = link.kind === 'KQLCNT' ? 'link-btn kqlcnt' : 'link-btn kqmt';
+          rows += `<td class="${col.cls}"><a class="${cls}" href="${link.url}" target="_blank" rel="noopener">↗ ${link.kind}</a></td>`;
+        } else {
+          rows += `<td class="${col.cls} empty">—</td>`;
+        }
+        return;
+      }
+
+      const raw = row[col.key];
+      const isPrice = col.cls.includes('price');
+      const isEmpty = raw === null || raw === undefined || raw === '';
+
+      if (isEmpty) {
+        rows += `<td class="${col.cls} empty">—</td>`;
+        return;
+      }
+
+      if (isPrice) {
+        rows += `<td class="${col.cls}">${fmtVND(raw)}</td>`;
+      } else if (col.key === 'TT Chung') {
+        rows += `<td class="${col.cls}">${formatTTChung(String(raw), lastKws)}</td>`;
+      } else if (col.key === 'status') {
+        const v = String(raw).trim();
+        let pillCls = 'other';
+        if (/PUBLISH/i.test(v)) pillCls = 'publish';
+        else if (/CANCEL|HUY|HỦY/i.test(v)) pillCls = 'cancel';
+        rows += `<td class="${col.cls}"><span class="status-pill ${pillCls}">${escapeHtml(v)}</span></td>`;
+      } else if (col.isDate) {
+        rows += `<td class="${col.cls}">${escapeHtml(fmtDate(raw))}</td>`;
+      } else {
+        rows += `<td class="${col.cls}">${highlight(String(raw), lastKws)}</td>`;
+      }
+    });
+
+    rows += `</tr>`;
+  });
+
+  out.innerHTML = `
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>${head}</thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// ============================================================
+// SORT
+// ============================================================
+function sortBy(key) {
+  const colDef = RESULT_COLS.find(c => c.key === key);
+  if (!colDef || colDef.sortable === false) return;
+
+  if (sortState.col === key) sortState.asc = !sortState.asc;
+  else { sortState.col = key; sortState.asc = true; }
+
+  const sorted = [...lastResults].sort((a, b) => {
+    let va = a[key], vb = b[key];
+
+    if (colDef.isDate) {
+      const da = parseDate(va), db = parseDate(vb);
+      return sortState.asc ? da - db : db - da;
+    }
+
+    if (colDef.isNum) {
+      return sortState.asc ? toNum(va) - toNum(vb) : toNum(vb) - toNum(va);
+    }
+
+    va = String(va ?? ''); vb = String(vb ?? '');
+    if (va < vb) return sortState.asc ? -1 : 1;
+    if (va > vb) return sortState.asc ? 1 : -1;
+    return 0;
+  });
+
+  lastResults = sorted;
+  // Tính lại meta để giữ counts
+  const pending = sorted.filter(r => !r.__hasResult).length;
+  const done = sorted.length - pending;
+  renderTable(sorted, '0', {
+    pending, done,
+    totalMatch: sorted.length,
+    pendingTotal: pending, doneTotal: done
+  });
+}
+
+// ============================================================
+// EXPORT CSV
+// ============================================================
+function exportCSV() {
+  if (!lastResults.length) {
+    showError('Chưa có kết quả để xuất');
+    return;
+  }
+  const headers = RESULT_COLS.map(c => c.label);
+  const csvRows = [headers.join(',')];
+  lastResults.forEach(row => {
+    const r = RESULT_COLS.map(col => {
+      let v;
+      if (col.key === '__link') {
+        const link = buildMSCLink(row);
+        v = link ? link.url : '';
+      } else {
+        v = String(row[col.key] ?? '');
+      }
+      v = v.replace(/"/g, '""');
+      return `"${v}"`;
+    });
+    csvRows.push(r.join(','));
+  });
+  const csv = '\ufeff' + csvRows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `goithau_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function clearAll() {
+  document.querySelectorAll('.field-input').forEach(el => el.value = '');
+  document.getElementById('min-money').value = '';
+  const first = document.querySelector('.field-input.g1');
+  if (first) first.focus();
+}
+
+// ============================================================
+// ERRORS
+// ============================================================
+function showError(msg) {
+  clearError();
+  const c = document.getElementById('results-container');
+  const err = document.createElement('div');
+  err.className = 'err';
+  err.id = 'err-msg';
+  err.innerHTML = `<span style="font-size:14px;flex-shrink:0">⚠</span><span>${escapeHtml(msg)}</span>`;
+  c.prepend(err);
+}
+function clearError() {
+  document.getElementById('err-msg')?.remove();
+}
+
+// ============================================================
+// KEY HANDLERS
+// ============================================================
+document.querySelectorAll('.field-input, #min-money, #max-pending, #max-done').forEach(el => {
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      el.blur();
+      doSearch();
+    }
+  });
+});
+
+// ============================================================
+// AUTO-LOAD on page open
+// ============================================================
+loadData()
+  .then(() => showReady())
+  .catch(e => {
+    showError('Không tải được Google Sheet: ' + e.message
+      + ' · Kiểm tra: 1) Sheet có chia sẻ "Anyone with the link can view"? 2) Sheet name "02. 业主发标" có đúng?');
+    document.getElementById('results-info').innerHTML = '▸ Lỗi tải dữ liệu';
+  });
+</script>
+</body>
+</html>
