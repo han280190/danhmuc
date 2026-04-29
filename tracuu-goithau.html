@@ -791,13 +791,13 @@
     <label>≥ VND</label>
     <input type="number" class="meta-input wide" id="min-money" placeholder="200000000" min="0">
   </div>
-  <div class="meta-input-wrap" title="Số lượng tối đa hiển thị gói CHƯA có kết quả trúng thầu">
+  <div class="meta-input-wrap" title="Số gói CHƯA có kết quả tối đa hiển thị · Để trống/0 = không hiển thị nhóm chưa kq">
     <label>Chưa kq</label>
-    <input type="number" class="meta-input" id="max-pending" value="1000" min="1">
+    <input type="number" class="meta-input" id="max-pending" value="1000" min="0">
   </div>
-  <div class="meta-input-wrap" title="Số lượng tối đa hiển thị gói ĐÃ có kết quả trúng thầu">
+  <div class="meta-input-wrap" title="Số gói ĐÃ có kết quả tối đa hiển thị · Để trống/0 = không hiển thị nhóm đã trúng · Nếu cả 2 ô trống → mặc định 1000+3000">
     <label>Có kq</label>
-    <input type="number" class="meta-input" id="max-done" value="3000" min="1">
+    <input type="number" class="meta-input" id="max-done" value="3000" min="0">
   </div>
   <button class="icon-btn" onclick="clearAll()" title="Xoá tất cả">⌫</button>
   <button class="icon-btn" onclick="exportCSV()" title="Xuất CSV">↓</button>
@@ -831,9 +831,13 @@ const GSHEET_GID = '939936821';
 // gviz là fallback. URL nào trả về CSV hợp lệ trước thì dùng.
 const DATA_SOURCES = [
   // 1. Publish-to-web CSV (đã publish — không cần auth, không CORS)
+  //    Format giống file Google Sheet xuất nguyên xi:
+  //      row 0 = công thức (skip)
+  //      row 1 = HEADER thực (Year, Month, ..., plantName, ..., TT Chung)
+  //      row 2+ = data
   {
     label: 'pub-csv',
-    headerRowIndex: 0,   // pub CSV: row 0 đã là header thực
+    headerRowIndex: 1,   // ← header ở dòng thứ 2 vì dòng đầu là formula
     url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLLpgClddA-XsikiSGeeEdwQtsUSMMyjGHuuExxSclxSJHL_rRrLxLyAOgVE0-XiKGJ_tqiCt4Ln0Z/pub'
        + '?gid=' + GSHEET_GID + '&single=true&output=csv'
   },
@@ -860,6 +864,7 @@ const DATA_SOURCES = [
 
 // 16 cột hiển thị (mapping theo công thức QUERY: F,H,AE,M,P,Q,U,V,A,T,R,W,X,Y,Z,AA)
 // + cột Link virtual ở đầu
+// Các cột `hidden:true` chỉ dùng để build link, không hiển thị (chiếm chỗ vô ích)
 const RESULT_COLS = [
   { key: '__link',          label: 'Link',          cls: 'col-link',                      sortable: false },
   { key: 'plantName',       label: 'Plant',         cls: 'col-plant'        },  // F
@@ -872,12 +877,13 @@ const RESULT_COLS = [
   { key: 'bidWinningPrice', label: 'Giá trúng',     cls: 'price warm col-money', isNum: true }, // V
   { key: 'Year',            label: 'Năm',           cls: 'mono col-year'    },  // A
   { key: 'planNo',          label: 'Plan No',       cls: 'col-planno'       },  // T
-  { key: 'bidSecurity',     label: 'Bid Security',  cls: 'col-id'           },  // R
-  { key: 'BidID',           label: 'BidID',         cls: 'col-id'           },  // W
-  { key: 'inputResultId',   label: 'Result ID',     cls: 'col-id'           },  // X
-  { key: 'bidMode',         label: 'Bid Mode',      cls: 'col-mode'         },  // Y
-  { key: 'processApply',    label: 'Process',       cls: 'col-mode'         },  // Z
-  { key: 'bidForm',         label: 'Bid Form',      cls: 'col-mode'         }   // AA
+  // ↓ 6 cột bên dưới chỉ dùng để dựng URL link, KHÔNG hiển thị trên bảng (giữ trong CSV export)
+  { key: 'bidSecurity',     label: 'Bid Security',  cls: 'col-id',          hidden: true },  // R
+  { key: 'BidID',           label: 'BidID',         cls: 'col-id',          hidden: true },  // W
+  { key: 'inputResultId',   label: 'Result ID',     cls: 'col-id',          hidden: true },  // X
+  { key: 'bidMode',         label: 'Bid Mode',      cls: 'col-mode',        hidden: true },  // Y
+  { key: 'processApply',    label: 'Process',       cls: 'col-mode',        hidden: true },  // Z
+  { key: 'bidForm',         label: 'Bid Form',      cls: 'col-mode',        hidden: true }   // AA
 ];
 
 let allData = null;        // toàn bộ data đã parse + normalize
@@ -1147,28 +1153,38 @@ function buildMSCLink(row) {
 // ============================================================
 // LOAD DATA TỪ GOOGLE SHEET — thử lần lượt nhiều nguồn
 // ============================================================
-async function fetchOneSource(source) {
+async function fetchOneSource(source, attempt = 1) {
   const t0 = performance.now();
   let res;
   try {
-    res = await fetch(source.url, { redirect: 'follow' });
+    res = await fetch(source.url, {
+      redirect: 'follow',
+      mode: 'cors',
+      cache: 'no-store',
+      credentials: 'omit'
+    });
   } catch (e) {
-    throw new Error(`[${source.label}] ${e.message || 'network'}`);
+    // Thử lại 1 lần nếu network glitch
+    if (attempt < 2) {
+      await new Promise(r => setTimeout(r, 400));
+      return fetchOneSource(source, attempt + 1);
+    }
+    throw new Error(`[${source.label}] network error: ${e.message || 'fetch failed'}`);
   }
   if (!res.ok) {
-    throw new Error(`[${source.label}] HTTP ${res.status}`);
+    throw new Error(`[${source.label}] HTTP ${res.status} ${res.statusText || ''}`);
   }
   const text = await res.text();
   if (!text || text.length < 50) {
-    throw new Error(`[${source.label}] empty response`);
+    throw new Error(`[${source.label}] empty response (${text?.length || 0} bytes)`);
   }
   // Nếu phản hồi là HTML (vd. trang đăng nhập / chuyển hướng) → coi như fail
   const head = text.slice(0, 200).toLowerCase();
   if (head.includes('<!doctype html') || head.includes('<html')) {
-    throw new Error(`[${source.label}] returned HTML (sheet chưa public hoặc URL sai)`);
+    throw new Error(`[${source.label}] returned HTML — sheet chưa public hoặc URL sai`);
   }
   const ms = (performance.now() - t0).toFixed(0);
-  console.log(`[gói thầu] ✓ source "${source.label}" responded in ${ms}ms (${(text.length/1024).toFixed(0)} KB)`);
+  console.log(`[gói thầu] ✓ source "${source.label}" → ${ms}ms (${(text.length/1024).toFixed(0)} KB)`);
   return { text, source };
 }
 
@@ -1182,7 +1198,9 @@ async function fetchSheetWithFallback() {
       errors.push(e.message);
     }
   }
-  throw new Error('Tất cả nguồn đều fail: ' + errors.join(' | '));
+  // Chi tiết hơn để user/dev có thể nhìn vào console + thông báo
+  const detail = errors.map((m, i) => `(${i+1}) ${m}`).join(' · ');
+  throw new Error(detail);
 }
 
 async function loadData(force = false) {
@@ -1323,8 +1341,22 @@ async function doSearch() {
   const d = readGroup('g3');
 
   const minMoney = Number(document.getElementById('min-money').value) || 0;
-  const maxPending = Math.max(1, parseInt(document.getElementById('max-pending').value) || 1000);
-  const maxDone = Math.max(1, parseInt(document.getElementById('max-done').value) || 3000);
+
+  // Logic 2 ô limit hoạt động độc lập như switch ON/OFF:
+  //   - Số > 0  → BẬT nhóm đó, max = số đã nhập
+  //   - Trống / 0 → TẮT nhóm đó (không hiển thị)
+  //   - Cả 2 đều trống/0 → default fallback: 1000 chưa + 3000 đã trúng
+  const rawPending = parseInt(document.getElementById('max-pending').value);
+  const rawDone    = parseInt(document.getElementById('max-done').value);
+  let maxPending = isFinite(rawPending) && rawPending > 0 ? rawPending : 0;
+  let maxDone    = isFinite(rawDone)    && rawDone    > 0 ? rawDone    : 0;
+  if (maxPending === 0 && maxDone === 0) {
+    // Cả 2 trống → default
+    maxPending = 1000;
+    maxDone    = 3000;
+  }
+  const showPending = maxPending > 0;
+  const showDone    = maxDone > 0;
 
   const btn = document.getElementById('search-btn');
   btn.disabled = true;
@@ -1378,9 +1410,9 @@ async function doSearch() {
     pending.sort(dateDesc);
     done.sort(dateDesc);
 
-    // Cắt theo limit
-    const pendingShown = pending.slice(0, maxPending);
-    const doneShown = done.slice(0, maxDone);
+    // Cắt theo limit — nhóm nào TẮT (max=0) thì bỏ qua hoàn toàn
+    const pendingShown = showPending ? pending.slice(0, maxPending) : [];
+    const doneShown    = showDone    ? done.slice(0, maxDone)       : [];
 
     // Gộp: chưa có kết quả lên ĐẦU (vì user thường quan tâm gói đang mở thầu)
     const finalData = [...pendingShown, ...doneShown];
@@ -1395,7 +1427,9 @@ async function doSearch() {
       done: doneShown.length,
       totalMatch: filtered.length,
       pendingTotal: pending.length,
-      doneTotal: done.length
+      doneTotal: done.length,
+      showPending,
+      showDone
     });
 
   } catch(e) {
@@ -1415,13 +1449,27 @@ function renderTable(data, elapsed, meta) {
   const out  = document.getElementById('results-container');
 
   if (meta) {
-    const truncatedPending = meta.pendingTotal > meta.pending ? ` <span style="color:var(--text4);font-family:var(--mono);font-size:10px">(/${meta.pendingTotal})</span>` : '';
-    const truncatedDone = meta.doneTotal > meta.done ? ` <span style="color:var(--text4);font-family:var(--mono);font-size:10px">(/${meta.doneTotal})</span>` : '';
+    // Pending part
+    let pendingTxt;
+    if (meta.showPending === false) {
+      pendingTxt = `<span class="sub" style="color:var(--text4)">— chưa kq <small style="font-family:var(--mono);font-size:9.5px">(tắt)</small></span>`;
+    } else {
+      const truncatedPending = meta.pendingTotal > meta.pending
+        ? ` <span style="color:var(--text4);font-family:var(--mono);font-size:10px">(/${meta.pendingTotal})</span>` : '';
+      pendingTxt = `<span class="sub"><b style="color:var(--accent)">${meta.pending.toLocaleString('vi-VN')}</b>${truncatedPending} chưa kq</span>`;
+    }
+    // Done part
+    let doneTxt;
+    if (meta.showDone === false) {
+      doneTxt = `<span class="sub" style="color:var(--text4)">— đã trúng <small style="font-family:var(--mono);font-size:9.5px">(tắt)</small></span>`;
+    } else {
+      const truncatedDone = meta.doneTotal > meta.done
+        ? ` <span style="color:var(--text4);font-family:var(--mono);font-size:10px">(/${meta.doneTotal})</span>` : '';
+      doneTxt = `<span class="sub"><b style="color:var(--ink)">${meta.done.toLocaleString('vi-VN')}</b>${truncatedDone} đã trúng</span>`;
+    }
     info.innerHTML = `<b>${data.length.toLocaleString('vi-VN')}</b> kết quả`
-      + ` <span class="results-info-divider">·</span>`
-      + ` <span class="sub"><b style="color:var(--accent)">${meta.pending.toLocaleString('vi-VN')}</b>${truncatedPending} chưa kq</span>`
-      + ` <span class="results-info-divider">·</span>`
-      + ` <span class="sub"><b style="color:var(--ink)">${meta.done.toLocaleString('vi-VN')}</b>${truncatedDone} đã trúng</span>`;
+      + ` <span class="results-info-divider">·</span> ${pendingTxt}`
+      + ` <span class="results-info-divider">·</span> ${doneTxt}`;
   } else {
     info.innerHTML = `<b>${data.length.toLocaleString('vi-VN')}</b> kết quả`;
   }
@@ -1437,8 +1485,11 @@ function renderTable(data, elapsed, meta) {
     return;
   }
 
+  // Lọc các cột không hidden để render lên bảng
+  const visibleCols = RESULT_COLS.filter(c => !c.hidden);
+
   let head = '<tr><th class="num-th">#</th>';
-  RESULT_COLS.forEach(col => {
+  visibleCols.forEach(col => {
     const sorted = sortState.col === col.key;
     let thCls = sorted ? 'sorted ' : '';
     thCls += col.cls;
@@ -1456,7 +1507,7 @@ function renderTable(data, elapsed, meta) {
     rows += `<tr${trCls}>`;
     rows += `<td class="num">${i + 1}</td>`;
 
-    RESULT_COLS.forEach(col => {
+    visibleCols.forEach(col => {
       // Virtual link column
       if (col.key === '__link') {
         const link = buildMSCLink(row);
@@ -1622,9 +1673,18 @@ document.querySelectorAll('.field-input, #min-money, #max-pending, #max-done').f
 loadData()
   .then(() => showReady())
   .catch(e => {
-    showError('Không tải được Google Sheet: ' + e.message
-      + ' · Kiểm tra: 1) Sheet có chia sẻ "Anyone with the link can view"? 2) Sheet name "02. 业主发标" có đúng?');
-    document.getElementById('results-info').innerHTML = '▸ Lỗi tải dữ liệu';
+    const msg = 'Không tải được Google Sheet. Chi tiết: ' + e.message
+      + ' — Kiểm tra: (1) Sheet đã Publish to web ở chế độ CSV chưa? (2) Mở console (F12) để xem chi tiết, hoặc bấm ↻ để thử lại.';
+    showError(msg);
+    document.getElementById('results-info').innerHTML = '▸ Lỗi tải dữ liệu — bấm ↻ để thử lại';
+    document.getElementById('results-container').innerHTML = `
+      <div class="placeholder">
+        <div class="placeholder-mark" style="border-color:var(--red-line);color:var(--red)">⚠</div>
+        <div class="placeholder-title" style="color:var(--red)">Không tải được dữ liệu</div>
+        <div class="placeholder-sub">
+          Có thể do mạng hoặc cấu hình sheet. Mở Console (F12) để xem chi tiết từng nguồn fetch, hoặc bấm nút <kbd>↻</kbd> ở action bar để thử lại.
+        </div>
+      </div>`;
   });
 </script>
 </body>
