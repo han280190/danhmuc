@@ -66,18 +66,17 @@
   }
 
   /* ======================================================
-     TOP BAR
+     TOP BAR — sticky, chứa cả nút tìm kiếm
      ====================================================== */
   .topbar {
-    background: rgba(251, 246, 237, 0.85);
+    background: rgba(251, 246, 237, 0.92);
     backdrop-filter: blur(14px) saturate(140%);
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     border-bottom: 1px solid var(--line);
-    padding: 11px 16px;
+    padding: 9px 14px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -86,6 +85,7 @@
     display: flex;
     align-items: center;
     gap: 11px;
+    flex-shrink: 0;
   }
   .logo-mark {
     width: 36px; height: 36px;
@@ -105,31 +105,76 @@
     font-weight: 600;
     font-style: normal;
   }
-  .brand-text { line-height: 1.15; }
+  .brand-text { line-height: 1.15; min-width: 0; }
   .brand-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: -0.015em;
     color: var(--text);
     display: flex;
     align-items: baseline;
     gap: 6px;
+    white-space: nowrap;
   }
   .brand-title .vi-sub {
     font-family: var(--serif);
     font-style: italic;
     color: var(--accent);
     font-weight: 500;
-    font-size: 13px;
+    font-size: 12px;
   }
   .brand-sub {
     font-family: var(--mono);
-    font-size: 9.5px;
+    font-size: 9px;
     color: var(--text3);
-    letter-spacing: 0.22em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
     margin-top: 2px;
+    white-space: nowrap;
   }
+
+  /* Nút TÌM KIẾM trong topbar */
+  .topbar-search {
+    flex: 1;
+    background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 0 18px;
+    font-family: var(--sans);
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 3px 12px rgba(217, 119, 6, 0.28);
+    margin: 0 4px;
+    min-width: 0;
+  }
+  .topbar-search:hover { box-shadow: 0 5px 18px rgba(217, 119, 6, 0.4); }
+  .topbar-search:active { transform: translateY(1px); }
+  .topbar-search:disabled { opacity: 0.55; cursor: not-allowed; }
+  .topbar-search .spinner {
+    width: 13px; height: 13px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .topbar-search.loading .spinner { display: block; }
+  .topbar-search.loading .btn-txt { display: none; }
+  .topbar-search.loading::after {
+    content: 'Đang tìm...';
+    font-size: 12.5px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .stat-mini {
     font-family: var(--mono);
     font-size: 10.5px;
@@ -143,6 +188,7 @@
     align-items: center;
     gap: 7px;
     box-shadow: 0 1px 2px rgba(120, 80, 30, 0.04);
+    flex-shrink: 0;
   }
   .stat-mini::before {
     content: '';
@@ -151,9 +197,11 @@
     background: var(--ink);
     box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
     animation: pulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
   }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
   .stat-mini b { color: var(--accent); font-weight: 700; }
+  .stat-mini .stat-label { color: var(--text3); font-size: 9.5px; letter-spacing: 0.06em; }
 
   /* ======================================================
      SEARCH PANEL — 4 columns × 5 rows, no labels
@@ -239,48 +287,23 @@
   }
 
   /* ======================================================
-     ACTION BAR
+     ACTION BAR — chỉ còn limit + utilities
      ====================================================== */
   .action-bar {
-    display: grid;
-    grid-template-columns: 1fr auto auto auto;
-    gap: 8px;
-    padding: 12px 16px 0;
-    align-items: center;
-  }
-  .search-btn {
-    background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
-    color: #fff;
-    border: none;
-    border-radius: var(--r2);
-    padding: 0 22px;
-    font-family: var(--sans);
-    font-size: 13.5px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    height: 46px;
     display: flex;
+    gap: 8px;
+    padding: 10px 16px 0;
     align-items: center;
-    justify-content: center;
-    gap: 9px;
-    transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
-    box-shadow: 0 4px 16px rgba(217, 119, 6, 0.28);
+    justify-content: flex-end;
   }
-  .search-btn:hover { box-shadow: 0 6px 22px rgba(217, 119, 6, 0.4); }
-  .search-btn:active { transform: translateY(1px); box-shadow: 0 2px 10px rgba(217, 119, 6, 0.3); }
-  .search-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-  .search-btn .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
+  .action-bar .info-text {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
-  .search-btn.loading .spinner { display: block; }
-  .search-btn.loading .btn-txt { display: none; }
-  @keyframes spin { to { transform: rotate(360deg); } }
 
   .meta-input {
     background: var(--paper);
@@ -290,9 +313,9 @@
     font-family: var(--mono);
     font-size: 12px;
     padding: 0 10px;
-    height: 46px;
+    height: 38px;
     text-align: center;
-    width: 76px;
+    width: 70px;
     outline: none;
     transition: border-color 0.15s;
   }
@@ -303,14 +326,14 @@
     border: 1px solid var(--line);
     border-radius: var(--r);
     color: var(--text2);
-    height: 46px;
-    width: 46px;
+    height: 38px;
+    width: 38px;
     cursor: pointer;
     transition: all 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 15px;
     font-family: var(--mono);
   }
   .icon-btn:hover { border-color: var(--accent-line); color: var(--accent); background: var(--accent-bg); }
@@ -456,6 +479,48 @@
   td.price.warm { color: var(--accent); }
   td.empty { color: var(--text4); font-style: italic; font-size: 11px; white-space: nowrap; }
 
+  /* Sticky columns — Tên gói + Danh mục cố định khi scroll ngang */
+  thead th.col-tengoi-th,
+  tbody td.col-tengoi {
+    position: sticky;
+    left: 38px;       /* sau cột # */
+    z-index: 3;
+    background: var(--paper);
+    box-shadow: 1px 0 0 var(--line);
+  }
+  tbody tr:nth-child(even) td.col-tengoi { background: var(--paper2); }
+  tbody tr:hover td.col-tengoi { background: var(--accent-bg) !important; }
+  thead th.col-tengoi-th {
+    z-index: 6;
+    background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
+  }
+
+  thead th.col-danhmuc-th,
+  tbody td.col-danhmuc {
+    position: sticky;
+    z-index: 2;
+    background: var(--paper);
+    box-shadow: 1px 0 0 var(--line);
+  }
+  tbody tr:nth-child(even) td.col-danhmuc { background: var(--paper2); }
+  tbody tr:hover td.col-danhmuc { background: var(--accent-bg) !important; }
+  thead th.col-danhmuc-th {
+    z-index: 5;
+    background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
+  }
+
+  /* Cột # cũng sticky */
+  thead th.num-th,
+  tbody td.num {
+    position: sticky;
+    left: 0;
+    z-index: 4;
+  }
+  thead th.num-th {
+    z-index: 7;
+    background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
+  }
+
   /* Specific column widths — chặt hơn để giá lên trước */
   .col-tengoi   { min-width: 220px; max-width: 320px; }
   .col-danhmuc  { min-width: 160px; max-width: 240px; }
@@ -463,6 +528,9 @@
   .col-hangsx, .col-nhanhieu { min-width: 110px; max-width: 170px; }
   .col-xuatxu   { min-width: 90px;  max-width: 150px; }
   .col-kymahieu { min-width: 110px; max-width: 180px; white-space: pre-wrap; }
+  .col-namsx    { min-width: 60px;  max-width: 80px;  }
+  .col-dvt      { min-width: 50px;  max-width: 70px;  }
+  .col-kl       { min-width: 50px;  max-width: 70px;  }
 
   td.col-tengoi { font-size: 12.5px; }
   td.col-tengoi .head {
@@ -575,39 +643,51 @@
   }
   @media (max-width: 520px) {
     body { font-size: 13.5px; }
-    .topbar { padding: 9px 12px; }
-    .brand-title { font-size: 13.5px; }
-    .brand-title .vi-sub { font-size: 12px; }
-    .brand-sub { font-size: 9px; }
-    .logo-mark { width: 32px; height: 32px; }
+    .topbar { padding: 8px 10px; gap: 8px; }
+    .brand { gap: 8px; }
+    .brand-text { display: none; }    /* Mobile: chỉ giữ logo để tiết kiệm chỗ */
+    .logo-mark { width: 34px; height: 34px; }
     .logo-mark::after { font-size: 16px; }
-    .stat-mini { font-size: 9.5px; padding: 4px 9px; }
+    .topbar-search { height: 36px; font-size: 13px; padding: 0 12px; margin: 0; }
+    .stat-mini { font-size: 10px; padding: 4px 8px; }
+    .stat-mini .stat-label { display: none; }
 
     .panel { padding: 10px 10px 0; }
     .columns { grid-template-columns: 1fr; gap: 8px; }
     .col { padding: 8px; }
     .field-input { font-size: 13px; height: 30px; padding: 6px 9px 6px 16px; }
 
-    .action-bar { padding: 10px 10px 0; grid-template-columns: 1fr auto auto; }
+    .action-bar { padding: 8px 10px 0; }
+    .action-bar .info-text { display: none; }
     .icon-btn:nth-child(4) { display: none; }
-    .search-btn { font-size: 13px; height: 44px; padding: 0 18px; }
-    .meta-input, .icon-btn { height: 44px; }
+    .meta-input, .icon-btn { height: 36px; }
 
-    .results-bar { padding: 14px 12px 8px; }
+    .results-bar { padding: 12px 12px 6px; }
     .results-info b { font-size: 19px; }
 
     .table-wrap { margin: 0 10px 80px; border-radius: 10px; }
     table { font-size: 12.5px; }
     thead th { padding: 11px 11px; font-size: 9.5px; }
     tbody td { padding: 10px 11px; }
-    td.num { width: 36px; font-size: 10.5px; }
+    td.num { width: 32px; font-size: 10.5px; padding: 10px 4px; }
 
-    .col-tengoi   { min-width: 200px; max-width: 280px; }
-    .col-danhmuc  { min-width: 150px; max-width: 220px; }
+    .col-tengoi   { min-width: 180px; max-width: 240px; }
+    .col-danhmuc  { min-width: 130px; max-width: 200px; }
     .col-cauhinh  { min-width: 180px; max-width: 280px; }
     td.col-tengoi { font-size: 12px; }
     td.col-tengoi .meta { font-size: 10.5px; }
     td.col-cauhinh { font-size: 11.5px; }
+    .col-namsx, .col-dvt, .col-kl { min-width: 44px; max-width: 60px; }
+
+    /* Sticky col-tengoi: left = 32px (width cột # mobile) */
+    thead th.col-tengoi-th, tbody td.col-tengoi { left: 32px; }
+    thead th.num-th, tbody td.num { left: 0; }
+  }
+  @media (max-width: 380px) {
+    .topbar { padding: 7px 8px; }
+    .topbar-search { font-size: 12.5px; padding: 0 10px; }
+    .topbar-search .btn-txt::after { content: ''; }
+    .stat-mini { padding: 3px 7px; }
   }
 </style>
 </head>
@@ -617,11 +697,15 @@
   <div class="brand">
     <div class="logo-mark"></div>
     <div class="brand-text">
-      <div class="brand-title">物资查询 <span class="vi-sub">tra cứu vật tư</span></div>
-      <div class="brand-sub">MSC · TENDER DATABASE</div>
+      <div class="brand-title">物资查询 <span class="vi-sub">tra cứu</span></div>
+      <div class="brand-sub">MSC · TENDER DB</div>
     </div>
   </div>
-  <div class="stat-mini"><b id="total-count">—</b> dòng</div>
+  <button class="topbar-search" id="search-btn" onclick="doSearch()">
+    <div class="spinner"></div>
+    <span class="btn-txt">▸ TÌM KIẾM</span>
+  </button>
+  <div class="stat-mini" title="Tổng số dòng trong database"><b id="total-count">—</b><span class="stat-label">DÒNG</span></div>
 </div>
 
 <div class="panel">
@@ -663,10 +747,7 @@
 </div>
 
 <div class="action-bar">
-  <button class="search-btn" id="search-btn" onclick="doSearch()">
-    <div class="spinner"></div>
-    <span class="btn-txt">▸ TÌM KIẾM</span>
-  </button>
+  <div class="info-text">▸ Tip: <kbd style="font-family:var(--mono);background:var(--paper);border:1px solid var(--line);padding:1px 5px;border-radius:3px;font-size:10px;color:var(--accent)">Enter</kbd> để tìm nhanh</div>
   <input type="number" class="meta-input" id="limit" value="200" min="1" max="2000" title="Số kết quả tối đa">
   <button class="icon-btn" onclick="clearAll()" title="Xoá tất cả">⌫</button>
   <button class="icon-btn" onclick="exportCSV()" title="Xuất CSV">↓</button>
@@ -699,12 +780,12 @@ const RESULT_COLS = [
   { key: 'danh_muc_hang_hoa',                                       label: 'Danh mục',          cls: 'col-danhmuc' },
   { key: 'ky_ma_hieu',                                              label: 'Ký mã hiệu',        cls: 'col-kymahieu' },
   { key: 'nhan_hieu',                                               label: 'Nhãn hiệu',         cls: 'col-nhanhieu' },
-  { key: 'nam_san_xuat',                                            label: 'Năm SX',            cls: 'mono'        },
+  { key: 'nam_san_xuat',                                            label: 'Năm SX',            cls: 'mono col-namsx' },
   { key: 'xuat_xu_quoc_gia_vung_lanh_tho_san_xuat',                 label: 'Xuất xứ',           cls: 'col-xuatxu'  },
   { key: 'hang_san_xuat',                                           label: 'Hãng SX',           cls: 'col-hangsx'  },
   { key: 'cau_hinh_tinh_nang_ky_thuat_co_ban',                      label: 'Cấu hình KT',       cls: 'col-cauhinh' },
-  { key: 'don_vi_tinh',                                             label: 'ĐVT',               cls: 'mono'        },
-  { key: 'khoi_luong',                                              label: 'KL',                cls: 'mono'        },
+  { key: 'don_vi_tinh',                                             label: 'ĐVT',               cls: 'mono col-dvt' },
+  { key: 'khoi_luong',                                              label: 'KL',                cls: 'mono col-kl' },
   { key: 'xuat_xu_2',                                               label: 'Xuất xứ chi tiết',  cls: 'col-xuatxu'  },
   { key: 'don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co',       label: 'Đơn giá',           cls: 'price'       },
   { key: 'thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co',            label: 'Thành tiền',        cls: 'price warm'  },
@@ -871,10 +952,14 @@ function renderTable(data, elapsed, serverMs) {
     return;
   }
 
-  let head = '<tr><th class="num">#</th>';
+  let head = '<tr><th class="num-th">#</th>';
   RESULT_COLS.forEach(col => {
     const sorted = sortState.col === col.key;
-    head += `<th class="${sorted ? 'sorted' : ''}" onclick="sortBy('${col.key}')">${col.label}<span class="sort-i">${sorted ? (sortState.asc ? '▲' : '▼') : '↕'}</span></th>`;
+    let thCls = sorted ? 'sorted ' : '';
+    if (col.key === 'ten_goi') thCls += 'col-tengoi-th col-tengoi';
+    else if (col.key === 'danh_muc_hang_hoa') thCls += 'col-danhmuc-th col-danhmuc';
+    else thCls += col.cls;
+    head += `<th class="${thCls.trim()}" onclick="sortBy('${col.key}')">${col.label}<span class="sort-i">${sorted ? (sortState.asc ? '▲' : '▼') : '↕'}</span></th>`;
   });
   head += '</tr>';
 
@@ -911,6 +996,16 @@ function renderTable(data, elapsed, serverMs) {
         </table>
       </div>
     </div>`;
+
+  // Tính left động cho cột Danh mục sticky (sau cột # + cột Tên gói)
+  requestAnimationFrame(() => {
+    const tengoi = out.querySelector('th.col-tengoi-th');
+    if (!tengoi) return;
+    const left = 38 + tengoi.offsetWidth; // 38 = width cột #
+    out.querySelectorAll('th.col-danhmuc-th, td.col-danhmuc').forEach(el => {
+      el.style.left = left + 'px';
+    });
+  });
 }
 
 // ============================================================
