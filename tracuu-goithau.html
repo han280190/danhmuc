@@ -825,22 +825,38 @@
 // ============================================================
 const GSHEET_ID = '1JAiwqymHihuwRH53TMvEniFvYCbgUpsc2yP70vmZ4R8';
 const GSHEET_NAME = '02. 业主发标';
+const GSHEET_GID = '939936821';
 
-// Cấu trúc sheet 02. 业主发标:
-//   Row 1 = công thức (skip)
-//   Row 2 = HEADER thực: A=Year, F=plantName, H=notifyNo, ..., AE=TT Chung, AF=search text
-//   Row 3+ = data
-// → dùng range A2:AF20000 + headers=1 để gviz hiểu row 2 là header
-function buildGVizUrl() {
-  const range = 'A2:AF20000';
-  const tq = encodeURIComponent('select *');
-  return `https://docs.google.com/spreadsheets/d/${GSHEET_ID}/gviz/tq`
-    + `?tqx=out:csv`
-    + `&sheet=${encodeURIComponent(GSHEET_NAME)}`
-    + `&range=${range}`
-    + `&headers=1`
-    + `&tq=${tq}`;
-}
+// 2 nguồn fetch (thử lần lượt). "Publish to web" CSV ổn định nhất, không CORS.
+// gviz là fallback. URL nào trả về CSV hợp lệ trước thì dùng.
+const DATA_SOURCES = [
+  // 1. Publish-to-web CSV (đã publish — không cần auth, không CORS)
+  {
+    label: 'pub-csv',
+    headerRowIndex: 0,   // pub CSV: row 0 đã là header thực
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRLLpgClddA-XsikiSGeeEdwQtsUSMMyjGHuuExxSclxSJHL_rRrLxLyAOgVE0-XiKGJ_tqiCt4Ln0Z/pub'
+       + '?gid=' + GSHEET_GID + '&single=true&output=csv'
+  },
+  // 2. GViz CSV (fallback) — sheet ID + sheet name + range bỏ row 1 (formula)
+  {
+    label: 'gviz-range',
+    headerRowIndex: 0,   // dùng range A2:AF + headers=1 → row 0 trả về là header thực
+    url: 'https://docs.google.com/spreadsheets/d/' + GSHEET_ID + '/gviz/tq'
+       + '?tqx=out:csv'
+       + '&sheet=' + encodeURIComponent(GSHEET_NAME)
+       + '&range=A2:AF20000'
+       + '&headers=1'
+       + '&tq=' + encodeURIComponent('select *')
+  },
+  // 3. GViz CSV theo gid (fallback nữa) — không cần sheet name (tránh lỗi unicode)
+  {
+    label: 'gviz-gid',
+    headerRowIndex: 1,   // không có range trim → row 0 = formula, row 1 = header
+    url: 'https://docs.google.com/spreadsheets/d/' + GSHEET_ID + '/gviz/tq'
+       + '?tqx=out:csv'
+       + '&gid=' + GSHEET_GID
+  }
+];
 
 // 16 cột hiển thị (mapping theo công thức QUERY: F,H,AE,M,P,Q,U,V,A,T,R,W,X,Y,Z,AA)
 // + cột Link virtual ở đầu
@@ -1129,8 +1145,46 @@ function buildMSCLink(row) {
 }
 
 // ============================================================
-// LOAD DATA TỪ GOOGLE SHEET
+// LOAD DATA TỪ GOOGLE SHEET — thử lần lượt nhiều nguồn
 // ============================================================
+async function fetchOneSource(source) {
+  const t0 = performance.now();
+  let res;
+  try {
+    res = await fetch(source.url, { redirect: 'follow' });
+  } catch (e) {
+    throw new Error(`[${source.label}] ${e.message || 'network'}`);
+  }
+  if (!res.ok) {
+    throw new Error(`[${source.label}] HTTP ${res.status}`);
+  }
+  const text = await res.text();
+  if (!text || text.length < 50) {
+    throw new Error(`[${source.label}] empty response`);
+  }
+  // Nếu phản hồi là HTML (vd. trang đăng nhập / chuyển hướng) → coi như fail
+  const head = text.slice(0, 200).toLowerCase();
+  if (head.includes('<!doctype html') || head.includes('<html')) {
+    throw new Error(`[${source.label}] returned HTML (sheet chưa public hoặc URL sai)`);
+  }
+  const ms = (performance.now() - t0).toFixed(0);
+  console.log(`[gói thầu] ✓ source "${source.label}" responded in ${ms}ms (${(text.length/1024).toFixed(0)} KB)`);
+  return { text, source };
+}
+
+async function fetchSheetWithFallback() {
+  const errors = [];
+  for (const src of DATA_SOURCES) {
+    try {
+      return await fetchOneSource(src);
+    } catch (e) {
+      console.warn('[gói thầu] source failed:', e.message);
+      errors.push(e.message);
+    }
+  }
+  throw new Error('Tất cả nguồn đều fail: ' + errors.join(' | '));
+}
+
 async function loadData(force = false) {
   if (allData && !force) return allData;
   if (dataLoading) return dataLoading;
@@ -1144,10 +1198,7 @@ async function loadData(force = false) {
   dataLoading = (async () => {
     const t0 = performance.now();
     try {
-      const res = await fetch(buildGVizUrl());
-      if (!res.ok) throw new Error('HTTP ' + res.status + ' — sheet có "Anyone with the link" chưa?');
-      const text = await res.text();
-      if (!text || text.length < 50) throw new Error('Sheet rỗng hoặc không truy cập được');
+      const { text, source } = await fetchSheetWithFallback();
 
       const rows = parseCSV(text);
       if (rows.length < 2) {
@@ -1155,47 +1206,27 @@ async function loadData(force = false) {
         return [];
       }
 
-      const headers = rows[0].map(h => (h || '').trim());
+      // Header có thể ở row 0 hoặc row 1 tuỳ source
+      const headerIdx = source.headerRowIndex || 0;
+      const headers = (rows[headerIdx] || []).map(h => (h || '').trim());
 
-      const data = [];
-      for (let r = 1; r < rows.length; r++) {
-        const arr = rows[r];
-        if (!arr.length) continue;
-        // Skip rows hoàn toàn rỗng
-        if (!arr.some(c => c && String(c).trim())) continue;
-
-        const obj = {};
-        for (let c = 0; c < headers.length; c++) {
-          obj[headers[c]] = arr[c] || '';
+      // Sanity check: header phải chứa các cột quen thuộc
+      const hasExpectedHeaders =
+        headers.includes('plantName') ||
+        headers.includes('notifyNo') ||
+        headers.includes('BidID');
+      if (!hasExpectedHeaders) {
+        // Có thể header thực ở row khác → thử row 1 nếu đang dùng row 0 và ngược lại
+        const altIdx = headerIdx === 0 ? 1 : 0;
+        const altHeaders = (rows[altIdx] || []).map(h => (h || '').trim());
+        if (altHeaders.includes('plantName') || altHeaders.includes('BidID')) {
+          console.log(`[gói thầu] header detected at row ${altIdx} instead of ${headerIdx}`);
+          return parseDataset(rows, altIdx);
         }
-
-        // Build search text — gộp các trường text quan trọng + cột AF gốc
-        // (cột AF index 31 là search text đã lowercase không dấu của sheet gốc)
-        const searchParts = [
-          obj['plantName'] || '',
-          obj['notifyNo'] || '',
-          obj['bidName'] || '',
-          obj['investorName'] || '',
-          obj['investorCode'] || '',
-          obj['provName'] || '',
-          obj['contractorName'] || '',
-          obj['planNo'] || '',
-          obj['BidID'] || '',
-          obj['TT Chung'] || '',
-          arr[31] || ''      // cột AF gốc
-        ];
-        obj.__search = normalizeStrong(searchParts.join(' '));
-        obj.__publicDateTs = parseDate(obj['publicDate']);
-        obj.__hasResult = toNum(obj['bidWinningPrice']) > 0;
-        data.push(obj);
+        throw new Error(`Header không hợp lệ — không tìm thấy cột "plantName" hoặc "BidID". Got: ${headers.slice(0, 8).join(', ')}`);
       }
 
-      allData = data;
-      cnt.textContent = data.length.toLocaleString('vi-VN');
-      stat.classList.remove('loading');
-      const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-      console.log(`[gói thầu] Loaded ${data.length} rows in ${elapsed}s`);
-      return data;
+      return parseDataset(rows, headerIdx);
     } catch (err) {
       stat.classList.remove('loading');
       stat.classList.add('error');
@@ -1207,6 +1238,48 @@ async function loadData(force = false) {
   })();
 
   return dataLoading;
+}
+
+function parseDataset(rows, headerIdx) {
+  const headers = (rows[headerIdx] || []).map(h => (h || '').trim());
+  const data = [];
+  for (let r = headerIdx + 1; r < rows.length; r++) {
+    const arr = rows[r];
+    if (!arr.length) continue;
+    if (!arr.some(c => c && String(c).trim())) continue;
+
+    const obj = {};
+    for (let c = 0; c < headers.length; c++) {
+      obj[headers[c]] = arr[c] || '';
+    }
+
+    // Build search text — gộp các trường text quan trọng + cột AF gốc
+    const searchParts = [
+      obj['plantName'] || '',
+      obj['notifyNo'] || '',
+      obj['bidName'] || '',
+      obj['investorName'] || '',
+      obj['investorCode'] || '',
+      obj['provName'] || '',
+      obj['contractorName'] || '',
+      obj['planNo'] || '',
+      obj['BidID'] || '',
+      obj['TT Chung'] || '',
+      arr[31] || ''
+    ];
+    obj.__search = normalizeStrong(searchParts.join(' '));
+    obj.__publicDateTs = parseDate(obj['publicDate']);
+    obj.__hasResult = toNum(obj['bidWinningPrice']) > 0;
+    data.push(obj);
+  }
+
+  allData = data;
+  const cnt = document.getElementById('total-count');
+  const stat = document.getElementById('stat-mini');
+  cnt.textContent = data.length.toLocaleString('vi-VN');
+  stat.classList.remove('loading');
+  console.log(`[gói thầu] Parsed ${data.length} rows`);
+  return data;
 }
 
 async function reloadData() {
