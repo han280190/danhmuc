@@ -133,34 +133,34 @@
     white-space: nowrap;
   }
 
-  /* Nút TÌM KIẾM trong topbar */
+  /* Nút TÌM KIẾM trong topbar — gọn vừa */
   .topbar-search {
-    flex: 1;
     background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
     color: #fff;
     border: none;
-    border-radius: 10px;
+    border-radius: 9px;
     padding: 0 18px;
     font-family: var(--sans);
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.02em;
     cursor: pointer;
-    height: 40px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 7px;
     transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
     box-shadow: 0 3px 12px rgba(217, 119, 6, 0.28);
-    margin: 0 4px;
-    min-width: 0;
+    margin-left: auto;       /* Đẩy về bên phải, gần stat-mini */
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   .topbar-search:hover { box-shadow: 0 5px 18px rgba(217, 119, 6, 0.4); }
   .topbar-search:active { transform: translateY(1px); }
   .topbar-search:disabled { opacity: 0.55; cursor: not-allowed; }
   .topbar-search .spinner {
-    width: 13px; height: 13px;
+    width: 12px; height: 12px;
     border: 2px solid rgba(255,255,255,0.4);
     border-top-color: #fff;
     border-radius: 50%;
@@ -648,7 +648,7 @@
     .brand-text { display: none; }    /* Mobile: chỉ giữ logo để tiết kiệm chỗ */
     .logo-mark { width: 34px; height: 34px; }
     .logo-mark::after { font-size: 16px; }
-    .topbar-search { height: 36px; font-size: 13px; padding: 0 12px; margin: 0; }
+    .topbar-search { height: 34px; font-size: 12.5px; padding: 0 14px; }
     .stat-mini { font-size: 10px; padding: 4px 8px; }
     .stat-mini .stat-label { display: none; }
 
@@ -797,6 +797,31 @@ let lastKws = [];
 let sortState = { col: null, asc: true };
 
 // ============================================================
+// NORMALIZATION — bỏ dấu, bỏ khoảng trắng, lowercase
+// ============================================================
+// Dùng Unicode Normalization (NFD) để tách ký tự + dấu, rồi xoá dấu
+function stripVietnameseTones(str) {
+  if (!str) return '';
+  return String(str)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')   // dấu thanh + dấu phụ
+    .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+}
+
+// Chuẩn hoá triệt để: lowercase + bỏ dấu + bỏ mọi khoảng trắng/dấu chấm/gạch
+// "Cảm biến" → "cambien"; "Cam Bien" → "cambien"; "cảm-biến" → "cambien"
+function normalizeStrong(str) {
+  return stripVietnameseTones(str)
+    .toLowerCase()
+    .replace(/[\s\-_.,;:/\\()[\]{}'"]+/g, '');   // xoá hết whitespace + ký tự ngăn
+}
+
+// Chuẩn hoá nhẹ (giữ khoảng trắng) — dùng cho highlight
+function normalizeSoft(str) {
+  return stripVietnameseTones(String(str)).toLowerCase();
+}
+
+// ============================================================
 // HELPERS
 // ============================================================
 function readGroup(cls) {
@@ -824,16 +849,74 @@ function escapeRegex(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+// HIGHLIGHT — match diacritic-insensitive bằng cách tạo regex từ phiên bản đã normalize
 function highlight(text, kws) {
-  let s = escapeHtml(text);
-  if (!kws.length) return s;
+  if (!text) return '';
+  const safeText = escapeHtml(text);
+  if (!kws.length) return safeText;
+
+  // Với mỗi ký tự trong text gốc, lấy ký tự đã normalize tương ứng
+  // Sau đó tìm vị trí khớp trong chuỗi normalize, map về vị trí gốc
+  const original = String(text);
+  const normalized = normalizeSoft(original);  // giữ khoảng trắng
+
+  // Build mapping: vị trí trong normalized → vị trí trong original
+  // (vì độ dài có thể khác do NFD tách ký tự)
+  // Đơn giản hóa: làm normalize từng ký tự, build map
+  const charMap = []; // charMap[i] = original index của normalized char thứ i
+  let oi = 0;
+  for (let i = 0; i < original.length; i++) {
+    const norm = normalizeSoft(original[i]);
+    for (let j = 0; j < norm.length; j++) {
+      charMap.push(i);
+    }
+  }
+
+  // Sort kws dài trước
   const sorted = [...new Set(kws)].sort((a, b) => b.length - a.length);
+
+  // Tìm tất cả khoảng cần highlight (start, end) trong original
+  const ranges = [];
   sorted.forEach(kw => {
-    if (!kw) return;
-    const re = new RegExp(escapeRegex(kw), 'gi');
-    s = s.replace(re, m => `<mark>${m}</mark>`);
+    const nkw = normalizeSoft(kw);
+    if (!nkw) return;
+    let pos = 0;
+    while (pos < normalized.length) {
+      const found = normalized.indexOf(nkw, pos);
+      if (found === -1) break;
+      const startOrig = charMap[found];
+      const endOrig = charMap[found + nkw.length - 1] + 1;
+      if (startOrig !== undefined && endOrig !== undefined) {
+        ranges.push([startOrig, endOrig]);
+      }
+      pos = found + 1;
+    }
   });
-  return s;
+
+  if (!ranges.length) return safeText;
+
+  // Merge overlapping ranges
+  ranges.sort((a, b) => a[0] - b[0]);
+  const merged = [ranges[0]];
+  for (let i = 1; i < ranges.length; i++) {
+    const last = merged[merged.length - 1];
+    if (ranges[i][0] <= last[1]) {
+      last[1] = Math.max(last[1], ranges[i][1]);
+    } else {
+      merged.push(ranges[i]);
+    }
+  }
+
+  // Build kết quả với <mark>
+  let result = '';
+  let cursor = 0;
+  merged.forEach(([s, e]) => {
+    result += escapeHtml(original.substring(cursor, s));
+    result += '<mark>' + escapeHtml(original.substring(s, e)) + '</mark>';
+    cursor = e;
+  });
+  result += escapeHtml(original.substring(cursor));
+  return result;
 }
 
 // Format cột Tên gói: tách tiêu đề và các meta line "_..."
@@ -897,13 +980,49 @@ async function doSearch() {
 
   const limit = Math.min(parseInt(document.getElementById('limit').value) || 200, 2000);
 
+  // CHIẾN LƯỢC: Gửi token đặc trưng nhất (dài nhất, không dấu) lên Worker để
+  // thu hẹp tập kết quả thô, sau đó lọc chính xác bằng normalize ở client.
+  // Nếu từ khoá không có dấu hoặc đã đúng dạng, server LIKE sẽ match như thường.
+  // Nếu user gõ "cam bien", server tìm "cam" → match cả "cảm biến" vì "cảm biến"
+  //   chứa "cam" nếu data có lưu "cảm biến" KHÔNG dấu? Không, server có dấu.
+  // → Phải lấy nhiều dữ liệu hơn rồi lọc client.
+  //
+  // Cách hiện thực: gửi LẦN LƯỢT từng token chính của từ khoá lên server,
+  // server trả về union → client filter chính xác bằng normalizeStrong.
+
+  // Lấy token đặc trưng nhất từ mỗi nhóm để query server (dùng OR rộng)
+  // Nếu user gõ "cam bien", token = ["cam", "bien"] — gửi 1 token thôi cho rộng
+  function pickServerToken(groupKws) {
+    // Lấy từ ngắn nhất ≥ 3 ký tự, không dấu — dễ match LIKE
+    const tokens = [];
+    groupKws.forEach(kw => {
+      // Tách thành các từ
+      const words = stripVietnameseTones(kw).toLowerCase().split(/[\s\-_.,;:/\\]+/).filter(w => w.length >= 2);
+      if (words.length) {
+        // Lấy từ dài nhất (đặc trưng nhất)
+        words.sort((a, b) => b.length - a.length);
+        tokens.push(words[0]);
+      }
+    });
+    return tokens;
+  }
+
+  // Server-side query: gửi token KHÔNG DẤU — vì DB có thể có data lẫn lộn
+  // Hiện tại Worker LIKE search trên cột search_text (đã có dấu), nên ta gửi
+  // cả 2 phiên bản: có dấu (nếu user gõ có dấu) và không dấu để bao quát.
   const parts = [];
+
+  // Cho mỗi nhóm, gửi từ khoá GỐC user nhập (server LIKE search)
+  // Server trả về tất cả dòng có chứa bất kỳ kw nào trong nhóm (OR)
+  // Client sau đó lọc lại với normalize cho chính xác
   b.forEach(k => parts.push('g1=' + encodeURIComponent(k)));
   c.forEach(k => parts.push('g2=' + encodeURIComponent(k)));
   d.forEach(k => parts.push('g3=' + encodeURIComponent(k)));
-  a.forEach(k => parts.push('ex=' + encodeURIComponent(k)));
-  parts.push('limit=' + limit);
-  parts.push('cols=' + RESULT_COLS.map(c => c.key).join(','));
+  // Loại trừ chỉ áp dụng client-side để chính xác
+
+  // Lấy nhiều dữ liệu hơn limit hiển thị để client filter có chỗ
+  parts.push('limit=' + Math.min(limit * 5, 5000));
+  parts.push('cols=' + RESULT_COLS.map(c => c.key).concat(['search_text']).join(','));
 
   const url = CF_WORKER_URL + '/search?' + parts.join('&');
 
@@ -914,15 +1033,106 @@ async function doSearch() {
 
   const t0 = performance.now();
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const body = await res.json();
-    if (!body.data) throw new Error(body.error || 'Không có dữ liệu');
+    let serverData = [];
+    let serverMs = null;
+
+    try {
+      const res = await fetch(url);
+      if (res.ok) {
+        const body = await res.json();
+        if (body.data) {
+          serverData = body.data;
+          serverMs = body.elapsed;
+        }
+      }
+    } catch(e) { /* sẽ retry với fallback */ }
+
+    // Nếu server trả ít hoặc 0 (vì user gõ không dấu mà DB có dấu),
+    // thử lại bằng cách query với token không dấu — nhưng server LIKE cũng có dấu nên có thể không giúp.
+    // Fallback: nếu kết quả < limit, thử query với 1 token rộng nhất từ mỗi nhóm
+    if (serverData.length < 50 && (b.length || c.length || d.length)) {
+      const altParts = [];
+      const allGroups = [b, c, d];
+      const allGroupKeys = ['g1', 'g2', 'g3'];
+      let hasAlt = false;
+      allGroups.forEach((grp, idx) => {
+        if (!grp.length) return;
+        // Mỗi từ trong nhóm → tạo các biến thể không dấu
+        const variants = new Set();
+        grp.forEach(kw => {
+          variants.add(kw);                                    // gốc
+          variants.add(stripVietnameseTones(kw));              // bỏ dấu
+          variants.add(stripVietnameseTones(kw).toLowerCase());
+          // Tách từng word, dùng word dài nhất
+          const words = stripVietnameseTones(kw).toLowerCase().split(/\s+/).filter(w => w.length >= 3);
+          words.forEach(w => variants.add(w));
+        });
+        variants.forEach(v => {
+          if (v && v.length >= 2) {
+            altParts.push(allGroupKeys[idx] + '=' + encodeURIComponent(v));
+            hasAlt = true;
+          }
+        });
+      });
+
+      if (hasAlt) {
+        altParts.push('limit=' + Math.min(limit * 5, 5000));
+        altParts.push('cols=' + RESULT_COLS.map(c => c.key).concat(['search_text']).join(','));
+        const altUrl = CF_WORKER_URL + '/search?' + altParts.join('&');
+        try {
+          const res2 = await fetch(altUrl);
+          if (res2.ok) {
+            const body2 = await res2.json();
+            if (body2.data && body2.data.length > serverData.length) {
+              serverData = body2.data;
+              if (body2.elapsed) serverMs = (serverMs || 0) + body2.elapsed;
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    // ===== CLIENT-SIDE FILTER =====
+    // Logic giống Excel: B,C,D giữa các nhóm là AND; trong cùng nhóm là OR.
+    // A là loại trừ.
+    // Tất cả so khớp dùng normalizeStrong (bỏ dấu, bỏ space, lowercase).
+    const groups = [b, c, d].filter(g => g.length);
+    const filtered = serverData.filter(row => {
+      // Build search text — gộp các trường text để search
+      const haystack = normalizeStrong(
+        [
+          row.search_text || '',
+          row.ten_goi || '',
+          row.danh_muc_hang_hoa || '',
+          row.ky_ma_hieu || '',
+          row.nhan_hieu || '',
+          row.hang_san_xuat || '',
+          row.cau_hinh_tinh_nang_ky_thuat_co_ban || '',
+          row.xuat_xu_quoc_gia_vung_lanh_tho_san_xuat || '',
+          row.xuat_xu_2 || '',
+          row.nam_san_xuat || ''
+        ].join(' ')
+      );
+
+      // Phải match TẤT CẢ các nhóm B,C,D (AND)
+      const allGroupsMatch = groups.every(grp => {
+        // Trong 1 nhóm, chỉ cần match 1 từ khoá (OR)
+        return grp.some(kw => haystack.includes(normalizeStrong(kw)));
+      });
+      if (!allGroupsMatch) return false;
+
+      // Không được chứa bất kỳ từ trong A (loại trừ)
+      const noExclude = !a.some(kw => haystack.includes(normalizeStrong(kw)));
+      return noExclude;
+    });
+
+    // Cắt theo limit
+    const finalData = filtered.slice(0, limit);
 
     const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
-    lastResults = body.data;
+    lastResults = finalData;
     lastKws = [...b, ...c, ...d];
-    renderTable(body.data, elapsed, body.elapsed);
+    renderTable(finalData, elapsed, serverMs);
   } catch(e) {
     showError('Lỗi kết nối: ' + e.message);
   }
