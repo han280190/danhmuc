@@ -1069,25 +1069,26 @@ function parseCSV(text) {
 // ============================================================
 // BUILD LINK MUASAMCONG — replicate công thức cột Z trong sheet 03.F
 // ============================================================
-//   Nếu inputResultId (X)  → KQLCNT (đã có kết quả trúng thầu, step 4)
-//   Else if bidSecurity (R) → KQMT  (kết quả mở thầu, step 2)
-//   Else                    → null (không có link)
-//
 // Mapping (sheet 02. 业主发标 → param URL):
-//   id, notifyId  ← BidID  (W)
-//   bidOpenId     ← bidSecurity  (R)
-//   inputResultId ← inputResultId (X)
-//   notifyNo      ← notifyNo  (H)
-//   planNo        ← planNo  (T)
-//   bidMode       ← bidMode (Y)        default '1_MTHS'  → UPPER
-//   processApply  ← processApply (Z)   default 'LDT'     → UPPER
-//   bidForm       ← bidForm (AA)       default 'DTRR'    → UPPER
+//   QUAN TRỌNG: tên header trong sheet 02 không khớp với ý nghĩa thực tế!
+//     Cột R header = "bidSecurity" nhưng giá trị thực là bidNoticeId (id, notifyId)
+//     Cột W header = "BidID"       nhưng giá trị thực là bidOpeningId (bidOpenId)
+//     Cột X header = "inputResultId"
+//   Công thức gốc tham chiếu cột trong sheet 03.F (sau QUERY): $Q3, $R3, $S3...
+//     $Q3 = bidSecurity (R) → ĐÂY là id, notifyId trong URL
+//     $R3 = BidID      (W) → ĐÂY là bidOpenId trong URL
+//     $S3 = inputResultId (X)
+//
+// Logic:
+//   Nếu inputResultId (X) có giá trị → KQLCNT (đã có kết quả trúng thầu, step 4)
+//   Else if BidID/bidOpenId (W) có   → KQMT  (kết quả mở thầu, step 2)
+//   Else                              → null (không có link)
 function buildMSCLink(row) {
-  const id            = String(row['BidID'] || '').trim();
-  const bidOpenId     = String(row['bidSecurity'] || '').trim();
-  const inputResultId = String(row['inputResultId'] || '').trim();
-  const notifyNo      = String(row['notifyNo'] || '').trim();
-  const planNo        = String(row['planNo'] || '').trim();
+  const id            = String(row['bidSecurity'] || '').trim();   // R → id, notifyId
+  const bidOpenId     = String(row['BidID'] || '').trim();         // W → bidOpenId
+  const inputResultId = String(row['inputResultId'] || '').trim(); // X
+  const notifyNo      = String(row['notifyNo'] || '').trim();      // H
+  const planNo        = String(row['planNo'] || '').trim();        // T
   const bidMode       = (String(row['bidMode'] || '').trim() || '1_MTHS').toUpperCase();
   const processApply  = (String(row['processApply'] || '').trim() || 'LDT').toUpperCase();
   const bidForm       = (String(row['bidForm'] || '').trim() || 'DTRR').toUpperCase();
@@ -1157,19 +1158,17 @@ async function fetchOneSource(source, attempt = 1) {
   const t0 = performance.now();
   let res;
   try {
-    res = await fetch(source.url, {
-      redirect: 'follow',
-      mode: 'cors',
-      cache: 'no-store',
-      credentials: 'omit'
-    });
+    // Để fetch options ở mức tối giản — không set cors/credentials/cache để
+    // tránh xung đột với CDN của Google. Default mode là 'cors' và browser
+    // sẽ tự dùng simple GET request không có credentials.
+    res = await fetch(source.url);
   } catch (e) {
     // Thử lại 1 lần nếu network glitch
     if (attempt < 2) {
       await new Promise(r => setTimeout(r, 400));
       return fetchOneSource(source, attempt + 1);
     }
-    throw new Error(`[${source.label}] network error: ${e.message || 'fetch failed'}`);
+    throw new Error(`[${source.label}] network/CORS: ${e.message || 'fetch failed'}`);
   }
   if (!res.ok) {
     throw new Error(`[${source.label}] HTTP ${res.status} ${res.statusText || ''}`);
@@ -1181,7 +1180,7 @@ async function fetchOneSource(source, attempt = 1) {
   // Nếu phản hồi là HTML (vd. trang đăng nhập / chuyển hướng) → coi như fail
   const head = text.slice(0, 200).toLowerCase();
   if (head.includes('<!doctype html') || head.includes('<html')) {
-    throw new Error(`[${source.label}] returned HTML — sheet chưa public hoặc URL sai`);
+    throw new Error(`[${source.label}] trả về HTML thay vì CSV — sheet chưa public hoặc URL sai`);
   }
   const ms = (performance.now() - t0).toFixed(0);
   console.log(`[gói thầu] ✓ source "${source.label}" → ${ms}ms (${(text.length/1024).toFixed(0)} KB)`);
@@ -1195,12 +1194,13 @@ async function fetchSheetWithFallback() {
       return await fetchOneSource(src);
     } catch (e) {
       console.warn('[gói thầu] source failed:', e.message);
-      errors.push(e.message);
+      errors.push({ label: src.label, msg: e.message });
     }
   }
-  // Chi tiết hơn để user/dev có thể nhìn vào console + thông báo
-  const detail = errors.map((m, i) => `(${i+1}) ${m}`).join(' · ');
-  throw new Error(detail);
+  // Tạo error có chi tiết từng nguồn để UI hiển thị
+  const err = new Error('Tất cả nguồn đều fail');
+  err.sourceErrors = errors;
+  throw err;
 }
 
 async function loadData(force = false) {
@@ -1673,17 +1673,25 @@ document.querySelectorAll('.field-input, #min-money, #max-pending, #max-done').f
 loadData()
   .then(() => showReady())
   .catch(e => {
-    const msg = 'Không tải được Google Sheet. Chi tiết: ' + e.message
-      + ' — Kiểm tra: (1) Sheet đã Publish to web ở chế độ CSV chưa? (2) Mở console (F12) để xem chi tiết, hoặc bấm ↻ để thử lại.';
-    showError(msg);
-    document.getElementById('results-info').innerHTML = '▸ Lỗi tải dữ liệu — bấm ↻ để thử lại';
+    let detailHtml = '';
+    if (e.sourceErrors && e.sourceErrors.length) {
+      detailHtml = '<div style="text-align:left;max-width:560px;margin:18px auto 0;font-family:var(--mono);font-size:11px;background:var(--red-bg);border:1px solid var(--red-line);border-radius:8px;padding:12px 14px;line-height:1.7">'
+        + '<div style="font-weight:700;color:var(--red);margin-bottom:6px;letter-spacing:0.05em;text-transform:uppercase;font-size:9.5px">Chi tiết lỗi từng nguồn:</div>'
+        + e.sourceErrors.map((err, i) =>
+            `<div style="color:var(--text2);margin-bottom:3px"><b style="color:var(--red)">${i+1}.</b> ${escapeHtml(err.msg)}</div>`
+          ).join('')
+        + '</div>';
+    }
+    document.getElementById('results-info').innerHTML = '▸ Lỗi tải dữ liệu — bấm <kbd>↻</kbd> để thử lại';
     document.getElementById('results-container').innerHTML = `
       <div class="placeholder">
-        <div class="placeholder-mark" style="border-color:var(--red-line);color:var(--red)">⚠</div>
+        <div class="placeholder-mark" style="border-color:var(--red-line);color:var(--red);border-style:solid">⚠</div>
         <div class="placeholder-title" style="color:var(--red)">Không tải được dữ liệu</div>
         <div class="placeholder-sub">
-          Có thể do mạng hoặc cấu hình sheet. Mở Console (F12) để xem chi tiết từng nguồn fetch, hoặc bấm nút <kbd>↻</kbd> ở action bar để thử lại.
+          Có thể do mạng hoặc cấu hình sheet. Bấm <kbd>↻</kbd> ở action bar để thử lại,
+          hoặc mở Console (F12) tab Network xem chi tiết.
         </div>
+        ${detailHtml}
       </div>`;
   });
 </script>
