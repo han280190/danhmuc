@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phân tích tín hiệu nhiệt điện</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#f4f6f9;--su:#fff;--su2:#f8f9fa;--bd:#d0d7de;--bd2:#b0bac5;
+  --ac:#0969da;--acb:#ddf4ff;--acd:#0550ae;
+  --dg:#cf222e;--dgb:#fff0f0;--dgr:#ffcdd2;
+  --wn:#bf8700;--wnb:#fff8c5;--wnr:#f0c000;
+  --ok:#1a7f37;--okb:#dafbe1;--okr:#a8f0b5;
+  --pp:#8250df;--ppb:#fbefff;--ppr:#d8b4fe;
+  --tx:#1f2328;--t2:#636c76;--t3:#9198a1;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+  --r:6px;--rl:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;line-height:1.6}
+.w{max-width:1000px;margin:0 auto;padding:22px 16px}
+
+.hd{margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
+.hd h1{font-size:17px;font-weight:700}
+.hd p{font-size:12px;color:var(--t2);margin-top:2px}
+
+.card{background:var(--su);border:1px solid var(--bd);border-radius:var(--rl);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+
+/* Input grid */
+.ig{display:grid;grid-template-columns:220px 1fr 150px auto;gap:10px;align-items:end;margin-bottom:10px}
+.fl label{display:block;font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+select,input,textarea{width:100%;border:1px solid var(--bd2);border-radius:var(--r);padding:8px 10px;font-family:var(--sans);font-size:14px;color:var(--tx);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+select:focus,input:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(9,105,218,.1)}
+input::placeholder,textarea::placeholder{color:var(--t3)}
+.btn{background:var(--ac);color:#fff;border:none;border-radius:var(--r);padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.btn:hover{background:var(--acd)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-o{background:#fff;color:var(--ac);border:1px solid var(--ac)}.btn-o:hover{background:var(--acb)}
+
+/* Extra context */
+.ctx{border-top:1px dashed var(--bd);margin-top:10px;padding-top:10px}
+.ctx-lbl{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.ctx-row{display:flex;gap:7px}
+textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
+.ctx-btns{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+
+/* Upload plant info */
+.upl-row{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--bd);font-size:12px;color:var(--t2)}
+#upSt{color:var(--ok);font-family:var(--mono);font-size:11px}
+
+/* Status */
+.st{display:none;align-items:center;gap:7px;font-size:12px;color:var(--t2);margin-top:8px}
+.st.on{display:flex}
+.sp{width:13px;height:13px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:sp .8s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* Stats row */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.sc{background:var(--su);border:1px solid var(--bd);border-radius:var(--r);padding:10px 12px}
+.sl{font-size:11px;color:var(--t2);font-weight:500;margin-bottom:2px}
+.sv{font-size:19px;font-weight:700;font-family:var(--mono)}
+.sv.bl{color:var(--ac)}.sv.rd{color:var(--dg)}.sv.gn{color:var(--ok)}.sv.or{color:var(--wn)}
+
+/* Section title */
+.stt{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.stt::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* Plant card */
+.pc{background:var(--su);border:1px solid var(--bd);border-radius:var(--rl);margin-bottom:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ph{padding:11px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pc.cr .ph{border-left:3px solid var(--dg);background:var(--dgb)}
+.pc.wa .ph{border-left:3px solid var(--wnr);background:var(--wnb)}
+.pc.op .ph{border-left:3px solid var(--ok);background:var(--okb)}
+.pc.in .ph{border-left:3px solid var(--ac);background:var(--acb)}
+.pn{font-size:14px;font-weight:700}
+.pr{font-size:12px;font-weight:400;color:var(--t2);margin-left:3px}
+.bgs{display:flex;gap:4px;flex-wrap:wrap}
+.bg{font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;white-space:nowrap;font-family:var(--mono)}
+.bg.cr{background:var(--dgb);color:var(--dg);border:1px solid var(--dgr)}
+.bg.wa{background:var(--wnb);color:var(--wn);border:1px solid var(--wnr)}
+.bg.in{background:var(--acb);color:var(--ac);border:1px solid #a5d8ff}
+.bg.gn{background:var(--okb);color:var(--ok);border:1px solid var(--okr)}
+.bg.pp{background:var(--ppb);color:var(--pp);border:1px solid var(--ppr)}
+
+/* Cluster warning */
+.cw{background:#fff8c5;border-left:3px solid var(--wnr);padding:6px 12px;font-size:12px;color:#664d03;margin:0 0 0 0}
+
+/* Plant info grid */
+.pig{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));border-bottom:1px solid var(--bd)}
+.pc2{padding:7px 12px;border-right:1px solid var(--bd)}
+.pc2:last-child{border-right:none}
+.pl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1px}
+.pv{font-size:12px;font-weight:600;color:var(--tx)}
+.pv.dg{color:var(--dg)}.pv.wn{color:var(--wn)}.pv.ok{color:var(--ok)}.pv.ac{color:var(--ac)}
+
+/* Year breakdown — CHART MODE */
+.yb{padding:12px 14px}
+.ybt{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.yb-sum{font-family:var(--mono);font-size:11px;color:var(--t2);font-weight:500;text-transform:none;letter-spacing:0}
+.yb-sum .yb-yr{display:inline-block;padding:1px 6px;border-radius:4px;margin-right:5px;font-weight:700}
+
+/* Chart container */
+.chart-wrap{position:relative;width:100%;overflow-x:auto;overflow-y:hidden}
+.chart-svg{display:block;min-width:100%}
+.chart-svg .grid-line{stroke:var(--bd);stroke-width:1;stroke-dasharray:2,3}
+.chart-svg .axis-label{font-family:var(--sans);font-size:10px;fill:var(--t3);font-weight:500}
+.chart-svg .cat-label{font-family:var(--sans);font-size:10.5px;fill:var(--tx);font-weight:600}
+.chart-svg .bar-val{font-family:var(--mono);font-size:10px;fill:var(--tx);font-weight:700;text-anchor:middle}
+.chart-svg .bar{transition:opacity .15s}
+.chart-svg .bar:hover{opacity:.75;cursor:pointer}
+.chart-svg .bar-group:hover .bar-val{fill:var(--ac)}
+
+/* Legend */
+.chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px dashed var(--bd);font-size:11px;color:var(--t2)}
+.chart-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono)}
+.chart-legend-swatch{width:11px;height:11px;border-radius:2px;flex-shrink:0}
+.chart-legend-count{color:var(--t3);margin-left:3px}
+
+/* Empty chart state */
+.chart-empty{padding:20px;text-align:center;color:var(--t3);font-size:12px;background:var(--su2);border-radius:var(--r)}
+
+/* Urgent */
+.ug{background:#fff8c5;border-left:3px solid var(--wnr);padding:7px 12px;margin:0 14px 8px}
+.ugt{font-weight:700;color:#664d03;font-size:12px;margin-bottom:3px}
+.ugi{color:#7c5a00;font-family:var(--mono);font-size:11px;padding:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Evidence */
+.ev{background:var(--su2);border-radius:var(--r);padding:7px 11px;margin:5px 14px 0}
+.ei{font-size:11px;color:var(--t2);padding:2px 0;border-bottom:1px solid var(--bd);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ei:last-child{border-bottom:none}
+.ei .tg{color:var(--wn);font-weight:700}
+
+.pm{padding:7px 14px;background:var(--su2);border-top:1px solid var(--bd);display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
+.pm .nt{color:var(--ac);font-weight:600}
+
+/* AI block */
+.aib{background:var(--su);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-top:4px}
+.aih{background:var(--ac);color:#fff;padding:9px 15px;display:flex;align-items:center}
+.aiht{font-weight:700;font-size:13px}
+.aihs{font-size:11px;opacity:.85;margin-left:auto}
+
+/* AI body — compact markdown */
+.aib-body{padding:14px 18px;font-size:13.5px;line-height:1.6;color:var(--tx)}
+.aib-body h2{font-size:13px;font-weight:700;color:var(--acd);text-transform:uppercase;letter-spacing:.04em;margin:12px 0 3px;padding-bottom:3px;border-bottom:1px solid var(--bd)}
+.aib-body h2:first-child{margin-top:0}
+.aib-body h3{font-size:13px;font-weight:700;color:var(--tx);margin:8px 0 2px}
+.aib-body p{margin:0 0 5px}
+.aib-body ul{margin:2px 0 5px;padding-left:16px}
+.aib-body li{margin-bottom:1px}
+.aib-body strong{font-weight:700}
+
+.sk{background:linear-gradient(90deg,var(--su) 25%,var(--su2) 50%,var(--su) 75%);background-size:200% 100%;animation:sk 1.5s infinite;border-radius:4px;height:13px;margin-bottom:6px}
+@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.empty{text-align:center;padding:50px 20px;color:var(--t2)}
+.empty-i{font-size:40px;margin-bottom:10px;opacity:.2}
+.err{background:var(--dgb);border:1px solid var(--dgr);border-radius:var(--r);padding:11px;color:var(--dg);font-size:13px}
+
+/* Modal */
+.mb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.mb.open{display:flex}
+.mo{background:#fff;border-radius:var(--rl);padding:22px;width:480px;max-width:95vw;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.mo h3{font-size:14px;font-weight:700;margin-bottom:8px}
+.mo p{font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.6}
+.mo code{background:var(--su2);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:11px}
+.mob{display:flex;gap:7px;justify-content:flex-end;margin-top:12px}
+#upPrev{font-size:11px;font-family:var(--mono);background:var(--su2);border:1px solid var(--bd);border-radius:var(--r);padding:7px;max-height:100px;overflow:auto;display:none;color:var(--t2);margin-top:8px}
+
+@media(max-width:640px){.ig{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="w">
+
+<div class="hd">
+  <h1>Phân tích tín hiệu nhà máy nhiệt điện</h1>
+  <p>Nhận diện tín hiệu bảo dưỡng, sự cố & xu hướng vật tư từ dữ liệu TBMT công khai</p>
+</div>
+
+<div class="card">
+  <div class="ig">
+    <div class="fl">
+      <label>Chọn nhà máy</label>
+      <select id="pSel" onchange="onSC()"></select>
+    </div>
+    <div class="fl">
+      <label>Hoặc nhập tự do</label>
+      <input type="text" id="pIn" placeholder="Tên nhà máy khác..." oninput="onIC()">
+    </div>
+    <div class="fl">
+      <label>Năm</label>
+      <select id="ySel">
+        <option value="">Tất cả năm</option>
+        <option value="2025">2025</option>
+        <option value="2024">2024</option>
+        <option value="2023">2023</option>
+        <option value="2022">2022</option>
+        <option value="2021">2021</option>
+      </select>
+    </div>
+    <div class="fl">
+      <label>&nbsp;</label>
+      <button class="btn" id="aBtn" onclick="run()">▶ Phân tích</button>
+    </div>
+  </div>
+
+  <div class="ctx">
+    <div class="ctx-lbl">Dữ liệu bổ sung <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--t3)">— paste báo cáo môi trường, hệ số khả dụng, thông tin sự cố... AI sẽ tích hợp</span></div>
+    <div class="ctx-row">
+      <textarea class="cta" id="ectx" placeholder="Paste thông tin bổ sung:&#10;- Hệ số khả dụng, số giờ vận hành&#10;- Báo cáo quan trắc: SO2=xx mg/Nm³, NOx=xx&#10;- Thông tin sự cố tháng/năm cụ thể&#10;- Kế hoạch đại tu dự kiến..."></textarea>
+      <div class="ctx-btns">
+        <button class="btn-sm btn-o" onclick="document.getElementById('ectx').value=''">Xóa</button>
+        <label class="btn-sm btn-o" style="cursor:pointer;text-align:center;display:block;padding:5px 10px;border-radius:var(--r);border:1px solid var(--ac);color:var(--ac);font-size:12px;background:#fff">
+          📎 File<input type="file" accept=".txt,.json,.csv" style="display:none" onchange="ldF(this)">
+        </label>
+      </div>
+    </div>
+    <div class="upl-row">
+      <span>Cập nhật cấu hình nhà máy:</span>
+      <button class="btn-sm btn-o" onclick="document.getElementById('moB').classList.add('open')">📊 Upload Excel</button>
+      <span id="upSt"></span>
+    </div>
+  </div>
+
+  <div class="st" id="stBar">
+    <div class="sp"></div>
+    <span id="stTx">Đang xử lý...</span>
+  </div>
+</div>
+
+<!-- Modal upload -->
+<div class="mb" id="moB" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="mo">
+    <h3>📊 Upload cấu hình nhà máy</h3>
+    <p>File CSV/Excel, <strong>row 1 là tiêu đề</strong>, từ row 2 là dữ liệu.<br>
+    Cột cần có: <code>Tên nhà máy</code> <code>Năm VH</code> <code>Công suất</code> <code>Lò Hơi</code> <code>Tuabin</code> <code>Máy phát</code> <code>Tổng thầu EPC</code><br>
+    Cột "Tuổi" tự tính, không cần nhập. Dữ liệu chỉ lưu trong phiên làm việc này.</p>
+    <input type="file" id="upF" accept=".csv,.txt" onchange="prevUp(this)">
+    <div id="upPrev"></div>
+    <div class="mob">
+      <button class="btn-sm btn-o" onclick="document.getElementById('moB').classList.remove('open')">Hủy</button>
+      <button class="btn btn-sm" onclick="applyUp()">✓ Áp dụng</button>
+    </div>
+  </div>
+</div>
+
+<div id="out">
+  <div class="empty">
+    <div class="empty-i">📊</div>
+    <p style="font-size:14px;font-weight:600;color:var(--tx)">Chọn nhà máy và bấm Phân tích</p>
+    <p style="font-size:12px;margin-top:4px">Tool đọc TBMT → nhận diện tín hiệu theo từng năm → AI phân tích chi tiết</p>
+  </div>
+</div>
+
+</div>
+<script>
+const W = 'https://danhmuc-search.han280190.workers.dev';
+
+// ============ DANH SÁCH NHÀ MÁY NHIỆT ĐIỆN (chỉ nhiệt điện than/khí) ============
+const PLANTS = [
+  'Cao Ngạn','Điện Cà Mau','Điện Sơn Động','Điện Uông Bí','Điện Vũng Áng 2',
+  'Đông Triều','Duyên Hải 1','Duyên Hải 2','Hải Phòng','Long Phú 1',
+  'Mông Dương','Na Dương','Nghi Sơn','Nhiệt điện Cẩm Phả','Nhiệt điện Cần Thơ',
+  'Nhiệt điện Quảng Ninh','Nhiệt điện Quảng Trạch','Nhơn Trạch 1','Ninh Bình',
+  'Nông Sơn','Phả Lại 1','Phú Mỹ 1','Phú Mỹ 3','Sông Hậu 1',
+  'Thái Bình 1','Thái Bình 2','Vĩnh Tân 1','Vĩnh Tân 2','Vĩnh Tân 4',
+];
+
+// Cụm nhà máy dùng chung đơn vị vận hành
+const CLUSTERS = [
+  {kws:['vĩnh tân','vinh tan'], msg:'Vĩnh Tân 1/2/4 cùng khu Bình Thuận, dùng chung đơn vị SCVH — tên TBMT có thể bị nhầm giữa các nhà máy'},
+  {kws:['duyên hải','duyen hai'], msg:'Duyên Hải 1/2/3 cùng khu Trà Vinh — tên TBMT có thể bị nhầm'},
+  {kws:['hải phòng','hai phong'], msg:'Các tổ Hải Phòng cùng địa điểm — tên TBMT có thể bị nhầm'},
+  {kws:['quảng ninh','quang ninh','mông dương','cẩm phả','đông triều','uông bí'], msg:'Cụm Quảng Ninh (Quảng Ninh / Mông Dương / Cẩm Phả / Đông Triều / Uông Bí) — dùng chung đơn vị vận hành, dễ nhầm tên TBMT'},
+  {kws:['phú mỹ','phu my'], msg:'Cụm Phú Mỹ (Phú Mỹ 1/2/3/4) — tên TBMT có thể bị nhầm'},
+];
+
+// Database thông tin nhà máy
+let DB = [
+  {n:'Cao Ngạn',r:'Thái Nguyên',mw:115,y:2007,u:2,epc:'Harbin Power Engineering',tb:'Harbin',boi:'Harbin',gen:'Harbin',note:'Toàn bộ Harbin'},
+  {n:'Điện Cà Mau',r:'Cà Mau',mw:1500,y:2008,u:2,epc:'LILAMA',tb:'',boi:'',gen:'',note:'Turbo gas'},
+  {n:'Điện Sơn Động',r:'Bắc Giang',mw:220,y:2011,u:2,epc:'Shanghai EPC Co.',tb:'Beijing Beizhong N110-8.92/535',boi:'Harbin HG-433/9.8',gen:'',note:'EPC Shanghai'},
+  {n:'Điện Uông Bí',r:'Quảng Ninh',mw:630,y:1961,u:2,epc:'Chengda (mở rộng)',tb:'',boi:'',gen:'',note:'Vận hành 1961 — lâu đời nhất VN'},
+  {n:'Đông Triều',r:'Quảng Ninh',mw:440,y:2012,u:2,epc:'Wuhan Kaidi',tb:'Dongfang N226-16.7/538/538',boi:'Foster Wheeler CFB',gen:'Shanghai Electric QFNS-220-2',note:'MÁY PHÁT SHANGHAI ELECTRIC'},
+  {n:'Duyên Hải 1',r:'Trà Vinh',mw:1245,y:2015,u:2,epc:'Dongfang Electric (DEC)',tb:'Dongfang N622-16.67/538/538',boi:'B&W',gen:'',note:'EPC Dongfang, tuabin Dongfang. Dùng chung SCVH với DH2'},
+  {n:'Duyên Hải 2',r:'Trà Vinh',mw:1200,y:2021,u:2,epc:'China Huadian Engineering (CHEC)',tb:'',boi:'',gen:'',note:'BOT Trung Quốc 2021'},
+  {n:'Hải Phòng',r:'Hải Phòng',mw:1200,y:2000,u:4,epc:'Marubeni + Dongfang Electric',tb:'',boi:'Dongfang DG996/17.45',gen:'',note:'Lò hơi Dongfang, vận hành 2000'},
+  {n:'Long Phú 1',r:'Sóc Trăng',mw:1200,y:0,u:2,epc:'PTSC + Power Machines (Nga)',tb:'',boi:'',gen:'',note:'Chưa vận hành'},
+  {n:'Mông Dương',r:'Quảng Ninh',mw:1242,y:2015,u:2,epc:'Doosan',tb:'',boi:'',gen:'',note:'BOT AES, Doosan'},
+  {n:'Na Dương',r:'Lạng Sơn',mw:110,y:2006,u:2,epc:'Marubeni + Sumitomo',tb:'Fuji Electric',boi:'Foster Wheeler CFB',gen:'Fuji Electric',note:'Thiết bị Nhật, CFB boiler'},
+  {n:'Nghi Sơn',r:'Thanh Hóa',mw:600,y:2013,u:2,epc:'Marubeni',tb:'',boi:'',gen:'',note:'EPC Marubeni'},
+  {n:'Nhiệt điện Cẩm Phả',r:'Quảng Ninh',mw:600,y:2009,u:2,epc:'Harbin Electric International',tb:'Harbin N340-16.77/538',boi:'Harbin (thiết kế Foster Wheeler)',gen:'Harbin QFSN-340-2',note:'Toàn bộ Harbin'},
+  {n:'Nhiệt điện Cần Thơ',r:'Cần Thơ',mw:188,y:2009,u:2,epc:'',tb:'',boi:'',gen:'',note:''},
+  {n:'Nhiệt điện Quảng Ninh',r:'Quảng Ninh',mw:600,y:2010,u:2,epc:'Shanghai Electric (SEC)',tb:'',boi:'SBWL SG-995/17.5-M728',gen:'',note:'EPC SHANGHAI ELECTRIC'},
+  {n:'Nhiệt điện Quảng Trạch',r:'Quảng Bình',mw:1200,y:2025,u:2,epc:'Liên danh MC–HDEC–CC1',tb:'',boi:'',gen:'',note:'Mới 2025'},
+  {n:'Nhơn Trạch 1',r:'Đồng Nai',mw:450,y:2009,u:1,epc:'LILAMA',tb:'',boi:'',gen:'',note:'Turbo gas'},
+  {n:'Ninh Bình',r:'Ninh Bình',mw:100,y:1974,u:4,epc:'',tb:'',boi:'',gen:'',note:'Vận hành 1974 — cực cũ'},
+  {n:'Nông Sơn',r:'Quảng Nam',mw:30,y:2015,u:1,epc:'China National Heavy Machinery',tb:'CCJEC',boi:'Jinan Boiler',gen:'',note:'Nhỏ 30MW'},
+  {n:'Phả Lại 1',r:'Hải Dương',mw:440,y:1983,u:4,epc:'',tb:'LMZ (K100-90-7)',boi:'BKZ + Mitsui Babcock',gen:'',note:'Tuabin LMZ Nga, vận hành 1983'},
+  {n:'Phú Mỹ 1',r:'Bà Rịa-VT',mw:1090,y:2002,u:4,epc:'ABB',tb:'',boi:'',gen:'',note:'Turbo gas ABB'},
+  {n:'Phú Mỹ 3',r:'Bà Rịa-VT',mw:715,y:2004,u:1,epc:'Siemens',tb:'',boi:'',gen:'',note:'BOT Siemens turbo gas'},
+  {n:'Sông Hậu 1',r:'Hậu Giang',mw:1200,y:2022,u:2,epc:'Doosan',tb:'',boi:'Doosan',gen:'Doosan Enerbility',note:'Toàn bộ Doosan, mới 2022'},
+  {n:'Thái Bình 1',r:'Thái Bình',mw:600,y:2017,u:2,epc:'Marubeni',tb:'',boi:'',gen:'',note:'EPC Marubeni'},
+  {n:'Thái Bình 2',r:'Thái Bình',mw:1200,y:2023,u:2,epc:'PVC',tb:'',boi:'',gen:'Toshiba',note:'Mới 2023'},
+  {n:'Vĩnh Tân 1',r:'Bình Thuận',mw:1240,y:2018,u:2,epc:'Guangdong Electric Power Design',tb:'Dongfang N620-24.2/566/566',boi:'',gen:'Dongfang QFSN-620-2-22',note:'BOT TQ, Dongfang. Ít public vật tư, tên gói thường tiếng Anh'},
+  {n:'Vĩnh Tân 2',r:'Bình Thuận',mw:1244,y:2014,u:2,epc:'Shanghai Electric',tb:'',boi:'',gen:'',note:'EPC SHANGHAI ELECTRIC, vận hành 2014 (10+ năm). Dùng chung SCVH với VT4'},
+  {n:'Vĩnh Tân 4',r:'Bình Thuận',mw:1200,y:2018,u:2,epc:'Doosan + Mitsubishi',tb:'Toshiba',boi:'Doosan',gen:'Toshiba',note:'Toshiba/Doosan hiện đại, vận hành 2018. Dùng chung SCVH với VT2 → dễ nhầm tên TBMT'},
+];
+
+const SCFG = {
+  ov:{l:'Đại tu/SCL',c:'cr',kws:['đại tu','scl','sửa chữa lớn','major overhaul','overhaul','major maintenance']},
+  mt:{l:'Trung tu',c:'wa',kws:['trung tu','mid-term','sửa chữa vừa','medium overhaul']},
+  mn:{l:'Tiểu tu',c:'in',kws:['tiểu tu','minor','bảo dưỡng định kỳ','bddk','routine maintenance','annual maintenance']},
+  ic:{l:'Sự cố/Khẩn',c:'cr',kws:['sự cố','bất thường','khẩn cấp','emergency','đột xuất','unexpected','cấp cứu','urgent','khắc phục sự cố']},
+  tb:{l:'Tuabin',c:'wa',kws:['tuabin','turbine','cánh tuabin','rotor','blade','nozzle','trục tuabin','governing valve','diaphragm']},
+  gn:{l:'Máy phát',c:'wa',kws:['máy phát','generator','stator','cuộn dây','winding','vành góp','kích từ','exciter','quấn dây','rewinding','hydrogen','hydro']},
+  bl:{l:'Lò hơi',c:'in',kws:['lò hơi','boiler','ống lò','vòi đốt','superheater','reheater','economizer','steam drum']},
+  ht:{l:'Bình gia nhiệt',c:'pp',kws:['bình gia nhiệt','feedwater heater','hp heater','lp heater','feed heater','jg-','heat exchanger','ống rò','ăn mòn','corrosion']},
+  ev:{l:'MT/CEMS',c:'gn',kws:['cems','quan trắc','khí thải','so2','nox','fgd','scr','hiệu chuẩn','desulfur','emission','khí chuẩn']},
+  es:{l:'Lọc bụi/ESP',c:'gn',kws:['lọc bụi','esp','electrostatic precipitator','dust collector','bag filter','lọc tĩnh điện']},
+  br:{l:'Vòng bi',c:'wa',kws:['vòng bi','bearing','ổ bi','bạc lót','bush']},
+  sl:{l:'Làm kín',c:'in',kws:['làm kín','seal','vành chèn','packing','gasket','gioăng','phớt','đường ống','rò rỉ','leak','ăn mòn']},
+  pm:{l:'Bơm/Quạt',c:'in',kws:['bơm','pump','quạt','fan','blower','bfp']},
+  dc:{l:'DCS/Điều khiển',c:'pp',kws:['dcs','scada','plc','điều khiển','control system','i&c','cảm biến','sensor','transmitter']},
+  fu:{l:'Than/Nhiên liệu',c:'in',kws:['than','coal','nhiên liệu','fuel','cấp than','băng tải than']},
+};
+const URG=['khẩn','emergency','urgent','đột xuất','cấp cứu','khắc phục sự cố','bất thường','sự cố'];
+
+// Palette màu cho các năm (grouped bar chart)
+const YR_COLORS = {
+  2021:{main:'#8250df', light:'#fbefff'},
+  2022:{main:'#0969da', light:'#ddf4ff'},
+  2023:{main:'#1a7f37', light:'#dafbe1'},
+  2024:{main:'#bf8700', light:'#fff8c5'},
+  2025:{main:'#cf222e', light:'#fff0f0'},
+  2026:{main:'#6f42c1', light:'#f3f0ff'},
+};
+// Fallback palette nếu năm khác
+const FALLBACK_COLORS = ['#6366f1','#14b8a6','#f97316','#ec4899','#84cc16','#06b6d4'];
+function getYrColor(yr, idx){
+  return YR_COLORS[yr] || {main:FALLBACK_COLORS[idx%FALLBACK_COLORS.length], light:'#f0f0f0'};
+}
+
+let pendUp=null;
+
+function initDropdown(){
+  const s=document.getElementById('pSel');
+  PLANTS.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p; o.textContent=p;
+    s.appendChild(o);
+  });
+}
+
+function onSC(){if(document.getElementById('pSel').value)document.getElementById('pIn').value='';}
+function onIC(){if(document.getElementById('pIn').value)document.getElementById('pSel').value='';}
+function getP(){return document.getElementById('pIn').value.trim()||document.getElementById('pSel').value;}
+
+function findDB(n){if(!n)return null;const q=n.toLowerCase().trim();return DB.find(p=>p.n.toLowerCase().includes(q)||q.includes(p.n.toLowerCase()))||null;}
+
+function ageI(y){
+  if(!y||y===0)return{l:'Chưa VH',c:''};
+  const a=new Date().getFullYear()-y;
+  if(a>=30)return{l:`${a}năm — Cuối vòng đời`,c:'dg'};
+  if(a>=20)return{l:`${a}năm — Lão hóa`,c:'wn'};
+  if(a>=10)return{l:`${a}năm — Trung tuổi`,c:'ac'};
+  return{l:`${a}năm — Còn mới`,c:'ok'};
+}
+
+function cwMsg(n){
+  const q=(n||'').toLowerCase();
+  for(const c of CLUSTERS){if(c.kws.some(k=>q.includes(k)))return c.msg;}
+  return null;
+}
+
+function detect(rows){
+  const bp={};
+  for(const row of rows){
+    const nm=row.ten_nha_may||'Không rõ';
+    if(!bp[nm])bp[nm]={spk:{},sigs:{},byY:{},pkgs:new Set(),cost:0,ugp:[],its:[]};
+    bp[nm].pkgs.add(row.tbmt);
+    const c=parseFloat((row.thanh_tien||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
+    bp[nm].cost+=c;
+    const tg=(row.ten_goi||'').toLowerCase();
+    const isU=URG.some(k=>tg.includes(k));
+    const yr=(row.publicdate||'').split('/')[2]||null;
+    if(isU&&bp[nm].ugp.indexOf(row.tbmt)<0&&bp[nm].ugp.length<10)bp[nm].ugp.push({tbmt:row.tbmt,tg:row.ten_goi||'',yr:yr||''});
+    if(bp[nm].its.length<15&&row.danh_muc_hang_hoa)bp[nm].its.push({cat:row.danh_muc_hang_hoa,gia:row.don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co||'',nh:row.nhan_hieu||'',xx:row.xuat_xu_2||'',yr:yr||''});
+    if(yr){if(!bp[nm].byY[yr])bp[nm].byY[yr]={spk:{},sigs:{},pkgs:new Set(),cost:0};bp[nm].byY[yr].pkgs.add(row.tbmt);bp[nm].byY[yr].cost+=c;}
+    const tx=(row.search_text||row.ten_goi||'').toLowerCase();
+    for(const[k,cf]of Object.entries(SCFG)){
+      for(const kw of cf.kws){
+        if(tx.includes(kw)){
+          if(!bp[nm].spk[k])bp[nm].spk[k]=new Set(); bp[nm].spk[k].add(row.tbmt); bp[nm].sigs[k]=bp[nm].spk[k].size;
+          if(yr){if(!bp[nm].byY[yr].spk[k])bp[nm].byY[yr].spk[k]=new Set();bp[nm].byY[yr].spk[k].add(row.tbmt);bp[nm].byY[yr].sigs[k]=bp[nm].byY[yr].spk[k].size;}
+          break;
+        }
+      }
+    }
+  }
+  return bp;
+}
+
+function fc(n){if(!n)return'—';if(n>=1e9)return(n/1e9).toFixed(1)+' tỷ';if(n>=1e6)return(n/1e6).toFixed(0)+' tr';return n.toLocaleString('vi-VN');}
+
+// ============ GROUPED BAR CHART RENDERER ============
+// Input: byYear = {yr: {sigs:{k:count}, pkgs:Set, cost}}
+// Output: SVG grouped bar chart với số lượng gói trên đầu cột
+function renderYearChart(byYear){
+  const years = Object.keys(byYear).sort();
+  if(!years.length) return '<div class="chart-empty">Không có dữ liệu theo năm</div>';
+  
+  // Thu thập tất cả category xuất hiện ở ít nhất 1 năm, giữ thứ tự theo SCFG
+  const catSet = new Set();
+  years.forEach(yr => Object.keys(byYear[yr].sigs).forEach(k => catSet.add(k)));
+  const cats = Object.keys(SCFG).filter(k => catSet.has(k));
+  
+  if(!cats.length) return '<div class="chart-empty">Không có tín hiệu nào được nhận diện</div>';
+  
+  // Nếu chỉ có 1 category → không cần grouped, nhưng vẫn render để đồng nhất
+  // Tìm giá trị max để scale chiều cao
+  let maxVal = 0;
+  cats.forEach(k => years.forEach(yr => {
+    const v = byYear[yr].sigs[k] || 0;
+    if(v > maxVal) maxVal = v;
+  }));
+  if(maxVal === 0) maxVal = 1;
+  
+  // "Làm đẹp" maxVal: làm tròn lên bội số hợp lý
+  const niceMax = (v) => {
+    if(v <= 5) return 5;
+    if(v <= 10) return 10;
+    if(v <= 20) return 20;
+    if(v <= 50) return Math.ceil(v/10)*10;
+    if(v <= 100) return Math.ceil(v/20)*20;
+    return Math.ceil(v/50)*50;
+  };
+  const yMax = niceMax(maxVal);
+  
+  // Layout
+  const padL = 36, padR = 12, padT = 22, padB = 58;
+  const chartH = 180;
+  const barW = Math.max(10, Math.min(22, 80 / years.length)); // độ rộng mỗi bar trong 1 group
+  const groupW = barW * years.length + 6; // khoảng giữa bars trong group
+  const gap = 18; // khoảng cách giữa các group category
+  const innerW = cats.length * (groupW + gap) - gap;
+  const totalW = Math.max(innerW + padL + padR, 380);
+  const totalH = chartH + padT + padB;
+  
+  // Y-axis ticks (4 ticks: 0, 1/4, 1/2, 3/4, max)
+  const yTicks = [0, yMax*0.25, yMax*0.5, yMax*0.75, yMax].map(v => Math.round(v));
+  const yToPx = (v) => padT + chartH - (v / yMax) * chartH;
+  
+  // Build SVG
+  let svg = `<svg class="chart-svg" viewBox="0 0 ${totalW} ${totalH}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMid meet">`;
+  
+  // Grid lines + y labels
+  yTicks.forEach(v => {
+    const y = yToPx(v);
+    svg += `<line class="grid-line" x1="${padL}" y1="${y}" x2="${totalW-padR}" y2="${y}"/>`;
+    svg += `<text class="axis-label" x="${padL-6}" y="${y+3}" text-anchor="end">${v}</text>`;
+  });
+  
+  // Bars
+  cats.forEach((catKey, ci) => {
+    const catLbl = SCFG[catKey].l;
+    const groupX = padL + ci * (groupW + gap);
+    const groupCenter = groupX + groupW/2;
+    
+    // Category label (trục X, xoay 0° vì nhiều category)
+    // Nếu label dài → rút gọn
+    const shortLbl = catLbl.length > 10 ? catLbl.substring(0,9)+'…' : catLbl;
+    svg += `<text class="cat-label" x="${groupCenter}" y="${padT+chartH+16}" text-anchor="middle">${shortLbl}</text>`;
+    // Tooltip-like title cho category (full name)
+    // Dùng <title> để hover SVG hiện tooltip
+    
+    years.forEach((yr, yi) => {
+      const v = byYear[yr].sigs[catKey] || 0;
+      const color = getYrColor(yr, yi);
+      const bx = groupX + yi * barW + 3;
+      const by = yToPx(v);
+      const bh = padT + chartH - by;
+      
+      svg += `<g class="bar-group">`;
+      if(v > 0){
+        svg += `<rect class="bar" x="${bx}" y="${by}" width="${barW-2}" height="${bh}" fill="${color.main}" rx="2">`;
+        svg += `<title>${catLbl} · năm ${yr}: ${v} gói</title>`;
+        svg += `</rect>`;
+        // Label số trên đầu cột — chỉ hiện nếu bar đủ cao (>12px) hoặc giá trị >= 2
+        svg += `<text class="bar-val" x="${bx + (barW-2)/2}" y="${by - 3}">${v}</text>`;
+      } else {
+        // Bar rỗng rất mỏng để giữ alignment (tuỳ chọn)
+        svg += `<rect class="bar" x="${bx}" y="${padT+chartH-1}" width="${barW-2}" height="1" fill="${color.main}" opacity="0.2"/>`;
+      }
+      svg += `</g>`;
+    });
+  });
+  
+  // X-axis base line
+  svg += `<line x1="${padL}" y1="${padT+chartH}" x2="${totalW-padR}" y2="${padT+chartH}" stroke="var(--bd2)" stroke-width="1"/>`;
+  // Y-axis label
+  svg += `<text class="axis-label" x="${padL-28}" y="${padT-6}" transform="rotate(0)">gói</text>`;
+  
+  svg += `</svg>`;
+  
+  // Legend năm + summary (tổng gói / chi phí từng năm)
+  const legendHtml = years.map((yr, yi) => {
+    const color = getYrColor(yr, yi);
+    const yd = byYear[yr];
+    const totalSigPkgs = Object.values(yd.sigs).reduce((a,b)=>a+b, 0);
+    return `<div class="chart-legend-item"><span class="chart-legend-swatch" style="background:${color.main}"></span><strong>${yr}</strong><span class="chart-legend-count">${yd.pkgs.size}gói · ${fc(yd.cost)}</span></div>`;
+  }).join('');
+  
+  return `<div class="chart-wrap">${svg}</div><div class="chart-legend">${legendHtml}</div>`;
+}
+
+function renderCard(nm,d){
+  const sigs=Object.keys(d.sigs); if(!sigs.length)return'';
+  const pi=findDB(nm), ar=pi?ageI(pi.y):null, cw=cwMsg(nm);
+  const lv=(d.sigs.ov||d.sigs.ic)?'cr':(d.sigs.tb||d.sigs.gn||d.sigs.br)?'wa':(d.sigs.ev||d.sigs.es)?'op':'in';
+  const bgs=sigs.map(k=>`<span class="bg ${SCFG[k].c}">${SCFG[k].l} ×${d.sigs[k]}</span>`).join('');
+  const cwH=cw?`<div class="cw">⚠ ${cw}</div>`:'';
+  let piH='';
+  if(pi)piH=`<div class="pig">
+    <div class="pc2"><div class="pl">Năm VH</div><div class="pv">${pi.y||'?'}</div></div>
+    <div class="pc2"><div class="pl">Tuổi</div><div class="pv ${ar?.c||''}">${ar?.l||'?'}</div></div>
+    <div class="pc2"><div class="pl">Công suất</div><div class="pv">${pi.mw}MW/${pi.u}tổ</div></div>
+    <div class="pc2"><div class="pl">Tuabin</div><div class="pv">${pi.tb||'—'}</div></div>
+    <div class="pc2"><div class="pl">Máy phát</div><div class="pv">${pi.gen||'—'}</div></div>
+    <div class="pc2"><div class="pl">Lò hơi</div><div class="pv">${pi.boi||'—'}</div></div>
+    <div class="pc2"><div class="pl">EPC</div><div class="pv">${pi.epc||'—'}</div></div>
+  </div>`;
+  
+  // === CHART THAY CHO YEAR PILLS ===
+  const yrs=Object.keys(d.byY).sort();
+  let ybH='';
+  if(yrs.length){
+    ybH=`<div class="yb">
+      <div class="ybt"><span>Tín hiệu theo năm · số gói</span><span class="yb-sum">${yrs.length} năm dữ liệu</span></div>
+      ${renderYearChart(d.byY)}
+    </div>`;
+  }
+  
+  let ugH='';
+  if(d.ugp.length)ugH=`<div class="ug"><div class="ugt">🚨 ${d.ugp.length} gói khẩn cấp/sự cố</div>${d.ugp.slice(0,5).map(u=>`<div class="ugi">▸ [${u.yr}] ${(u.tg||'').substring(0,118)}</div>`).join('')}</div>`;
+  const evi=sigs.flatMap(k=>d.rows?d.rows.filter(r=>SCFG[k].kws.some(w=>(r.search_text||r.ten_goi||'').toLowerCase().includes(w))).slice(0,2).map(r=>({t:r.ten_goi||'',k})):[]).slice(0,6);
+  const evH=evi.length?`<div class="ev">${evi.map(e=>`<div class="ei"><span class="tg">[${SCFG[e.k].l}]</span> ${(e.t||'').substring(0,118)}</div>`).join('')}</div>`:'';
+  return `<div class="pc ${lv}">
+    <div class="ph"><div class="pn">${nm}<span class="pr">${pi?.r||''}</span></div><div class="bgs">${bgs}</div></div>
+    ${cwH}${piH}${ybH}${ugH}${evH}
+    <div class="pm"><span>📦 ${d.pkgs.size} gói</span><span>💰 ~${fc(d.cost)}</span>${pi?.note?`<span class="nt">ℹ ${pi.note}</span>`:''}</div>
+  </div>`;
+}
+
+// Upload plant info
+function prevUp(inp){
+  const f=inp.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    const txt=e.target.result;
+    document.getElementById('upPrev').style.display='block';
+    document.getElementById('upPrev').textContent=txt.split('\n').slice(0,5).join('\n');
+    try{
+      const lines=txt.split('\n').filter(l=>l.trim());
+      const hdrs=lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,'').toLowerCase());
+      pendUp=lines.slice(1).map(line=>{const cols=line.split(',').map(c=>c.trim().replace(/^"|"$/g,''));const o={};hdrs.forEach((h,i)=>o[h]=cols[i]||'');return o;}).filter(r=>r['tên nhà máy']||r['ten nha may']);
+      document.getElementById('upSt').textContent=`✓ Đọc được ${pendUp.length} nhà máy`;
+    }catch(e){document.getElementById('upSt').textContent='⚠ Không đọc được file';}
+  };
+  rd.readAsText(f,'UTF-8');
+}
+
+function applyUp(){
+  if(!pendUp||!pendUp.length){alert('Chưa có dữ liệu');return;}
+  const gc=(r,keys)=>{for(const k of keys){if(r[k]!==undefined&&r[k]!=='')return r[k];}return'';};
+  let upd=0;
+  for(const row of pendUp){
+    const pn=gc(row,['tên nhà máy','ten nha may','name']);if(!pn)continue;
+    const ex=DB.find(p=>p.n.toLowerCase()===pn.toLowerCase());
+    const d={n:pn,r:ex?.r||'',mw:parseFloat(gc(row,['công suất','cong suat','mw']))||ex?.mw||0,y:parseInt(gc(row,['năm vh','nam vh','year']))||ex?.y||0,u:ex?.u||2,epc:gc(row,['tổng thầu epc','epc','tong thau epc'])||ex?.epc||'',tb:gc(row,['tuabin','turbine'])||ex?.tb||'',boi:gc(row,['lò hơi','lo hoi','boiler'])||ex?.boi||'',gen:gc(row,['máy phát','may phat','generator'])||ex?.gen||'',note:ex?.note||''};
+    if(ex)Object.assign(ex,d); else DB.push(d); upd++;
+  }
+  document.getElementById('upSt').textContent=`✅ Đã cập nhật ${upd} nhà máy`;
+  document.getElementById('moB').classList.remove('open');
+  pendUp=null;
+}
+
+function ldF(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const ex=document.getElementById('ectx').value;document.getElementById('ectx').value=(ex?ex+'\n\n':'')+`=== ${f.name} ===\n`+e.target.result;};r.readAsText(f,'UTF-8');inp.value='';}
+
+// MD to HTML compact
+function md2h(txt){
+  return txt
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>[^<]*<\/li>\n?)+/g,m=>'<ul>'+m+'</ul>')
+    .replace(/\n{2,}(?!<)/g,'</p><p>')
+    .replace(/\n(?!<)/g,' ')
+    .replace(/<p><h/g,'<h').replace(/<\/h(\d)><\/p>/g,'</h$1>');
+}
+
+async function run(){
+  const plant=getP(), year=document.getElementById('ySel').value, extra=document.getElementById('ectx').value.trim();
+  if(!plant){alert('Chọn hoặc nhập tên nhà máy');return;}
+  const btn=document.getElementById('aBtn'), stb=document.getElementById('stBar'), out=document.getElementById('out');
+  btn.disabled=true; stb.className='st on';
+  try{
+    document.getElementById('stTx').textContent='Đang tải dữ liệu...';
+    out.innerHTML=`<div class="card"><div class="sk" style="width:40%;height:15px;margin-bottom:10px"></div><div class="sk" style="width:75%"></div><div class="sk" style="width:55%"></div></div>`;
+    const ps=['g1='+encodeURIComponent(plant)];
+    if(year)ps.push('g2='+encodeURIComponent(year));
+    ps.push('limit=5000');
+    ps.push('cols=ten_nha_may,tbmt,ten_goi,publicdate,danh_muc_hang_hoa,ky_ma_hieu,nhan_hieu,xuat_xu_2,xuat_xu_quoc_gia_vung_lanh_tho_san_xuat,don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co,thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co,search_text');
+    const res=await fetch(W+'/search?'+ps.join('&'));
+    const body=await res.json(); const rows=body.data||[];
+    if(!rows.length){out.innerHTML=`<div class="err">Không tìm thấy dữ liệu cho "${plant}"${year?' năm '+year:''}.</div>`;return;}
+
+    document.getElementById('stTx').textContent=`Phân tích ${rows.length} dòng...`;
+    const byP=detect(rows); const plants=Object.keys(byP);
+
+    // Gán rows vào byPlant để render evidence
+    for(const row of rows){const nm=row.ten_nha_may||'Không rõ';if(byP[nm]){if(!byP[nm].rows)byP[nm].rows=[];byP[nm].rows.push(row);}}
+
+    let crit=0,opp=0,urg=0;
+    for(const n of plants){if(byP[n].sigs.ov||byP[n].sigs.ic)crit++;if(byP[n].sigs.ev||byP[n].sigs.es)opp++;urg+=byP[n].ugp.length;}
+
+    let html=`<div class="sg">
+      <div class="sc"><div class="sl">Dòng dữ liệu</div><div class="sv bl">${rows.length.toLocaleString()}</div></div>
+      <div class="sc"><div class="sl">Nhà máy</div><div class="sv bl">${plants.length}</div></div>
+      <div class="sc"><div class="sl">Rủi ro cao</div><div class="sv rd">${crit}</div></div>
+      <div class="sc"><div class="sl">Gói khẩn cấp</div><div class="sv or">${urg}</div></div>
+    </div><div class="stt">Tín hiệu theo nhà máy</div>`;
+
+    const sorted=Object.entries(byP).sort(([,a],[,b])=>{const s=d=>(d.sigs.ov||d.sigs.ic?4:0)+(d.sigs.tb||d.sigs.gn?2:0)+Object.keys(d.sigs).length;return s(b)-s(a);});
+    for(const[n,d]of sorted)html+=renderCard(n,d);
+    html+=`<div class="aib" id="aiB"><div class="aih"><span class="aiht">◈ Phân tích chi tiết</span><span class="aihs">đang xử lý...</span></div><div style="padding:14px"><div class="sk"></div><div class="sk" style="width:88%"></div><div class="sk" style="width:70%"></div><div class="sk" style="width:94%"></div><div class="sk" style="width:60%"></div></div></div>`;
+    out.innerHTML=html;
+
+    // Chuẩn bị context
+    document.getElementById('stTx').textContent='AI đang phân tích...';
+    const pCtx=plants.map(n=>{
+      const pi=findDB(n), d=byP[n];
+      const age=pi?.y?new Date().getFullYear()-pi.y:null;
+      const yrS=Object.keys(d.byY).sort().reverse().map(yr=>{const yd=d.byY[yr];const sig=Object.entries(yd.sigs).map(([k,v])=>`${SCFG[k].l}:${v}`).join(', ');return `    ${yr}: ${yd.pkgs.size}gói ~${fc(yd.cost)}VND | ${sig||'bảo dưỡng thường'}`;}).join('\n');
+      const ugS=d.ugp.length?`\n  KHẨN CẤP(${d.ugp.length}): ${d.ugp.slice(0,4).map(u=>`[${u.yr}] ${(u.tg||'').substring(0,70)}`).join(' | ')}`:'' ;
+      const itS=d.its.length?`\n  MẪU VẬT TƯ: ${d.its.slice(0,8).map(i=>`[${i.yr}]${i.cat}${i.gia?` giá:${i.gia}`:''}${i.nh?` hãng:${i.nh}`:''}${i.xx?` (${i.xx})`:''}`).join(' | ')}`:'' ;
+      if(pi)return`${n}(${pi.r},${pi.mw}MW,${pi.y||'?'},tuổi${age||'?'}năm)\n  EPC:${pi.epc||'?'} TB:${pi.tb||'?'} MF:${pi.gen||'?'} LH:${pi.boi||'?'}\n  Ghi chú:${pi.note||'-'}\n  Tín hiệu: ${Object.entries(d.sigs).map(([k,v])=>`${SCFG[k].l}(${v})`).join(', ')}${ugS}${itS}\n${yrS}`;
+      return`${n}: ${d.pkgs.size}gói ${Object.entries(d.sigs).map(([k,v])=>`${SCFG[k].l}(${v})`).join(', ')}${ugS}${itS}\n${yrS}`;
+    }).join('\n\n');
+
+    // ==== GỌI /analyze — KHÔNG AUTO-CONTINUATION (tránh ghép bài trùng lặp) ====
+    // VẤN ĐỀ PHÁT HIỆN: Worker backend hiện chưa xử lý params {continuation, previous_output}
+    // → Khi gọi tiếp, Worker phân tích LẠI TỪ ĐẦU → ghép vào = bài bị lặp 2-3 lần toàn bộ
+    // GIẢI PHÁP:
+    //  1. Gửi max_tokens=8000, extended=true ngay lần đầu để Worker trả về bài dài nhất có thể
+    //  2. KHÔNG auto-continue. Chỉ có nút "Viết tiếp" thủ công + cảnh báo rõ
+    //  3. Khi user bấm "Viết tiếp" → check nếu Worker trả bài trùng → CHẶN KHÔNG GHÉP, cảnh báo
+    //  4. Dùng smart merge: tìm overlap (cuối text cũ ↔ đầu text mới) để cắt bỏ phần trùng
+
+    const analyzePayloadBase = {plant, year, rows, plant_info_context:pCtx, extra_context:extra||null, max_tokens:8000, extended:true, target_length:'long'};
+
+    // Phát hiện response bị cắt giữa chừng
+    function isCutOff(text){
+      if(!text) return false;
+      const t = text.trimEnd();
+      if(t.length < 100) return false;
+      const lastChar = t.slice(-1);
+      const lastTwo = t.slice(-2);
+      if(/[.!?:)”"\]\}]$/.test(lastChar)) return false;
+      if(/\*\*$/.test(lastTwo) && t.split('**').length % 2 === 1) return true;
+      if(/[,\-–—/(\[{*]$/.test(lastChar)) return true;
+      if(/[a-zàáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ0-9]$/i.test(lastChar)) return true;
+      return false;
+    }
+
+    // Phát hiện response tiếp theo là BẢN VIẾT LẠI TỪ ĐẦU (không phải continuation thật)
+    // Dấu hiệu: bắt đầu bằng heading cấp 1 (# / ##) hoặc các cụm "1. TÌNH TRẠNG" / "PHÂN TÍCH NHÀ MÁY" / "TÌNH TRẠNG THIẾT BỊ"
+    // → Đây là bản duplicate, không được ghép
+    function isDuplicateRestart(newText, oldText){
+      if(!newText) return false;
+      const head = newText.trimStart().substring(0, 300).toUpperCase();
+      // Các cụm mở bài điển hình
+      const restartPatterns = [
+        /^#\s*PHÂN TÍCH/,
+        /^##?\s*1\.\s*TÌNH TRẠNG/,
+        /^1\.\s*TÌNH TRẠNG THIẾT BỊ/,
+        /^PHÂN TÍCH (NHÀ MÁY|CÔNG TY|CHI TIẾT|NHIỆT ĐIỆN)/,
+        /^##?\s*TÌNH TRẠNG THIẾT BỊ/,
+      ];
+      for(const re of restartPatterns){
+        if(re.test(head)) return true;
+      }
+      // Fallback: nếu đầu bài mới chứa cụm 100+ ký tự trùng với đầu bài cũ → duplicate
+      if(oldText && oldText.length > 200){
+        const oldHead = oldText.trimStart().substring(0, 200);
+        if(newText.includes(oldHead.substring(0, Math.min(150, oldHead.length)))) return true;
+      }
+      return false;
+    }
+
+    // Smart merge: cắt bỏ overlap giữa cuối cũ và đầu mới
+    // Tìm chuỗi dài nhất (30-200 ký tự) xuất hiện ở cuối text cũ và đầu text mới
+    function smartMerge(oldText, newText){
+      if(!oldText) return newText;
+      if(!newText) return oldText;
+      const oldTail = oldText.slice(-300); // xét 300 char cuối cùng
+      const newHead = newText.slice(0, 300);
+      // Thử overlap từ lớn đến nhỏ
+      for(let len=Math.min(oldTail.length, newHead.length); len>=20; len--){
+        const tail = oldTail.slice(-len);
+        if(newText.startsWith(tail)){
+          // Bỏ phần đầu new trùng với cuối old
+          return oldText + newText.slice(len);
+        }
+      }
+      // Không thấy overlap → nối trực tiếp, thêm newline
+      const sep = oldText.endsWith('\n') ? '' : '\n';
+      return oldText + sep + newText;
+    }
+
+    async function callAnalyze(extraFlags){
+      const payload = Object.assign({}, analyzePayloadBase, extraFlags||{});
+      const r = await fetch(W+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      return await r.json();
+    }
+
+    let fullAnalysis = '';
+    let errMsg = null;
+
+    try{
+      const ab = await callAnalyze();
+      if(ab.error){ errMsg = ab.error; }
+      else{ fullAnalysis = ab.analysis || ''; }
+    }catch(e){ errMsg = 'Lỗi gọi API: '+e.message; }
+
+    // ==== RENDER KẾT QUẢ CUỐI ====
+    if(errMsg && !fullAnalysis){
+      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ Phân tích</span></div><div style="padding:12px"><div class="err">${errMsg}</div></div>`;
+    }else{
+      const stillCut = isCutOff(fullAnalysis);
+      const html2=md2h(fullAnalysis);
+      const continueBtn = stillCut
+        ? `<div style="padding:10px 18px 14px;border-top:1px dashed var(--bd);background:var(--wnb);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#664d03;flex:1;min-width:200px">⚠ Phân tích bị cắt (Worker trả về ${fullAnalysis.length.toLocaleString()} ký tự). Bấm để thử viết tiếp — hệ thống sẽ chặn nếu phát hiện Worker viết lại từ đầu:</span><button class="btn btn-sm" onclick="continueAnalysis()">✏️ Thử viết tiếp</button></div>`
+        : '';
+
+      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${rows.length.toLocaleString()} dòng · ${plants.length} nhà máy${extra?' + bổ sung':''} · ${fullAnalysis.length.toLocaleString()} ký tự</span></div><div class="aib-body"><p>${html2}</p></div>${continueBtn}`;
+
+      // Lưu state để nút "Viết tiếp" thủ công dùng
+      window._analyzeState = {
+        payloadBase: analyzePayloadBase,
+        currentText: fullAnalysis,
+        rows_count: rows.length,
+        plants_count: plants.length,
+        extra_flag: !!extra,
+        md2h, isCutOff, isDuplicateRestart, smartMerge, callAnalyze
+      };
+    }
+  }catch(e){out.innerHTML=`<div class="err">Lỗi: ${e.message}</div>`;}
+  finally{btn.disabled=false;stb.className='st';document.getElementById('stTx').textContent='';}
+}
+
+// Nút "Viết tiếp" thủ công
+// CHẶN NẾU: response là bản viết lại từ đầu (duplicate restart)
+// SMART MERGE: tìm overlap giữa cuối bài cũ và đầu bài mới để cắt bớt
+async function continueAnalysis(){
+  const s = window._analyzeState;
+  if(!s){ alert('Không có phân tích đang active'); return; }
+  const aiB = document.getElementById('aiB');
+  const btns = aiB.querySelectorAll('button');
+  btns.forEach(b=>{b.disabled=true; b.textContent='Đang viết...';});
+
+  try{
+    const cont = await s.callAnalyze({
+      continuation: true,
+      previous_output: s.currentText,
+      continuation_index: 99,
+      max_tokens: 8000
+    });
+    if(cont.error){
+      alert('Lỗi: '+cont.error);
+      btns.forEach(b=>{b.disabled=false; b.textContent='✏️ Thử viết tiếp';});
+      return;
+    }
+    const contText = (cont.analysis||'').trim();
+    if(!contText){
+      alert('AI không trả thêm nội dung');
+      btns.forEach(b=>{b.disabled=false; b.textContent='✏️ Thử viết tiếp';});
+      return;
+    }
+
+    // === CHẶN DUPLICATE ===
+    // Nếu response mới là bản viết lại từ đầu (heading #, "1. TÌNH TRẠNG", v.v.)
+    // → Worker backend chưa hỗ trợ continuation → hiển thị cảnh báo thay vì ghép
+    if(s.isDuplicateRestart(contText, s.currentText)){
+      // Render lại với banner đỏ cảnh báo, KHÔNG ghép
+      const html2 = s.md2h(s.currentText);
+      aiB.innerHTML = `<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${s.rows_count.toLocaleString()} dòng · ${s.plants_count} nhà máy</span></div><div class="aib-body"><p>${html2}</p></div>
+        <div style="padding:12px 18px;border-top:1px dashed var(--bd);background:var(--dgb);color:var(--dg)">
+          <div style="font-weight:700;font-size:12px;margin-bottom:4px">⛔ Không viết tiếp được — Worker backend chưa hỗ trợ continuation</div>
+          <div style="font-size:11.5px;line-height:1.55;color:#7c1d1d">
+            Khi bấm "Viết tiếp", Worker phân tích lại từ đầu (bắt đầu bằng "# PHÂN TÍCH..." / "1. TÌNH TRẠNG...") thay vì viết tiếp từ chỗ cắt.
+            Hệ thống đã chặn việc ghép để tránh nội dung lặp 2-3 lần.<br>
+            <strong>Cách khắc phục (cần sửa backend):</strong> Worker <code style="background:rgba(0,0,0,.05);padding:1px 4px;border-radius:3px;font-size:10.5px">/analyze</code> cần check <code style="background:rgba(0,0,0,.05);padding:1px 4px;border-radius:3px;font-size:10.5px">req.continuation === true</code>, và khi đó dùng prompt khác: "Đây là phần đã viết, viết tiếp từ chỗ cắt, KHÔNG lặp lại".
+            Hoặc đơn giản hơn: tăng <code style="background:rgba(0,0,0,.05);padding:1px 4px;border-radius:3px;font-size:10.5px">max_tokens</code> trong Worker lên 8000+.
+          </div>
+          <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+            <button class="btn-sm btn-o" onclick="forceAppendContinuation()" style="font-size:11px">🔓 Ghép bất chấp (không khuyến nghị)</button>
+            <span style="font-size:10.5px;color:#7c1d1d">— sẽ tạo bài có đoạn lặp</span>
+          </div>
+        </div>`;
+      // Lưu response mới để nếu user bấm "Ghép bất chấp" thì có dữ liệu dùng
+      window._pendingContinuation = contText;
+      return;
+    }
+
+    // === SMART MERGE ===
+    // Không phải duplicate → ghép, cắt overlap nếu có
+    s.currentText = s.smartMerge(s.currentText, contText);
+
+    // Render lại
+    const stillCut = s.isCutOff(s.currentText);
+    const html2 = s.md2h(s.currentText);
+    const continueBtn = stillCut
+      ? `<div style="padding:10px 18px 14px;border-top:1px dashed var(--bd);background:var(--wnb);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#664d03;flex:1;min-width:200px">⚠ Vẫn chưa hoàn tất (${s.currentText.length.toLocaleString()} ký tự). Bấm để viết tiếp:</span><button class="btn btn-sm" onclick="continueAnalysis()">✏️ Thử viết tiếp</button></div>`
+      : '';
+    aiB.innerHTML = `<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${s.rows_count.toLocaleString()} dòng · ${s.plants_count} nhà máy${s.extra_flag?' + bổ sung':''} · ${s.currentText.length.toLocaleString()} ký tự · đã ghép</span></div><div class="aib-body"><p>${html2}</p></div>${continueBtn}`;
+  }catch(e){
+    alert('Lỗi: '+e.message);
+    btns.forEach(b=>{b.disabled=false; b.textContent='✏️ Thử viết tiếp';});
+  }
+}
+
+// Nếu user cố tình muốn ghép bất chấp (sau cảnh báo duplicate)
+function forceAppendContinuation(){
+  const s = window._analyzeState;
+  const contText = window._pendingContinuation;
+  if(!s || !contText){ alert('Không có dữ liệu'); return; }
+  if(!confirm('Ghép phần này vào sẽ tạo ra bài có đoạn lặp lại. Tiếp tục?')) return;
+  s.currentText = s.smartMerge(s.currentText, '\n\n---\n\n' + contText);
+  window._pendingContinuation = null;
+  const aiB = document.getElementById('aiB');
+  const html2 = s.md2h(s.currentText);
+  aiB.innerHTML = `<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${s.rows_count.toLocaleString()} dòng · ${s.plants_count} nhà máy · đã ghép (có đoạn lặp)</span></div><div class="aib-body"><p>${html2}</p></div>`;
+}
+
+document.getElementById('pIn').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+window.addEventListener('load',initDropdown);
+</script>
+</body>
+</html>
