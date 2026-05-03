@@ -293,10 +293,14 @@ textarea.cta{height:60px;resize:vertical;font-size:12px;font-family:var(--mono)}
   <div class="bts">
     <button class="btn btn-fast" id="bFast" onclick="runFast()">📊 Phân tích nhanh</button>
     <button class="btn btn-ai" id="bAi" onclick="runAi()">🤖 AI phân tích chuyên sâu</button>
+    <select id="aiModel" title="Chọn model AI" style="border:1px solid var(--bd2);border-radius:var(--r);padding:9px 10px;font-size:12px;background:#fff;font-weight:600;color:var(--ac);min-width:auto;width:auto">
+      <option value="claude-haiku-4-5-20251001">Haiku 4.5 (nhanh, rẻ)</option>
+      <option value="claude-sonnet-4-5">Sonnet 4.5 (sâu, đắt 5x)</option>
+    </select>
     <button class="btn btn-rep-o" id="bRepP" onclick="runReportPlant()">📋 Report nhà máy này</button>
     <button class="btn btn-rep" id="bRepAll" onclick="runReportAll()">📑 Report chung (toàn bộ)</button>
   </div>
-  <div class="bt-tip">📊 Phân tích nhanh: chỉ thống kê (~3s) · 🤖 AI: nhanh + AI viết phân tích (~30s) · 📋📑 Report: bảng số liệu kiểu báo cáo (style cam vàng)</div>
+  <div class="bt-tip">📊 Phân tích nhanh: thống kê (~5-15s với NM lớn) · 🤖 AI: nhanh + AI viết phân tích (Haiku ~30s · Sonnet ~60s) · 📑 Report chung: tải toàn bộ 41 NM (1-3 phút). Limit 50.000 rows/NM.</div>
 
   <div class="ctx">
     <div class="ctx-lbl">Dữ liệu bổ sung <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--t3)">— chỉ áp dụng cho 🤖 AI · paste báo cáo môi trường, hệ số khả dụng, sự cố...</span></div>
@@ -588,7 +592,7 @@ function buildStatsForPlant(rows){
       if(!stats.yearly[yr]) stats.yearly[yr] = new Set();
       stats.yearly[yr].add(tbmt);
     }
-    const nt = (row.nha_thau_trung_thau||'').trim().toLowerCase();
+    const nt = (row.dv_trung_thau||'').trim().toLowerCase();
     if(nt && tbmt){
       const key = nt;
       if(!stats.contractors[key]) stats.contractors[key] = {pkgs:new Set(), cost:0};
@@ -635,12 +639,26 @@ function renderStatsTables(rows){
       <tbody>${data.map(mkRow).join('')}</tbody></table>
     </div>`;
   };
+  // Top nhà thầu — nếu DB chưa có cột nhà thầu, hiển thị placeholder để user biết
+  const mkContractorsTable = () => {
+    if(s.contractors.length){
+      return mkTbl('Top nhà thầu trúng', s.contractors.length, ['Nhà thầu','Gói','Tổng giá trị'], s.contractors, ([k,v])=>`<tr><td style="font-size:11.5px">${escHtml(k.substring(0,55))}${k.length>55?'…':''}</td><td class="num">${v.pkgs.size}</td><td class="num">${fc(v.cost)}</td></tr>`);
+    }
+    // Placeholder
+    return `<div class="stbl-box">
+      <div class="stbl-h">Top nhà thầu trúng<span class="stbl-cnt" style="color:var(--t3)">không có data</span></div>
+      <div style="padding:14px 11px;font-size:11.5px;color:var(--t3);line-height:1.5">Không có dữ liệu nhà thầu trong tập kết quả này (cột <code style="background:var(--su2);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:10.5px">dv_trung_thau</code> trống).</div>
+    </div>`;
+  };
   let h = '<div class="stbl-wrap"><div class="stt" style="margin-bottom:0">📊 Thống kê chi tiết</div><div class="stbl-grid">';
   h += mkTbl('Phân bố theo năm', s.yearly.length+' năm', ['Năm','Số gói'], s.yearly, r=>`<tr><td><strong>${r.yr}</strong></td><td class="num">${r.count}</td></tr>`);
-  h += mkTbl('Top nhà thầu trúng', s.contractors.length, ['Nhà thầu','Gói','Giá trị'], s.contractors, ([k,v])=>`<tr><td style="font-size:11.5px">${escHtml(k.substring(0,55))}${k.length>55?'…':''}</td><td class="num">${v.pkgs.size}</td><td class="num">${fc(v.cost)}</td></tr>`);
+  h += mkContractorsTable();
   h += mkTbl('Top hãng SX', s.brands.length, ['Hãng','SL'], s.brands, ([k,v])=>`<tr><td>${escHtml(k.substring(0,40))}</td><td class="num">${v}</td></tr>`);
   h += mkTbl('Top xuất xứ', s.origins.length, ['Quốc gia','SL'], s.origins, ([k,v])=>`<tr><td>${escHtml(k)}</td><td class="num">${v}</td></tr>`);
-  h += mkTbl('Top danh mục hàng hoá', s.categories.length, ['Danh mục','SL'], s.categories, ([k,v])=>`<tr><td style="font-size:11.5px">${escHtml(k.substring(0,50))}${k.length>50?'…':''}</td><td class="num">${v}</td></tr>`);
+  // Top danh mục — chỉ hiển thị khi >= 30 mục để tránh loãng (NM nhỏ ko có ý nghĩa)
+  if(s.categories.length >= 30){
+    h += mkTbl('Top danh mục hàng hoá', s.categories.length, ['Danh mục','SL'], s.categories, ([k,v])=>`<tr><td style="font-size:11.5px">${escHtml(k.substring(0,50))}${k.length>50?'…':''}</td><td class="num">${v}</td></tr>`);
+  }
   if(s.overrun.length){
     h += mkTbl('⚠ Gói vượt dự toán', s.overrun.length, ['Gói','DT→TT','Vượt'], s.overrun, r=>`<tr><td style="font-size:11px">${escHtml((r.ten_goi||'').substring(0,55))}${(r.ten_goi||'').length>55?'…':''}</td><td class="num" style="font-size:10.5px">${fc(r.dt)} → ${fc(r.tt)}</td><td class="num ov">+${r.pct.toFixed(1)}%</td></tr>`);
   }
@@ -733,14 +751,13 @@ function md2h(txt){
 
 // ============ FETCH DATA (dùng chung cho fast/ai) ============
 // CHÚ Ý: chỉ dùng các cột đã verify tồn tại trong DB của Worker.
-// Nếu DB của bạn có thêm cột (vd: nha_thau_trung_thau, gia_du_toan, gia_trung_thau)
-// → thêm vào SAFE_COLS bên dưới để bật tab "Vượt dự toán" + "Top nhà thầu trúng" trong report.
-const SAFE_COLS = 'ten_nha_may,tbmt,ten_goi,publicdate,danh_muc_hang_hoa,ky_ma_hieu,nhan_hieu,hang_san_xuat,xuat_xu_2,xuat_xu_quoc_gia_vung_lanh_tho_san_xuat,don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co,thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co,search_text';
+// V3: thêm dv_trung_thau (đơn vị trúng thầu) — đã verify từ schema Worker
+const SAFE_COLS = 'ten_nha_may,tbmt,ten_goi,publicdate,danh_muc_hang_hoa,ky_ma_hieu,nhan_hieu,hang_san_xuat,xuat_xu_2,xuat_xu_quoc_gia_vung_lanh_tho_san_xuat,don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co,thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co,dv_trung_thau,search_text';
 
 async function fetchPlantRows(plant, year){
   const ps=['g1='+encodeURIComponent(plant)];
   if(year)ps.push('g2='+encodeURIComponent(year));
-  ps.push('limit=5000');
+  ps.push('limit=50000');
   ps.push('cols=' + SAFE_COLS);
   const url = W+'/search?'+ps.join('&');
   try{
@@ -845,7 +862,16 @@ async function runAi(){
       return`${n}: ${d.pkgs.size}gói ${Object.entries(d.sigs).map(([k,v])=>`${SCFG[k].l}(${v})`).join(', ')}${ugS}${itS}\n${yrS}`;
     }).join('\n\n');
 
-    const payload = {plant, year, rows, plant_info_context:pCtx, extra_context:extra||null, max_tokens:8000, extended:true, target_length:'long'};
+    // V3: gửi max_tokens=8000 phù hợp với Haiku 4.5 (max output ~8192 tokens)
+    // Worker đã được cập nhật để cap tại 16000 max, default 8000
+    const aiModel = document.getElementById('aiModel')?.value || 'claude-haiku-4-5-20251001';
+    const payload = {
+      plant, year, rows,
+      plant_info_context: pCtx,
+      extra_context: extra || null,
+      max_tokens: 8000,
+      model: aiModel,
+    };
     const r = await fetch(W+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const ab = await r.json();
     if(ab.error){
@@ -853,7 +879,9 @@ async function runAi(){
     } else {
       const fullAnalysis = ab.analysis || '';
       const html2=md2h(fullAnalysis);
-      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ AI Phân tích chi tiết theo năm</span><span class="aihs">${rows.length.toLocaleString()} dòng · ${plants.length} nhà máy${extra?' + bổ sung':''} · ${fullAnalysis.length.toLocaleString()} ký tự</span></div><div class="aib-body"><p>${html2}</p></div>`;
+      const cutWarn = ab.stop_reason === 'max_tokens' ? ' <span style="color:#fff;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px">⚠ bị cắt</span>' : '';
+      const modelTag = ab.model_used ? ` · ${ab.model_used.includes('haiku')?'Haiku':'Sonnet'}` : '';
+      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ AI Phân tích chi tiết theo năm</span><span class="aihs">${rows.length.toLocaleString()} dòng · ${plants.length} nhà máy${extra?' + bổ sung':''} · ${fullAnalysis.length.toLocaleString()} ký tự${modelTag}${cutWarn}</span></div><div class="aib-body"><p>${html2}</p></div>`;
     }
   }catch(e){out.innerHTML=`<div class="err">Lỗi: ${e.message}</div>`;}
   finally{btns.forEach(b=>b.disabled=false);stb.className='st';document.getElementById('stTx').textContent='';}
@@ -877,6 +905,8 @@ function buildReportStats(rows){
   };
   const tbmtSet = {};
   const allPkgs = new Set();
+  // Track totalValue per UNIQUE TBMT để không cộng trùng (vì 1 gói có nhiều dòng vật tư)
+  const pkgCost = {}; // tbmt -> max thanh_tien thấy được
   for(const row of rows){
     const tbmt = row.tbmt;
     const nm = row.ten_nha_may || 'Không rõ';
@@ -891,15 +921,18 @@ function buildReportStats(rows){
       if(!stats.yearly[yr]) stats.yearly[yr] = new Set();
       stats.yearly[yr].add(tbmt);
     }
-    // Contractor (nhà thầu trúng thầu)
-    const nt = (row.nha_thau_trung_thau||'').trim().toLowerCase();
+    // === Tổng giá trị: cộng theo TBMT để không double count ===
+    const cVal = parseFloat((row.thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
+    if(tbmt && cVal > 0){
+      if(!pkgCost[tbmt]) pkgCost[tbmt] = 0;
+      pkgCost[tbmt] += cVal; // tổng các dòng trong cùng gói
+    }
+    // Contractor (nhà thầu trúng thầu) — placeholder, DB hiện chưa có cột này
+    const nt = (row.dv_trung_thau||'').trim().toLowerCase();
     if(nt && nt !== '-' && nt !== 'n/a' && tbmt){
       if(!stats.contractors[nt]) stats.contractors[nt] = {pkgs:new Set(), cost:0};
       stats.contractors[nt].pkgs.add(tbmt);
-      const c = parseFloat((row.thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
-      stats.contractors[nt].cost += c;
-      stats.totalValue += c;
-      // Số NM mà mỗi nhà thầu trúng
+      stats.contractors[nt].cost += cVal;
       if(!stats.contractorPlants[nt]) stats.contractorPlants[nt] = new Set();
       stats.contractorPlants[nt].add(nm);
     }
@@ -911,10 +944,9 @@ function buildReportStats(rows){
     if(xx && xx !== '-') stats.origins[xx] = (stats.origins[xx]||0)+1;
     // Vật tư vs dịch vụ (heuristic: có ky_ma_hieu hoặc nhan_hieu => vật tư)
     const isMat = (row.ky_ma_hieu||row.nhan_hieu||row.hang_san_xuat||'').trim() !== '';
-    const c = parseFloat((row.thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
-    if(isMat){stats.matVsService.vt.rows++; stats.matVsService.vt.cost+=c;}
-    else {stats.matVsService.dv.rows++; stats.matVsService.dv.cost+=c;}
-    // Vượt dự toán
+    if(isMat){stats.matVsService.vt.rows++; stats.matVsService.vt.cost+=cVal;}
+    else {stats.matVsService.dv.rows++; stats.matVsService.dv.cost+=cVal;}
+    // Vượt dự toán — placeholder, DB hiện chưa có cột gia_du_toan/gia_trung_thau
     const dt = parseFloat((row.gia_du_toan||'').replace(/[,\s]/g,'').replace(/\./g,''));
     const tt = parseFloat((row.gia_trung_thau||'').replace(/[,\s]/g,'').replace(/\./g,''));
     if(dt && tt && tt > dt && tbmt && !stats.overrunSet[tbmt]){
@@ -922,8 +954,13 @@ function buildReportStats(rows){
       stats.overrun.push({nm, tbmt, ten_goi: row.ten_goi||'', dt, tt, pct: ((tt-dt)/dt*100)});
     }
   }
+  // Tính totalValue = sum của các pkgCost
+  stats.totalValue = Object.values(pkgCost).reduce((a,b)=>a+b, 0);
   stats.totalPkgs = allPkgs.size;
   stats.overrun.sort((a,b)=>b.pct-a.pct);
+  // Flags để biết có nên hiển thị KPI vượt dự toán / nhà thầu hay không
+  stats.hasContractorData = Object.keys(stats.contractors).length > 0;
+  stats.hasOverrunData = stats.overrun.length > 0;
   return stats;
 }
 
@@ -960,14 +997,14 @@ function renderReportHTML(title, stats, isAllPlants, plantName){
     </div>
   </div>`;
 
-  // KPI grid
+  // KPI grid — chỉ hiện KPI nào có dữ liệu thật
   html += `<div class="rep-kpi-grid">
     <div class="rep-kpi"><div class="rep-kpi-label">Tổng dòng VT</div><div class="rep-kpi-val">${stats.totalRows.toLocaleString('vi-VN')}</div><div class="rep-kpi-sub">rows</div></div>
     <div class="rep-kpi"><div class="rep-kpi-label">Số gói thầu</div><div class="rep-kpi-val">${stats.totalPkgs.toLocaleString('vi-VN')}</div><div class="rep-kpi-sub">TBMT duy nhất</div></div>
     <div class="rep-kpi"><div class="rep-kpi-label">Tổng giá trị</div><div class="rep-kpi-val">${fcRep(stats.totalValue)}</div><div class="rep-kpi-sub">VND</div></div>
-    <div class="rep-kpi"><div class="rep-kpi-label">Vượt dự toán</div><div class="rep-kpi-val">${stats.overrun.length}</div><div class="rep-kpi-sub">gói</div></div>
     ${isAllPlants?`<div class="rep-kpi"><div class="rep-kpi-label">Nhà máy</div><div class="rep-kpi-val">${Object.keys(stats.plants).length}</div><div class="rep-kpi-sub">khác nhau</div></div>`:''}
-    <div class="rep-kpi"><div class="rep-kpi-label">Nhà thầu</div><div class="rep-kpi-val">${Object.keys(stats.contractors).length.toLocaleString('vi-VN')}</div><div class="rep-kpi-sub">có trúng thầu</div></div>
+    ${stats.hasOverrunData?`<div class="rep-kpi"><div class="rep-kpi-label">Vượt dự toán</div><div class="rep-kpi-val">${stats.overrun.length}</div><div class="rep-kpi-sub">gói</div></div>`:''}
+    ${stats.hasContractorData?`<div class="rep-kpi"><div class="rep-kpi-label">Nhà thầu</div><div class="rep-kpi-val">${Object.keys(stats.contractors).length.toLocaleString('vi-VN')}</div><div class="rep-kpi-sub">có trúng thầu</div></div>`:''}
   </div>`;
 
   // Phân bố nhà máy (chỉ all)
@@ -1103,12 +1140,13 @@ async function runReportPlant(){
 async function runReportAll(){
   const year=document.getElementById('ySel').value;
   const title = `Báo cáo tổng hợp toàn bộ nhà máy${year?' · '+year:''}`;
-  showReportLoading(title, 'Đang tải data từ ' + PLANTS.length + ' nhà máy (parallel)...');
+  showReportLoading(title, 'Đang tải data từ ' + PLANTS.length + ' nhà máy (limit 50k/NM, có thể mất 1-3 phút)...');
   const prog = document.getElementById('repProg');
   try{
     const allRows = [];
     let done = 0;
-    const concurrency = 6;
+    // Concurrency thấp vì mỗi request giờ trả về tối đa 50k rows (~5-10MB)
+    const concurrency = 3;
     const queue = [...PLANTS];
     const errors = [];
     async function worker(){
