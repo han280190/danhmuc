@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phân tích tín hiệu nhiệt điện</title>
+<title>Phân tích tín hiệu nhiệt điện · V2</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Serif:ital,wght@1,500&display=swap');
 :root{
   --bg:#f4f6f9;--su:#fff;--su2:#f8f9fa;--bd:#d0d7de;--bd2:#b0bac5;
   --ac:#0969da;--acb:#ddf4ff;--acd:#0550ae;
@@ -13,13 +13,20 @@
   --wn:#bf8700;--wnb:#fff8c5;--wnr:#f0c000;
   --ok:#1a7f37;--okb:#dafbe1;--okr:#a8f0b5;
   --pp:#8250df;--ppb:#fbefff;--ppr:#d8b4fe;
+  --or:#d97706;--orb:#fff4e1;--ord:#b45309;--orl:#fbd6a3;
   --tx:#1f2328;--t2:#636c76;--t3:#9198a1;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
   --r:6px;--rl:10px;
+  /* Report theme */
+  --rep-bg:#fbf6ed;--rep-paper:#fff;--rep-paper2:#fdf9f1;--rep-line:#ebe1ce;
+  --rep-text:#2a2520;--rep-text2:#5e554a;--rep-text3:#8a7f70;--rep-text4:#b4a895;
+  --rep-accent:#d97706;--rep-accent2:#b45309;--rep-accent-bg:#fff4e1;--rep-accent-line:#fbd6a3;
+  --rep-green:#15803d;--rep-green-bg:#ecfdf5;--rep-red:#b91c1c;--rep-red-bg:#fef2f2;
+  --rep-sans:'Plus Jakarta Sans',system-ui,sans-serif;--rep-serif:'Noto Serif',Georgia,serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;line-height:1.6}
-.w{max-width:1000px;margin:0 auto;padding:22px 16px}
+.w{max-width:1320px;margin:0 auto;padding:22px 16px}
 
 .hd{margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
 .hd h1{font-size:17px;font-weight:700}
@@ -28,21 +35,35 @@ body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px
 .card{background:var(--su);border:1px solid var(--bd);border-radius:var(--rl);padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
 
 /* Input grid */
-.ig{display:grid;grid-template-columns:220px 1fr 150px auto;gap:10px;align-items:end;margin-bottom:10px}
+.ig{display:grid;grid-template-columns:220px 1fr 150px;gap:10px;align-items:end;margin-bottom:10px}
 .fl label{display:block;font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
 select,input,textarea{width:100%;border:1px solid var(--bd2);border-radius:var(--r);padding:8px 10px;font-family:var(--sans);font-size:14px;color:var(--tx);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
 select:focus,input:focus,textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(9,105,218,.1)}
 input::placeholder,textarea::placeholder{color:var(--t3)}
-.btn{background:var(--ac);color:#fff;border:none;border-radius:var(--r);padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
-.btn:hover{background:var(--acd)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* Action buttons row */
+.bts{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.btn{border:none;border-radius:var(--r);padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:var(--sans)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-fast{background:var(--ok);color:#fff}
+.btn-fast:hover:not(:disabled){background:#176f2c}
+.btn-ai{background:var(--ac);color:#fff}
+.btn-ai:hover:not(:disabled){background:var(--acd)}
+.btn-rep{background:var(--or);color:#fff}
+.btn-rep:hover:not(:disabled){background:var(--ord)}
+.btn-rep-o{background:#fff;color:var(--or);border:1px solid var(--or)}
+.btn-rep-o:hover:not(:disabled){background:var(--orb)}
 .btn-sm{padding:5px 10px;font-size:12px}
 .btn-o{background:#fff;color:var(--ac);border:1px solid var(--ac)}.btn-o:hover{background:var(--acb)}
 
+.bt-tip{font-size:11px;color:var(--t3);margin-top:6px;font-style:italic}
+
 /* Extra context */
-.ctx{border-top:1px dashed var(--bd);margin-top:10px;padding-top:10px}
+.ctx{border-top:1px dashed var(--bd);margin-top:12px;padding-top:10px}
 .ctx-lbl{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
 .ctx-row{display:flex;gap:7px}
-textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
+textarea.cta{height:60px;resize:vertical;font-size:12px;font-family:var(--mono)}
 .ctx-btns{display:flex;flex-direction:column;gap:5px;flex-shrink:0}
 
 /* Upload plant info */
@@ -98,7 +119,6 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
 .yb{padding:12px 14px}
 .ybt{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .yb-sum{font-family:var(--mono);font-size:11px;color:var(--t2);font-weight:500;text-transform:none;letter-spacing:0}
-.yb-sum .yb-yr{display:inline-block;padding:1px 6px;border-radius:4px;margin-right:5px;font-weight:700}
 
 /* Chart container */
 .chart-wrap{position:relative;width:100%;overflow-x:auto;overflow-y:hidden}
@@ -109,15 +129,12 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
 .chart-svg .bar-val{font-family:var(--mono);font-size:10px;fill:var(--tx);font-weight:700;text-anchor:middle}
 .chart-svg .bar{transition:opacity .15s}
 .chart-svg .bar:hover{opacity:.75;cursor:pointer}
-.chart-svg .bar-group:hover .bar-val{fill:var(--ac)}
 
 /* Legend */
 .chart-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;padding-top:8px;border-top:1px dashed var(--bd);font-size:11px;color:var(--t2)}
 .chart-legend-item{display:flex;align-items:center;gap:5px;font-family:var(--mono)}
 .chart-legend-swatch{width:11px;height:11px;border-radius:2px;flex-shrink:0}
 .chart-legend-count{color:var(--t3);margin-left:3px}
-
-/* Empty chart state */
 .chart-empty{padding:20px;text-align:center;color:var(--t3);font-size:12px;background:var(--su2);border-radius:var(--r)}
 
 /* Urgent */
@@ -134,13 +151,25 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
 .pm{padding:7px 14px;background:var(--su2);border-top:1px solid var(--bd);display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
 .pm .nt{color:var(--ac);font-weight:600}
 
+/* Stats tables (cho nút "Phân tích" - không AI) */
+.stbl-wrap{padding:10px 14px;border-top:1px solid var(--bd);background:var(--su2)}
+.stbl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:6px}
+.stbl-box{background:#fff;border:1px solid var(--bd);border-radius:var(--r);overflow:hidden}
+.stbl-h{padding:7px 11px;background:var(--su2);border-bottom:1px solid var(--bd);font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;justify-content:space-between}
+.stbl-h .stbl-cnt{font-family:var(--mono);color:var(--ac);font-size:11px}
+.stbl{width:100%;border-collapse:collapse;font-size:12px}
+.stbl th{padding:5px 9px;text-align:left;background:var(--su2);font-size:10px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--bd)}
+.stbl td{padding:5px 9px;border-bottom:1px solid var(--bd);vertical-align:top}
+.stbl tr:last-child td{border-bottom:none}
+.stbl .num{text-align:right;font-family:var(--mono);font-weight:600}
+.stbl .nm{font-family:var(--mono);font-size:11px;color:var(--ac)}
+.stbl .ov{color:var(--dg);font-weight:700}
+
 /* AI block */
 .aib{background:var(--su);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-top:4px}
 .aih{background:var(--ac);color:#fff;padding:9px 15px;display:flex;align-items:center}
 .aiht{font-weight:700;font-size:13px}
 .aihs{font-size:11px;opacity:.85;margin-left:auto}
-
-/* AI body — compact markdown */
 .aib-body{padding:14px 18px;font-size:13.5px;line-height:1.6;color:var(--tx)}
 .aib-body h2{font-size:13px;font-weight:700;color:var(--acd);text-transform:uppercase;letter-spacing:.04em;margin:12px 0 3px;padding-bottom:3px;border-bottom:1px solid var(--bd)}
 .aib-body h2:first-child{margin-top:0}
@@ -158,16 +187,75 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
 .err{background:var(--dgb);border:1px solid var(--dgr);border-radius:var(--r);padding:11px;color:var(--dg);font-size:13px}
 
 /* Modal */
-.mb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
+.mb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center;padding:20px}
 .mb.open{display:flex}
-.mo{background:#fff;border-radius:var(--rl);padding:22px;width:480px;max-width:95vw;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.mo{background:#fff;border-radius:var(--rl);padding:22px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 28px rgba(0,0,0,.18)}
 .mo h3{font-size:14px;font-weight:700;margin-bottom:8px}
 .mo p{font-size:12px;color:var(--t2);margin-bottom:10px;line-height:1.6}
 .mo code{background:var(--su2);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:11px}
 .mob{display:flex;gap:7px;justify-content:flex-end;margin-top:12px}
 #upPrev{font-size:11px;font-family:var(--mono);background:var(--su2);border:1px solid var(--bd);border-radius:var(--r);padding:7px;max-height:100px;overflow:auto;display:none;color:var(--t2);margin-top:8px}
 
-@media(max-width:640px){.ig{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}}
+/* ============================================================ */
+/* REPORT STYLE — giống file Python (vàng kem, cam đậm) */
+/* ============================================================ */
+.rep-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;overflow-y:auto;padding:0}
+.rep-modal.open{display:block}
+.rep-container{
+  background:var(--rep-bg);
+  background-image:radial-gradient(circle at 0% 0%,rgba(251,214,163,.4) 0%,transparent 50%);
+  background-attachment:fixed;
+  color:var(--rep-text);
+  font-family:var(--rep-sans);
+  font-size:14px;line-height:1.55;
+  min-height:100vh;padding:20px;
+}
+.rep-wrap{max-width:1320px;margin:0 auto}
+.rep-close{position:fixed;top:14px;right:14px;z-index:210;background:#fff;border:1px solid var(--rep-line);border-radius:8px;width:36px;height:36px;font-size:20px;cursor:pointer;color:var(--rep-text2);box-shadow:0 4px 12px rgba(0,0,0,.15);font-family:var(--rep-sans)}
+.rep-close:hover{background:var(--rep-accent-bg);color:var(--rep-accent)}
+.rep-head{display:flex;align-items:center;gap:16px;padding:22px 26px;background:var(--rep-paper);border:1px solid var(--rep-line);border-radius:14px;margin-bottom:18px;box-shadow:0 4px 18px rgba(120,80,30,.06)}
+.rep-logo{width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,#f97316,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--rep-serif);font-size:24px;font-weight:600;font-style:italic;flex-shrink:0}
+.rep-head h1{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--rep-text)}
+.rep-sub{font-family:var(--mono);font-size:11px;color:var(--rep-text3);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.rep-actions{margin-left:auto;display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.rep-btn{background:linear-gradient(135deg,#f97316,#d97706);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--rep-sans);display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(217,119,6,.25)}
+.rep-btn:hover{box-shadow:0 5px 16px rgba(217,119,6,.4)}
+.rep-btn-o{background:#fff;color:var(--rep-accent2);border:1px solid var(--rep-accent-line);box-shadow:none}
+.rep-btn-o:hover{background:var(--rep-accent-bg)}
+
+.rep-loading{padding:60px 20px;text-align:center;color:var(--rep-text2);font-size:14px}
+.rep-loading .rep-sp{width:40px;height:40px;border:3px solid var(--rep-line);border-top-color:var(--rep-accent);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 18px}
+.rep-loading-prog{font-family:var(--mono);font-size:12px;color:var(--rep-text3);margin-top:8px}
+
+.rep-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:18px}
+.rep-kpi{background:var(--rep-paper);border:1px solid var(--rep-line);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.rep-kpi::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:linear-gradient(180deg,#f97316,#d97706)}
+.rep-kpi-label{font-family:var(--mono);font-size:10px;color:var(--rep-text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rep-kpi-val{font-size:25px;font-weight:700;color:var(--rep-accent2);letter-spacing:-.02em;line-height:1.1;font-family:var(--rep-sans)}
+.rep-kpi-sub{font-size:11px;color:var(--rep-text3);margin-top:5px}
+
+.rep-section{background:var(--rep-paper);border:1px solid var(--rep-line);border-radius:14px;padding:20px 22px;margin-bottom:16px;box-shadow:0 2px 10px rgba(120,80,30,.04)}
+.rep-section h2{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--rep-accent2);display:flex;align-items:center;gap:8px;font-family:var(--rep-sans)}
+.rep-section h2::before{content:"";width:3px;height:16px;background:var(--rep-accent);border-radius:2px}
+.rep-section table{width:100%;border-collapse:collapse;font-size:13px}
+.rep-section th{background:linear-gradient(to bottom,var(--rep-accent-bg),var(--rep-bg));color:var(--rep-accent2);padding:11px 12px;text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;border-bottom:2px solid var(--rep-accent-line);font-weight:600}
+.rep-section td{padding:9px 12px;border-bottom:1px solid var(--rep-line);vertical-align:top}
+.rep-section tr:nth-child(even) td{background:var(--rep-paper2)}
+.rep-section tr:hover td{background:var(--rep-accent-bg)}
+.rep-section .rep-num{font-family:var(--mono);text-align:right;font-weight:600}
+.rep-section .rep-green{color:var(--rep-green)}.rep-section .rep-red{color:var(--rep-red)}
+.rep-bar{height:6px;background:var(--rep-accent-bg);border-radius:3px;overflow:hidden;margin-top:4px}
+.rep-bar-fill{height:100%;background:linear-gradient(90deg,#f97316,#d97706);border-radius:3px}
+.rep-cols2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:760px){.rep-cols2{grid-template-columns:1fr}.rep-container{padding:12px}}
+.rep-foot{text-align:center;color:var(--rep-text3);font-size:11px;font-family:var(--mono);padding:18px;letter-spacing:.05em}
+.rep-tag{display:inline-block;padding:1px 8px;background:var(--rep-accent-bg);color:var(--rep-accent2);font-size:10px;border-radius:10px;font-family:var(--mono);font-weight:600}
+.rep-tag.s{background:var(--rep-green-bg);color:var(--rep-green)}
+.rep-small{font-size:11px;color:var(--rep-text3)}
+.rep-tg{max-width:480px;font-size:12px;line-height:1.45}
+.rep-err{background:var(--rep-red-bg);border:1px solid #fecaca;border-radius:8px;padding:14px;color:var(--rep-red);font-size:13px;margin:18px 0;font-family:var(--mono)}
+
+@media(max-width:640px){.ig{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}.bts{flex-direction:column;align-items:stretch}.bts .btn{justify-content:center}}
 </style>
 </head>
 <body>
@@ -175,7 +263,7 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
 
 <div class="hd">
   <h1>Phân tích tín hiệu nhà máy nhiệt điện</h1>
-  <p>Nhận diện tín hiệu bảo dưỡng, sự cố & xu hướng vật tư từ dữ liệu TBMT công khai</p>
+  <p>Nhận diện tín hiệu bảo dưỡng, sự cố & xu hướng vật tư từ dữ liệu TBMT công khai · <strong>V2</strong> với Report</p>
 </div>
 
 <div class="card">
@@ -192,6 +280,7 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
       <label>Năm</label>
       <select id="ySel">
         <option value="">Tất cả năm</option>
+        <option value="2026">2026</option>
         <option value="2025">2025</option>
         <option value="2024">2024</option>
         <option value="2023">2023</option>
@@ -199,16 +288,20 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
         <option value="2021">2021</option>
       </select>
     </div>
-    <div class="fl">
-      <label>&nbsp;</label>
-      <button class="btn" id="aBtn" onclick="run()">▶ Phân tích</button>
-    </div>
   </div>
 
+  <div class="bts">
+    <button class="btn btn-fast" id="bFast" onclick="runFast()">📊 Phân tích nhanh</button>
+    <button class="btn btn-ai" id="bAi" onclick="runAi()">🤖 AI phân tích chuyên sâu</button>
+    <button class="btn btn-rep-o" id="bRepP" onclick="runReportPlant()">📋 Report nhà máy này</button>
+    <button class="btn btn-rep" id="bRepAll" onclick="runReportAll()">📑 Report chung (toàn bộ)</button>
+  </div>
+  <div class="bt-tip">📊 Phân tích nhanh: chỉ thống kê (~3s) · 🤖 AI: nhanh + AI viết phân tích (~30s) · 📋📑 Report: bảng số liệu kiểu báo cáo (style cam vàng)</div>
+
   <div class="ctx">
-    <div class="ctx-lbl">Dữ liệu bổ sung <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--t3)">— paste báo cáo môi trường, hệ số khả dụng, thông tin sự cố... AI sẽ tích hợp</span></div>
+    <div class="ctx-lbl">Dữ liệu bổ sung <span style="font-weight:400;text-transform:none;font-size:11px;color:var(--t3)">— chỉ áp dụng cho 🤖 AI · paste báo cáo môi trường, hệ số khả dụng, sự cố...</span></div>
     <div class="ctx-row">
-      <textarea class="cta" id="ectx" placeholder="Paste thông tin bổ sung:&#10;- Hệ số khả dụng, số giờ vận hành&#10;- Báo cáo quan trắc: SO2=xx mg/Nm³, NOx=xx&#10;- Thông tin sự cố tháng/năm cụ thể&#10;- Kế hoạch đại tu dự kiến..."></textarea>
+      <textarea class="cta" id="ectx" placeholder="Paste thông tin bổ sung (chỉ AI dùng):&#10;- Hệ số khả dụng, số giờ vận hành&#10;- Báo cáo quan trắc&#10;- Thông tin sự cố cụ thể"></textarea>
       <div class="ctx-btns">
         <button class="btn-sm btn-o" onclick="document.getElementById('ectx').value=''">Xóa</button>
         <label class="btn-sm btn-o" style="cursor:pointer;text-align:center;display:block;padding:5px 10px;border-radius:var(--r);border:1px solid var(--ac);color:var(--ac);font-size:12px;background:#fff">
@@ -229,13 +322,12 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
   </div>
 </div>
 
-<!-- Modal upload -->
+<!-- Modal upload cấu hình -->
 <div class="mb" id="moB" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="mo">
     <h3>📊 Upload cấu hình nhà máy</h3>
     <p>File CSV/Excel, <strong>row 1 là tiêu đề</strong>, từ row 2 là dữ liệu.<br>
-    Cột cần có: <code>Tên nhà máy</code> <code>Năm VH</code> <code>Công suất</code> <code>Lò Hơi</code> <code>Tuabin</code> <code>Máy phát</code> <code>Tổng thầu EPC</code><br>
-    Cột "Tuổi" tự tính, không cần nhập. Dữ liệu chỉ lưu trong phiên làm việc này.</p>
+    Cột cần có: <code>Tên nhà máy</code> <code>Năm VH</code> <code>Công suất</code> <code>Lò Hơi</code> <code>Tuabin</code> <code>Máy phát</code> <code>Tổng thầu EPC</code></p>
     <input type="file" id="upF" accept=".csv,.txt" onchange="prevUp(this)">
     <div id="upPrev"></div>
     <div class="mob">
@@ -248,16 +340,27 @@ textarea.cta{height:68px;resize:vertical;font-size:12px;font-family:var(--mono)}
 <div id="out">
   <div class="empty">
     <div class="empty-i">📊</div>
-    <p style="font-size:14px;font-weight:600;color:var(--tx)">Chọn nhà máy và bấm Phân tích</p>
-    <p style="font-size:12px;margin-top:4px">Tool đọc TBMT → nhận diện tín hiệu theo từng năm → AI phân tích chi tiết</p>
+    <p style="font-size:14px;font-weight:600;color:var(--tx)">Chọn nhà máy và bấm 1 trong 4 nút</p>
+    <p style="font-size:12px;margin-top:4px">📊 Phân tích nhanh · 🤖 AI · 📋 Report NM · 📑 Report toàn bộ</p>
   </div>
 </div>
 
 </div>
+
+<!-- ============ REPORT MODAL (style cam vàng kiểu Python) ============ -->
+<div class="rep-modal" id="repModal">
+  <button class="rep-close" onclick="closeReport()" title="Đóng (Esc)">×</button>
+  <div class="rep-container">
+    <div class="rep-wrap" id="repWrap">
+      <!-- nội dung sẽ inject -->
+    </div>
+  </div>
+</div>
+
 <script>
 const W = 'https://danhmuc-search.han280190.workers.dev';
 
-// ============ DANH SÁCH NHÀ MÁY NHIỆT ĐIỆN (chỉ nhiệt điện than/khí) ============
+// ============ DANH SÁCH NHÀ MÁY NHIỆT ĐIỆN ============
 const PLANTS = [
   'Cao Ngạn','Điện Cà Mau','Điện Sơn Động','Điện Uông Bí','Điện Vũng Áng 2',
   'Đông Triều','Duyên Hải 1','Duyên Hải 2','Hải Phòng','Long Phú 1',
@@ -272,11 +375,10 @@ const CLUSTERS = [
   {kws:['vĩnh tân','vinh tan'], msg:'Vĩnh Tân 1/2/4 cùng khu Bình Thuận, dùng chung đơn vị SCVH — tên TBMT có thể bị nhầm giữa các nhà máy'},
   {kws:['duyên hải','duyen hai'], msg:'Duyên Hải 1/2/3 cùng khu Trà Vinh — tên TBMT có thể bị nhầm'},
   {kws:['hải phòng','hai phong'], msg:'Các tổ Hải Phòng cùng địa điểm — tên TBMT có thể bị nhầm'},
-  {kws:['quảng ninh','quang ninh','mông dương','cẩm phả','đông triều','uông bí'], msg:'Cụm Quảng Ninh (Quảng Ninh / Mông Dương / Cẩm Phả / Đông Triều / Uông Bí) — dùng chung đơn vị vận hành, dễ nhầm tên TBMT'},
+  {kws:['quảng ninh','quang ninh','mông dương','cẩm phả','đông triều','uông bí'], msg:'Cụm Quảng Ninh — dùng chung đơn vị vận hành, dễ nhầm tên TBMT'},
   {kws:['phú mỹ','phu my'], msg:'Cụm Phú Mỹ (Phú Mỹ 1/2/3/4) — tên TBMT có thể bị nhầm'},
 ];
 
-// Database thông tin nhà máy
 let DB = [
   {n:'Cao Ngạn',r:'Thái Nguyên',mw:115,y:2007,u:2,epc:'Harbin Power Engineering',tb:'Harbin',boi:'Harbin',gen:'Harbin',note:'Toàn bộ Harbin'},
   {n:'Điện Cà Mau',r:'Cà Mau',mw:1500,y:2008,u:2,epc:'LILAMA',tb:'',boi:'',gen:'',note:'Turbo gas'},
@@ -304,8 +406,8 @@ let DB = [
   {n:'Thái Bình 1',r:'Thái Bình',mw:600,y:2017,u:2,epc:'Marubeni',tb:'',boi:'',gen:'',note:'EPC Marubeni'},
   {n:'Thái Bình 2',r:'Thái Bình',mw:1200,y:2023,u:2,epc:'PVC',tb:'',boi:'',gen:'Toshiba',note:'Mới 2023'},
   {n:'Vĩnh Tân 1',r:'Bình Thuận',mw:1240,y:2018,u:2,epc:'Guangdong Electric Power Design',tb:'Dongfang N620-24.2/566/566',boi:'',gen:'Dongfang QFSN-620-2-22',note:'BOT TQ, Dongfang. Ít public vật tư, tên gói thường tiếng Anh'},
-  {n:'Vĩnh Tân 2',r:'Bình Thuận',mw:1244,y:2014,u:2,epc:'Shanghai Electric',tb:'',boi:'',gen:'',note:'EPC SHANGHAI ELECTRIC, vận hành 2014 (10+ năm). Dùng chung SCVH với VT4'},
-  {n:'Vĩnh Tân 4',r:'Bình Thuận',mw:1200,y:2018,u:2,epc:'Doosan + Mitsubishi',tb:'Toshiba',boi:'Doosan',gen:'Toshiba',note:'Toshiba/Doosan hiện đại, vận hành 2018. Dùng chung SCVH với VT2 → dễ nhầm tên TBMT'},
+  {n:'Vĩnh Tân 2',r:'Bình Thuận',mw:1244,y:2014,u:2,epc:'Shanghai Electric',tb:'',boi:'',gen:'',note:'EPC SHANGHAI ELECTRIC, vận hành 2014. Dùng chung SCVH với VT4'},
+  {n:'Vĩnh Tân 4',r:'Bình Thuận',mw:1200,y:2018,u:2,epc:'Doosan + Mitsubishi',tb:'Toshiba',boi:'Doosan',gen:'Toshiba',note:'Toshiba/Doosan hiện đại, vận hành 2018. Dùng chung SCVH với VT2'},
 ];
 
 const SCFG = {
@@ -327,22 +429,17 @@ const SCFG = {
 };
 const URG=['khẩn','emergency','urgent','đột xuất','cấp cứu','khắc phục sự cố','bất thường','sự cố'];
 
-// Palette màu cho các năm (grouped bar chart)
 const YR_COLORS = {
-  2021:{main:'#8250df', light:'#fbefff'},
-  2022:{main:'#0969da', light:'#ddf4ff'},
-  2023:{main:'#1a7f37', light:'#dafbe1'},
-  2024:{main:'#bf8700', light:'#fff8c5'},
-  2025:{main:'#cf222e', light:'#fff0f0'},
-  2026:{main:'#6f42c1', light:'#f3f0ff'},
+  2021:{main:'#8250df'},2022:{main:'#0969da'},2023:{main:'#1a7f37'},
+  2024:{main:'#bf8700'},2025:{main:'#cf222e'},2026:{main:'#6f42c1'},
 };
-// Fallback palette nếu năm khác
 const FALLBACK_COLORS = ['#6366f1','#14b8a6','#f97316','#ec4899','#84cc16','#06b6d4'];
 function getYrColor(yr, idx){
-  return YR_COLORS[yr] || {main:FALLBACK_COLORS[idx%FALLBACK_COLORS.length], light:'#f0f0f0'};
+  return YR_COLORS[yr] || {main:FALLBACK_COLORS[idx%FALLBACK_COLORS.length]};
 }
 
 let pendUp=null;
+let lastFastResult = null; // lưu kết quả fast để AI/Report dùng lại
 
 function initDropdown(){
   const s=document.getElementById('pSel');
@@ -380,7 +477,7 @@ function detect(rows){
     const nm=row.ten_nha_may||'Không rõ';
     if(!bp[nm])bp[nm]={spk:{},sigs:{},byY:{},pkgs:new Set(),cost:0,ugp:[],its:[]};
     bp[nm].pkgs.add(row.tbmt);
-    const c=parseFloat((row.thanh_tien||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
+    const c=parseFloat((row.thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co||row.thanh_tien||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
     bp[nm].cost+=c;
     const tg=(row.ten_goi||'').toLowerCase();
     const isU=URG.some(k=>tg.includes(k));
@@ -403,119 +500,155 @@ function detect(rows){
 }
 
 function fc(n){if(!n)return'—';if(n>=1e9)return(n/1e9).toFixed(1)+' tỷ';if(n>=1e6)return(n/1e6).toFixed(0)+' tr';return n.toLocaleString('vi-VN');}
+function fcRep(n){if(!n)return'0';if(n>=1e9)return(n/1e9).toFixed(2)+' tỷ';if(n>=1e6)return(n/1e6).toFixed(1)+' tr';return n.toLocaleString('vi-VN');}
+function escHtml(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
-// ============ GROUPED BAR CHART RENDERER ============
-// Input: byYear = {yr: {sigs:{k:count}, pkgs:Set, cost}}
-// Output: SVG grouped bar chart với số lượng gói trên đầu cột
+// ============ CHART RENDER ============
 function renderYearChart(byYear){
   const years = Object.keys(byYear).sort();
   if(!years.length) return '<div class="chart-empty">Không có dữ liệu theo năm</div>';
-  
-  // Thu thập tất cả category xuất hiện ở ít nhất 1 năm, giữ thứ tự theo SCFG
   const catSet = new Set();
   years.forEach(yr => Object.keys(byYear[yr].sigs).forEach(k => catSet.add(k)));
   const cats = Object.keys(SCFG).filter(k => catSet.has(k));
-  
   if(!cats.length) return '<div class="chart-empty">Không có tín hiệu nào được nhận diện</div>';
-  
-  // Nếu chỉ có 1 category → không cần grouped, nhưng vẫn render để đồng nhất
-  // Tìm giá trị max để scale chiều cao
   let maxVal = 0;
   cats.forEach(k => years.forEach(yr => {
     const v = byYear[yr].sigs[k] || 0;
     if(v > maxVal) maxVal = v;
   }));
   if(maxVal === 0) maxVal = 1;
-  
-  // "Làm đẹp" maxVal: làm tròn lên bội số hợp lý
   const niceMax = (v) => {
-    if(v <= 5) return 5;
-    if(v <= 10) return 10;
-    if(v <= 20) return 20;
-    if(v <= 50) return Math.ceil(v/10)*10;
-    if(v <= 100) return Math.ceil(v/20)*20;
+    if(v <= 5) return 5; if(v <= 10) return 10; if(v <= 20) return 20;
+    if(v <= 50) return Math.ceil(v/10)*10; if(v <= 100) return Math.ceil(v/20)*20;
     return Math.ceil(v/50)*50;
   };
   const yMax = niceMax(maxVal);
-  
-  // Layout
-  const padL = 36, padR = 12, padT = 22, padB = 58;
-  const chartH = 180;
-  const barW = Math.max(10, Math.min(22, 80 / years.length)); // độ rộng mỗi bar trong 1 group
-  const groupW = barW * years.length + 6; // khoảng giữa bars trong group
-  const gap = 18; // khoảng cách giữa các group category
+  const padL=36,padR=12,padT=22,padB=58,chartH=180;
+  const barW = Math.max(10, Math.min(22, 80 / years.length));
+  const groupW = barW * years.length + 6;
+  const gap = 18;
   const innerW = cats.length * (groupW + gap) - gap;
   const totalW = Math.max(innerW + padL + padR, 380);
   const totalH = chartH + padT + padB;
-  
-  // Y-axis ticks (4 ticks: 0, 1/4, 1/2, 3/4, max)
   const yTicks = [0, yMax*0.25, yMax*0.5, yMax*0.75, yMax].map(v => Math.round(v));
   const yToPx = (v) => padT + chartH - (v / yMax) * chartH;
-  
-  // Build SVG
   let svg = `<svg class="chart-svg" viewBox="0 0 ${totalW} ${totalH}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMid meet">`;
-  
-  // Grid lines + y labels
   yTicks.forEach(v => {
     const y = yToPx(v);
     svg += `<line class="grid-line" x1="${padL}" y1="${y}" x2="${totalW-padR}" y2="${y}"/>`;
     svg += `<text class="axis-label" x="${padL-6}" y="${y+3}" text-anchor="end">${v}</text>`;
   });
-  
-  // Bars
   cats.forEach((catKey, ci) => {
     const catLbl = SCFG[catKey].l;
     const groupX = padL + ci * (groupW + gap);
     const groupCenter = groupX + groupW/2;
-    
-    // Category label (trục X, xoay 0° vì nhiều category)
-    // Nếu label dài → rút gọn
     const shortLbl = catLbl.length > 10 ? catLbl.substring(0,9)+'…' : catLbl;
     svg += `<text class="cat-label" x="${groupCenter}" y="${padT+chartH+16}" text-anchor="middle">${shortLbl}</text>`;
-    // Tooltip-like title cho category (full name)
-    // Dùng <title> để hover SVG hiện tooltip
-    
     years.forEach((yr, yi) => {
       const v = byYear[yr].sigs[catKey] || 0;
       const color = getYrColor(yr, yi);
       const bx = groupX + yi * barW + 3;
       const by = yToPx(v);
       const bh = padT + chartH - by;
-      
       svg += `<g class="bar-group">`;
       if(v > 0){
-        svg += `<rect class="bar" x="${bx}" y="${by}" width="${barW-2}" height="${bh}" fill="${color.main}" rx="2">`;
-        svg += `<title>${catLbl} · năm ${yr}: ${v} gói</title>`;
-        svg += `</rect>`;
-        // Label số trên đầu cột — chỉ hiện nếu bar đủ cao (>12px) hoặc giá trị >= 2
+        svg += `<rect class="bar" x="${bx}" y="${by}" width="${barW-2}" height="${bh}" fill="${color.main}" rx="2"><title>${catLbl} · năm ${yr}: ${v} gói</title></rect>`;
         svg += `<text class="bar-val" x="${bx + (barW-2)/2}" y="${by - 3}">${v}</text>`;
       } else {
-        // Bar rỗng rất mỏng để giữ alignment (tuỳ chọn)
         svg += `<rect class="bar" x="${bx}" y="${padT+chartH-1}" width="${barW-2}" height="1" fill="${color.main}" opacity="0.2"/>`;
       }
       svg += `</g>`;
     });
   });
-  
-  // X-axis base line
   svg += `<line x1="${padL}" y1="${padT+chartH}" x2="${totalW-padR}" y2="${padT+chartH}" stroke="var(--bd2)" stroke-width="1"/>`;
-  // Y-axis label
-  svg += `<text class="axis-label" x="${padL-28}" y="${padT-6}" transform="rotate(0)">gói</text>`;
-  
   svg += `</svg>`;
-  
-  // Legend năm + summary (tổng gói / chi phí từng năm)
   const legendHtml = years.map((yr, yi) => {
     const color = getYrColor(yr, yi);
     const yd = byYear[yr];
-    const totalSigPkgs = Object.values(yd.sigs).reduce((a,b)=>a+b, 0);
     return `<div class="chart-legend-item"><span class="chart-legend-swatch" style="background:${color.main}"></span><strong>${yr}</strong><span class="chart-legend-count">${yd.pkgs.size}gói · ${fc(yd.cost)}</span></div>`;
   }).join('');
-  
   return `<div class="chart-wrap">${svg}</div><div class="chart-legend">${legendHtml}</div>`;
 }
 
-function renderCard(nm,d){
+// ============ STATS TABLES (cho nút Phân tích nhanh) ============
+function buildStatsForPlant(rows){
+  const stats = {
+    contractors: {}, // nhà thầu trúng
+    brands: {},      // hãng SX
+    origins: {},     // xuất xứ
+    categories: {},  // danh mục hàng hoá
+    overrun: [],     // gói vượt dự toán
+    yearly: {},      // số gói theo năm
+  };
+  const tbmtSet = {};
+  for(const row of rows){
+    const yr = (row.publicdate||'').split('/')[2];
+    const tbmt = row.tbmt;
+    if(yr && tbmt){
+      if(!stats.yearly[yr]) stats.yearly[yr] = new Set();
+      stats.yearly[yr].add(tbmt);
+    }
+    const nt = (row.nha_thau_trung_thau||'').trim().toLowerCase();
+    if(nt && tbmt){
+      const key = nt;
+      if(!stats.contractors[key]) stats.contractors[key] = {pkgs:new Set(), cost:0};
+      stats.contractors[key].pkgs.add(tbmt);
+      const c = parseFloat((row.thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
+      stats.contractors[key].cost += c;
+    }
+    const nh = (row.nhan_hieu||row.hang_san_xuat||'').trim().toLowerCase();
+    if(nh && nh !== '-' && nh !== 'n/a') stats.brands[nh] = (stats.brands[nh]||0)+1;
+    const xx = (row.xuat_xu_2||row.xuat_xu_quoc_gia_vung_lanh_tho_san_xuat||'').trim().toLowerCase();
+    if(xx && xx !== '-') stats.origins[xx] = (stats.origins[xx]||0)+1;
+    const dm = (row.danh_muc_hang_hoa||'').trim();
+    if(dm) stats.categories[dm] = (stats.categories[dm]||0)+1;
+    // vượt dự toán: gia_du_toan vs gia_trung_thau
+    const dt = parseFloat((row.gia_du_toan||'').replace(/[,\s]/g,'').replace(/\./g,''));
+    const tt = parseFloat((row.gia_trung_thau||'').replace(/[,\s]/g,'').replace(/\./g,''));
+    if(dt && tt && tt > dt && tbmt && !tbmtSet[tbmt]){
+      tbmtSet[tbmt] = true;
+      stats.overrun.push({tbmt, ten_goi: row.ten_goi||'', dt, tt, pct: ((tt-dt)/dt*100)});
+    }
+  }
+  // Sort & convert
+  const top = (obj, n=15) => Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,n);
+  const topContractors = Object.entries(stats.contractors).sort((a,b)=>b[1].cost-a[1].cost).slice(0,10);
+  const topYearly = Object.entries(stats.yearly).sort().map(([yr,set])=>({yr, count:set.size}));
+  stats.overrun.sort((a,b)=>b.pct-a.pct);
+  return {
+    contractors: topContractors,
+    brands: top(stats.brands, 12),
+    origins: top(stats.origins, 10),
+    categories: top(stats.categories, 10),
+    overrun: stats.overrun.slice(0, 10),
+    yearly: topYearly,
+  };
+}
+
+function renderStatsTables(rows){
+  const s = buildStatsForPlant(rows);
+  const mkTbl = (title, count, cols, data, mkRow) => {
+    if(!data.length) return '';
+    return `<div class="stbl-box">
+      <div class="stbl-h">${title}<span class="stbl-cnt">${count}</span></div>
+      <table class="stbl"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${data.map(mkRow).join('')}</tbody></table>
+    </div>`;
+  };
+  let h = '<div class="stbl-wrap"><div class="stt" style="margin-bottom:0">📊 Thống kê chi tiết</div><div class="stbl-grid">';
+  h += mkTbl('Phân bố theo năm', s.yearly.length+' năm', ['Năm','Số gói'], s.yearly, r=>`<tr><td><strong>${r.yr}</strong></td><td class="num">${r.count}</td></tr>`);
+  h += mkTbl('Top nhà thầu trúng', s.contractors.length, ['Nhà thầu','Gói','Giá trị'], s.contractors, ([k,v])=>`<tr><td style="font-size:11.5px">${escHtml(k.substring(0,55))}${k.length>55?'…':''}</td><td class="num">${v.pkgs.size}</td><td class="num">${fc(v.cost)}</td></tr>`);
+  h += mkTbl('Top hãng SX', s.brands.length, ['Hãng','SL'], s.brands, ([k,v])=>`<tr><td>${escHtml(k.substring(0,40))}</td><td class="num">${v}</td></tr>`);
+  h += mkTbl('Top xuất xứ', s.origins.length, ['Quốc gia','SL'], s.origins, ([k,v])=>`<tr><td>${escHtml(k)}</td><td class="num">${v}</td></tr>`);
+  h += mkTbl('Top danh mục hàng hoá', s.categories.length, ['Danh mục','SL'], s.categories, ([k,v])=>`<tr><td style="font-size:11.5px">${escHtml(k.substring(0,50))}${k.length>50?'…':''}</td><td class="num">${v}</td></tr>`);
+  if(s.overrun.length){
+    h += mkTbl('⚠ Gói vượt dự toán', s.overrun.length, ['Gói','DT→TT','Vượt'], s.overrun, r=>`<tr><td style="font-size:11px">${escHtml((r.ten_goi||'').substring(0,55))}${(r.ten_goi||'').length>55?'…':''}</td><td class="num" style="font-size:10.5px">${fc(r.dt)} → ${fc(r.tt)}</td><td class="num ov">+${r.pct.toFixed(1)}%</td></tr>`);
+  }
+  h += '</div></div>';
+  return h;
+}
+
+function renderCard(nm,d,includeStats){
   const sigs=Object.keys(d.sigs); if(!sigs.length)return'';
   const pi=findDB(nm), ar=pi?ageI(pi.y):null, cw=cwMsg(nm);
   const lv=(d.sigs.ov||d.sigs.ic)?'cr':(d.sigs.tb||d.sigs.gn||d.sigs.br)?'wa':(d.sigs.ev||d.sigs.es)?'op':'in';
@@ -531,24 +664,23 @@ function renderCard(nm,d){
     <div class="pc2"><div class="pl">Lò hơi</div><div class="pv">${pi.boi||'—'}</div></div>
     <div class="pc2"><div class="pl">EPC</div><div class="pv">${pi.epc||'—'}</div></div>
   </div>`;
-  
-  // === CHART THAY CHO YEAR PILLS ===
   const yrs=Object.keys(d.byY).sort();
   let ybH='';
   if(yrs.length){
-    ybH=`<div class="yb">
-      <div class="ybt"><span>Tín hiệu theo năm · số gói</span><span class="yb-sum">${yrs.length} năm dữ liệu</span></div>
-      ${renderYearChart(d.byY)}
-    </div>`;
+    ybH=`<div class="yb"><div class="ybt"><span>Tín hiệu theo năm · số gói</span><span class="yb-sum">${yrs.length} năm dữ liệu</span></div>${renderYearChart(d.byY)}</div>`;
   }
-  
   let ugH='';
   if(d.ugp.length)ugH=`<div class="ug"><div class="ugt">🚨 ${d.ugp.length} gói khẩn cấp/sự cố</div>${d.ugp.slice(0,5).map(u=>`<div class="ugi">▸ [${u.yr}] ${(u.tg||'').substring(0,118)}</div>`).join('')}</div>`;
   const evi=sigs.flatMap(k=>d.rows?d.rows.filter(r=>SCFG[k].kws.some(w=>(r.search_text||r.ten_goi||'').toLowerCase().includes(w))).slice(0,2).map(r=>({t:r.ten_goi||'',k})):[]).slice(0,6);
   const evH=evi.length?`<div class="ev">${evi.map(e=>`<div class="ei"><span class="tg">[${SCFG[e.k].l}]</span> ${(e.t||'').substring(0,118)}</div>`).join('')}</div>`:'';
+  // Stats tables (chỉ khi includeStats=true, tức là từ runFast/runAi)
+  let statsH = '';
+  if(includeStats && d.rows && d.rows.length){
+    statsH = renderStatsTables(d.rows);
+  }
   return `<div class="pc ${lv}">
     <div class="ph"><div class="pn">${nm}<span class="pr">${pi?.r||''}</span></div><div class="bgs">${bgs}</div></div>
-    ${cwH}${piH}${ybH}${ugH}${evH}
+    ${cwH}${piH}${ybH}${ugH}${evH}${statsH}
     <div class="pm"><span>📦 ${d.pkgs.size} gói</span><span>💰 ~${fc(d.cost)}</span>${pi?.note?`<span class="nt">ℹ ${pi.note}</span>`:''}</div>
   </div>`;
 }
@@ -570,7 +702,6 @@ function prevUp(inp){
   };
   rd.readAsText(f,'UTF-8');
 }
-
 function applyUp(){
   if(!pendUp||!pendUp.length){alert('Chưa có dữ liệu');return;}
   const gc=(r,keys)=>{for(const k of keys){if(r[k]!==undefined&&r[k]!=='')return r[k];}return'';};
@@ -585,7 +716,6 @@ function applyUp(){
   document.getElementById('moB').classList.remove('open');
   pendUp=null;
 }
-
 function ldF(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{const ex=document.getElementById('ectx').value;document.getElementById('ectx').value=(ex?ex+'\n\n':'')+`=== ${f.name} ===\n`+e.target.result;};r.readAsText(f,'UTF-8');inp.value='';}
 
 // MD to HTML compact
@@ -601,251 +731,398 @@ function md2h(txt){
     .replace(/<p><h/g,'<h').replace(/<\/h(\d)><\/p>/g,'</h$1>');
 }
 
-async function run(){
+// ============ FETCH DATA (dùng chung cho fast/ai) ============
+async function fetchPlantRows(plant, year){
+  const ps=['g1='+encodeURIComponent(plant)];
+  if(year)ps.push('g2='+encodeURIComponent(year));
+  ps.push('limit=5000');
+  // Lấy đủ cột cho cả tín hiệu, stats và report
+  ps.push('cols=ten_nha_may,tbmt,ten_goi,publicdate,danh_muc_hang_hoa,ky_ma_hieu,nhan_hieu,hang_san_xuat,xuat_xu_2,xuat_xu_quoc_gia_vung_lanh_tho_san_xuat,don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co,thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co,nha_thau_trung_thau,gia_du_toan,gia_trung_thau,search_text');
+  const res=await fetch(W+'/search?'+ps.join('&'));
+  const body=await res.json();
+  return body.data||[];
+}
+
+function processRows(rows){
+  const byP=detect(rows);
+  for(const row of rows){
+    const nm=row.ten_nha_may||'Không rõ';
+    if(byP[nm]){if(!byP[nm].rows)byP[nm].rows=[];byP[nm].rows.push(row);}
+  }
+  return byP;
+}
+
+function renderHeader(rows, byP, includeStats){
+  const plants=Object.keys(byP);
+  let crit=0,opp=0,urg=0;
+  for(const n of plants){if(byP[n].sigs.ov||byP[n].sigs.ic)crit++;if(byP[n].sigs.ev||byP[n].sigs.es)opp++;urg+=byP[n].ugp.length;}
+  let html=`<div class="sg">
+    <div class="sc"><div class="sl">Dòng dữ liệu</div><div class="sv bl">${rows.length.toLocaleString()}</div></div>
+    <div class="sc"><div class="sl">Nhà máy</div><div class="sv bl">${plants.length}</div></div>
+    <div class="sc"><div class="sl">Rủi ro cao</div><div class="sv rd">${crit}</div></div>
+    <div class="sc"><div class="sl">Gói khẩn cấp</div><div class="sv or">${urg}</div></div>
+  </div><div class="stt">Tín hiệu theo nhà máy</div>`;
+  const sorted=Object.entries(byP).sort(([,a],[,b])=>{const s=d=>(d.sigs.ov||d.sigs.ic?4:0)+(d.sigs.tb||d.sigs.gn?2:0)+Object.keys(d.sigs).length;return s(b)-s(a);});
+  for(const[n,d]of sorted)html+=renderCard(n,d,includeStats);
+  return html;
+}
+
+// ============ NÚT 1: PHÂN TÍCH NHANH (KHÔNG AI) ============
+async function runFast(){
+  const plant=getP(), year=document.getElementById('ySel').value;
+  if(!plant){alert('Chọn hoặc nhập tên nhà máy');return;}
+  const btns=['bFast','bAi','bRepP','bRepAll'].map(id=>document.getElementById(id));
+  btns.forEach(b=>b.disabled=true);
+  const stb=document.getElementById('stBar'), out=document.getElementById('out');
+  stb.className='st on';
+  document.getElementById('stTx').textContent='Đang tải dữ liệu...';
+  try{
+    out.innerHTML=`<div class="card"><div class="sk" style="width:40%;height:15px;margin-bottom:10px"></div><div class="sk" style="width:75%"></div><div class="sk" style="width:55%"></div></div>`;
+    const rows = await fetchPlantRows(plant, year);
+    if(!rows.length){out.innerHTML=`<div class="err">Không tìm thấy dữ liệu cho "${plant}"${year?' năm '+year:''}.</div>`;return;}
+    document.getElementById('stTx').textContent=`Phân tích ${rows.length} dòng...`;
+    const byP=processRows(rows);
+    lastFastResult = {plant, year, rows, byP};
+    out.innerHTML = renderHeader(rows, byP, true);
+  }catch(e){out.innerHTML=`<div class="err">Lỗi: ${e.message}</div>`;}
+  finally{btns.forEach(b=>b.disabled=false);stb.className='st';document.getElementById('stTx').textContent='';}
+}
+
+// ============ NÚT 2: AI PHÂN TÍCH ============
+async function runAi(){
   const plant=getP(), year=document.getElementById('ySel').value, extra=document.getElementById('ectx').value.trim();
   if(!plant){alert('Chọn hoặc nhập tên nhà máy');return;}
-  const btn=document.getElementById('aBtn'), stb=document.getElementById('stBar'), out=document.getElementById('out');
-  btn.disabled=true; stb.className='st on';
+  const btns=['bFast','bAi','bRepP','bRepAll'].map(id=>document.getElementById(id));
+  btns.forEach(b=>b.disabled=true);
+  const stb=document.getElementById('stBar'), out=document.getElementById('out');
+  stb.className='st on';
   try{
-    document.getElementById('stTx').textContent='Đang tải dữ liệu...';
-    out.innerHTML=`<div class="card"><div class="sk" style="width:40%;height:15px;margin-bottom:10px"></div><div class="sk" style="width:75%"></div><div class="sk" style="width:55%"></div></div>`;
-    const ps=['g1='+encodeURIComponent(plant)];
-    if(year)ps.push('g2='+encodeURIComponent(year));
-    ps.push('limit=5000');
-    ps.push('cols=ten_nha_may,tbmt,ten_goi,publicdate,danh_muc_hang_hoa,ky_ma_hieu,nhan_hieu,xuat_xu_2,xuat_xu_quoc_gia_vung_lanh_tho_san_xuat,don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co,thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co,search_text');
-    const res=await fetch(W+'/search?'+ps.join('&'));
-    const body=await res.json(); const rows=body.data||[];
-    if(!rows.length){out.innerHTML=`<div class="err">Không tìm thấy dữ liệu cho "${plant}"${year?' năm '+year:''}.</div>`;return;}
-
-    document.getElementById('stTx').textContent=`Phân tích ${rows.length} dòng...`;
-    const byP=detect(rows); const plants=Object.keys(byP);
-
-    // Gán rows vào byPlant để render evidence
-    for(const row of rows){const nm=row.ten_nha_may||'Không rõ';if(byP[nm]){if(!byP[nm].rows)byP[nm].rows=[];byP[nm].rows.push(row);}}
-
-    let crit=0,opp=0,urg=0;
-    for(const n of plants){if(byP[n].sigs.ov||byP[n].sigs.ic)crit++;if(byP[n].sigs.ev||byP[n].sigs.es)opp++;urg+=byP[n].ugp.length;}
-
-    let html=`<div class="sg">
-      <div class="sc"><div class="sl">Dòng dữ liệu</div><div class="sv bl">${rows.length.toLocaleString()}</div></div>
-      <div class="sc"><div class="sl">Nhà máy</div><div class="sv bl">${plants.length}</div></div>
-      <div class="sc"><div class="sl">Rủi ro cao</div><div class="sv rd">${crit}</div></div>
-      <div class="sc"><div class="sl">Gói khẩn cấp</div><div class="sv or">${urg}</div></div>
-    </div><div class="stt">Tín hiệu theo nhà máy</div>`;
-
-    const sorted=Object.entries(byP).sort(([,a],[,b])=>{const s=d=>(d.sigs.ov||d.sigs.ic?4:0)+(d.sigs.tb||d.sigs.gn?2:0)+Object.keys(d.sigs).length;return s(b)-s(a);});
-    for(const[n,d]of sorted)html+=renderCard(n,d);
-    html+=`<div class="aib" id="aiB"><div class="aih"><span class="aiht">◈ Phân tích chi tiết</span><span class="aihs">đang xử lý...</span></div><div style="padding:14px"><div class="sk"></div><div class="sk" style="width:88%"></div><div class="sk" style="width:70%"></div><div class="sk" style="width:94%"></div><div class="sk" style="width:60%"></div></div></div>`;
+    let rows, byP;
+    // Tận dụng cache nếu cùng plant/year
+    if(lastFastResult && lastFastResult.plant===plant && lastFastResult.year===year){
+      rows = lastFastResult.rows; byP = lastFastResult.byP;
+      document.getElementById('stTx').textContent=`Dùng dữ liệu đã tải (${rows.length} dòng), gọi AI...`;
+    } else {
+      document.getElementById('stTx').textContent='Đang tải dữ liệu...';
+      out.innerHTML=`<div class="card"><div class="sk" style="width:40%;height:15px;margin-bottom:10px"></div><div class="sk" style="width:75%"></div></div>`;
+      rows = await fetchPlantRows(plant, year);
+      if(!rows.length){out.innerHTML=`<div class="err">Không tìm thấy dữ liệu.</div>`;return;}
+      byP = processRows(rows);
+      lastFastResult = {plant, year, rows, byP};
+    }
+    const plants=Object.keys(byP);
+    let html = renderHeader(rows, byP, true);
+    html+=`<div class="aib" id="aiB"><div class="aih"><span class="aiht">◈ AI Phân tích chi tiết</span><span class="aihs">đang xử lý...</span></div><div style="padding:14px"><div class="sk"></div><div class="sk" style="width:88%"></div><div class="sk" style="width:70%"></div><div class="sk" style="width:94%"></div></div></div>`;
     out.innerHTML=html;
 
-    // Chuẩn bị context
     document.getElementById('stTx').textContent='AI đang phân tích...';
     const pCtx=plants.map(n=>{
       const pi=findDB(n), d=byP[n];
       const age=pi?.y?new Date().getFullYear()-pi.y:null;
       const yrS=Object.keys(d.byY).sort().reverse().map(yr=>{const yd=d.byY[yr];const sig=Object.entries(yd.sigs).map(([k,v])=>`${SCFG[k].l}:${v}`).join(', ');return `    ${yr}: ${yd.pkgs.size}gói ~${fc(yd.cost)}VND | ${sig||'bảo dưỡng thường'}`;}).join('\n');
-      const ugS=d.ugp.length?`\n  KHẨN CẤP(${d.ugp.length}): ${d.ugp.slice(0,4).map(u=>`[${u.yr}] ${(u.tg||'').substring(0,70)}`).join(' | ')}`:'' ;
-      const itS=d.its.length?`\n  MẪU VẬT TƯ: ${d.its.slice(0,8).map(i=>`[${i.yr}]${i.cat}${i.gia?` giá:${i.gia}`:''}${i.nh?` hãng:${i.nh}`:''}${i.xx?` (${i.xx})`:''}`).join(' | ')}`:'' ;
+      const ugS=d.ugp.length?`\n  KHẨN CẤP(${d.ugp.length}): ${d.ugp.slice(0,4).map(u=>`[${u.yr}] ${(u.tg||'').substring(0,70)}`).join(' | ')}`:'';
+      const itS=d.its.length?`\n  MẪU VẬT TƯ: ${d.its.slice(0,8).map(i=>`[${i.yr}]${i.cat}${i.gia?` giá:${i.gia}`:''}${i.nh?` hãng:${i.nh}`:''}${i.xx?` (${i.xx})`:''}`).join(' | ')}`:'';
       if(pi)return`${n}(${pi.r},${pi.mw}MW,${pi.y||'?'},tuổi${age||'?'}năm)\n  EPC:${pi.epc||'?'} TB:${pi.tb||'?'} MF:${pi.gen||'?'} LH:${pi.boi||'?'}\n  Ghi chú:${pi.note||'-'}\n  Tín hiệu: ${Object.entries(d.sigs).map(([k,v])=>`${SCFG[k].l}(${v})`).join(', ')}${ugS}${itS}\n${yrS}`;
       return`${n}: ${d.pkgs.size}gói ${Object.entries(d.sigs).map(([k,v])=>`${SCFG[k].l}(${v})`).join(', ')}${ugS}${itS}\n${yrS}`;
     }).join('\n\n');
 
-    // ==== GỌI /analyze — KHÔNG AUTO-CONTINUATION (tránh ghép bài trùng lặp) ====
-    // VẤN ĐỀ PHÁT HIỆN: Worker backend hiện chưa xử lý params {continuation, previous_output}
-    // → Khi gọi tiếp, Worker phân tích LẠI TỪ ĐẦU → ghép vào = bài bị lặp 2-3 lần toàn bộ
-    // GIẢI PHÁP:
-    //  1. Gửi max_tokens=8000, extended=true ngay lần đầu để Worker trả về bài dài nhất có thể
-    //  2. KHÔNG auto-continue. Chỉ có nút "Viết tiếp" thủ công + cảnh báo rõ
-    //  3. Khi user bấm "Viết tiếp" → check nếu Worker trả bài trùng → CHẶN KHÔNG GHÉP, cảnh báo
-    //  4. Dùng smart merge: tìm overlap (cuối text cũ ↔ đầu text mới) để cắt bỏ phần trùng
-
-    const analyzePayloadBase = {plant, year, rows, plant_info_context:pCtx, extra_context:extra||null, max_tokens:8000, extended:true, target_length:'long'};
-
-    // Phát hiện response bị cắt giữa chừng
-    function isCutOff(text){
-      if(!text) return false;
-      const t = text.trimEnd();
-      if(t.length < 100) return false;
-      const lastChar = t.slice(-1);
-      const lastTwo = t.slice(-2);
-      if(/[.!?:)”"\]\}]$/.test(lastChar)) return false;
-      if(/\*\*$/.test(lastTwo) && t.split('**').length % 2 === 1) return true;
-      if(/[,\-–—/(\[{*]$/.test(lastChar)) return true;
-      if(/[a-zàáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ0-9]$/i.test(lastChar)) return true;
-      return false;
-    }
-
-    // Phát hiện response tiếp theo là BẢN VIẾT LẠI TỪ ĐẦU (không phải continuation thật)
-    // Dấu hiệu: bắt đầu bằng heading cấp 1 (# / ##) hoặc các cụm "1. TÌNH TRẠNG" / "PHÂN TÍCH NHÀ MÁY" / "TÌNH TRẠNG THIẾT BỊ"
-    // → Đây là bản duplicate, không được ghép
-    function isDuplicateRestart(newText, oldText){
-      if(!newText) return false;
-      const head = newText.trimStart().substring(0, 300).toUpperCase();
-      // Các cụm mở bài điển hình
-      const restartPatterns = [
-        /^#\s*PHÂN TÍCH/,
-        /^##?\s*1\.\s*TÌNH TRẠNG/,
-        /^1\.\s*TÌNH TRẠNG THIẾT BỊ/,
-        /^PHÂN TÍCH (NHÀ MÁY|CÔNG TY|CHI TIẾT|NHIỆT ĐIỆN)/,
-        /^##?\s*TÌNH TRẠNG THIẾT BỊ/,
-      ];
-      for(const re of restartPatterns){
-        if(re.test(head)) return true;
-      }
-      // Fallback: nếu đầu bài mới chứa cụm 100+ ký tự trùng với đầu bài cũ → duplicate
-      if(oldText && oldText.length > 200){
-        const oldHead = oldText.trimStart().substring(0, 200);
-        if(newText.includes(oldHead.substring(0, Math.min(150, oldHead.length)))) return true;
-      }
-      return false;
-    }
-
-    // Smart merge: cắt bỏ overlap giữa cuối cũ và đầu mới
-    // Tìm chuỗi dài nhất (30-200 ký tự) xuất hiện ở cuối text cũ và đầu text mới
-    function smartMerge(oldText, newText){
-      if(!oldText) return newText;
-      if(!newText) return oldText;
-      const oldTail = oldText.slice(-300); // xét 300 char cuối cùng
-      const newHead = newText.slice(0, 300);
-      // Thử overlap từ lớn đến nhỏ
-      for(let len=Math.min(oldTail.length, newHead.length); len>=20; len--){
-        const tail = oldTail.slice(-len);
-        if(newText.startsWith(tail)){
-          // Bỏ phần đầu new trùng với cuối old
-          return oldText + newText.slice(len);
-        }
-      }
-      // Không thấy overlap → nối trực tiếp, thêm newline
-      const sep = oldText.endsWith('\n') ? '' : '\n';
-      return oldText + sep + newText;
-    }
-
-    async function callAnalyze(extraFlags){
-      const payload = Object.assign({}, analyzePayloadBase, extraFlags||{});
-      const r = await fetch(W+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      return await r.json();
-    }
-
-    let fullAnalysis = '';
-    let errMsg = null;
-
-    try{
-      const ab = await callAnalyze();
-      if(ab.error){ errMsg = ab.error; }
-      else{ fullAnalysis = ab.analysis || ''; }
-    }catch(e){ errMsg = 'Lỗi gọi API: '+e.message; }
-
-    // ==== RENDER KẾT QUẢ CUỐI ====
-    if(errMsg && !fullAnalysis){
-      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ Phân tích</span></div><div style="padding:12px"><div class="err">${errMsg}</div></div>`;
-    }else{
-      const stillCut = isCutOff(fullAnalysis);
+    const payload = {plant, year, rows, plant_info_context:pCtx, extra_context:extra||null, max_tokens:8000, extended:true, target_length:'long'};
+    const r = await fetch(W+'/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const ab = await r.json();
+    if(ab.error){
+      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ AI</span></div><div style="padding:12px"><div class="err">${ab.error}</div></div>`;
+    } else {
+      const fullAnalysis = ab.analysis || '';
       const html2=md2h(fullAnalysis);
-      const continueBtn = stillCut
-        ? `<div style="padding:10px 18px 14px;border-top:1px dashed var(--bd);background:var(--wnb);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#664d03;flex:1;min-width:200px">⚠ Phân tích bị cắt (Worker trả về ${fullAnalysis.length.toLocaleString()} ký tự). Bấm để thử viết tiếp — hệ thống sẽ chặn nếu phát hiện Worker viết lại từ đầu:</span><button class="btn btn-sm" onclick="continueAnalysis()">✏️ Thử viết tiếp</button></div>`
-        : '';
-
-      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${rows.length.toLocaleString()} dòng · ${plants.length} nhà máy${extra?' + bổ sung':''} · ${fullAnalysis.length.toLocaleString()} ký tự</span></div><div class="aib-body"><p>${html2}</p></div>${continueBtn}`;
-
-      // Lưu state để nút "Viết tiếp" thủ công dùng
-      window._analyzeState = {
-        payloadBase: analyzePayloadBase,
-        currentText: fullAnalysis,
-        rows_count: rows.length,
-        plants_count: plants.length,
-        extra_flag: !!extra,
-        md2h, isCutOff, isDuplicateRestart, smartMerge, callAnalyze
-      };
+      document.getElementById('aiB').innerHTML=`<div class="aih"><span class="aiht">◈ AI Phân tích chi tiết theo năm</span><span class="aihs">${rows.length.toLocaleString()} dòng · ${plants.length} nhà máy${extra?' + bổ sung':''} · ${fullAnalysis.length.toLocaleString()} ký tự</span></div><div class="aib-body"><p>${html2}</p></div>`;
     }
   }catch(e){out.innerHTML=`<div class="err">Lỗi: ${e.message}</div>`;}
-  finally{btn.disabled=false;stb.className='st';document.getElementById('stTx').textContent='';}
+  finally{btns.forEach(b=>b.disabled=false);stb.className='st';document.getElementById('stTx').textContent='';}
 }
 
-// Nút "Viết tiếp" thủ công
-// CHẶN NẾU: response là bản viết lại từ đầu (duplicate restart)
-// SMART MERGE: tìm overlap giữa cuối bài cũ và đầu bài mới để cắt bớt
-async function continueAnalysis(){
-  const s = window._analyzeState;
-  if(!s){ alert('Không có phân tích đang active'); return; }
-  const aiB = document.getElementById('aiB');
-  const btns = aiB.querySelectorAll('button');
-  btns.forEach(b=>{b.disabled=true; b.textContent='Đang viết...';});
+// ============ REPORT FUNCTIONS ============
+function buildReportStats(rows){
+  const stats = {
+    totalRows: rows.length,
+    totalValue: 0,
+    plants: {},        // {name: {pkgs:Set, rows:n}}
+    contractors: {},   // {name: {pkgs:Set, cost}}
+    contractorPlants: {}, // {name: Set(plants)}  - đếm số NM mỗi nhà thầu
+    brands: {},
+    origins: {},
+    yearly: {},        // {year: Set(tbmt)}
+    overrun: [],
+    matVsService: {vt:{rows:0,cost:0}, dv:{rows:0,cost:0}},
+    overrunSet: {},
+    pkgsByPlant: {},   // gom dữ liệu cho overrun theo nhà máy
+  };
+  const tbmtSet = {};
+  const allPkgs = new Set();
+  for(const row of rows){
+    const tbmt = row.tbmt;
+    const nm = row.ten_nha_may || 'Không rõ';
+    if(tbmt) allPkgs.add(tbmt);
+    // Plant
+    if(!stats.plants[nm]) stats.plants[nm] = {pkgs:new Set(), rows:0};
+    if(tbmt) stats.plants[nm].pkgs.add(tbmt);
+    stats.plants[nm].rows++;
+    // Year
+    const yr = (row.publicdate||'').split('/')[2];
+    if(yr && tbmt){
+      if(!stats.yearly[yr]) stats.yearly[yr] = new Set();
+      stats.yearly[yr].add(tbmt);
+    }
+    // Contractor (nhà thầu trúng thầu)
+    const nt = (row.nha_thau_trung_thau||'').trim().toLowerCase();
+    if(nt && nt !== '-' && nt !== 'n/a' && tbmt){
+      if(!stats.contractors[nt]) stats.contractors[nt] = {pkgs:new Set(), cost:0};
+      stats.contractors[nt].pkgs.add(tbmt);
+      const c = parseFloat((row.thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
+      stats.contractors[nt].cost += c;
+      stats.totalValue += c;
+      // Số NM mà mỗi nhà thầu trúng
+      if(!stats.contractorPlants[nt]) stats.contractorPlants[nt] = new Set();
+      stats.contractorPlants[nt].add(nm);
+    }
+    // Brand
+    const nh = (row.nhan_hieu||row.hang_san_xuat||'').trim().toLowerCase();
+    if(nh && nh !== '-' && nh !== 'n/a') stats.brands[nh] = (stats.brands[nh]||0)+1;
+    // Origin
+    const xx = (row.xuat_xu_2||row.xuat_xu_quoc_gia_vung_lanh_tho_san_xuat||'').trim().toLowerCase();
+    if(xx && xx !== '-') stats.origins[xx] = (stats.origins[xx]||0)+1;
+    // Vật tư vs dịch vụ (heuristic: có ky_ma_hieu hoặc nhan_hieu => vật tư)
+    const isMat = (row.ky_ma_hieu||row.nhan_hieu||row.hang_san_xuat||'').trim() !== '';
+    const c = parseFloat((row.thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co||'').replace(/[,\s]/g,'').replace(/\./g,''))||0;
+    if(isMat){stats.matVsService.vt.rows++; stats.matVsService.vt.cost+=c;}
+    else {stats.matVsService.dv.rows++; stats.matVsService.dv.cost+=c;}
+    // Vượt dự toán
+    const dt = parseFloat((row.gia_du_toan||'').replace(/[,\s]/g,'').replace(/\./g,''));
+    const tt = parseFloat((row.gia_trung_thau||'').replace(/[,\s]/g,'').replace(/\./g,''));
+    if(dt && tt && tt > dt && tbmt && !stats.overrunSet[tbmt]){
+      stats.overrunSet[tbmt] = true;
+      stats.overrun.push({nm, tbmt, ten_goi: row.ten_goi||'', dt, tt, pct: ((tt-dt)/dt*100)});
+    }
+  }
+  stats.totalPkgs = allPkgs.size;
+  stats.overrun.sort((a,b)=>b.pct-a.pct);
+  return stats;
+}
 
-  try{
-    const cont = await s.callAnalyze({
-      continuation: true,
-      previous_output: s.currentText,
-      continuation_index: 99,
-      max_tokens: 8000
+function renderReportHTML(title, stats, isAllPlants, plantName){
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0,19).replace('T',' ');
+  // Top plants
+  const topPlants = Object.entries(stats.plants).sort((a,b)=>b[1].pkgs.size - a[1].pkgs.size).slice(0,15);
+  const maxPkgs = topPlants.length ? topPlants[0][1].pkgs.size : 1;
+  // Top contractors
+  const topContractors = Object.entries(stats.contractors).sort((a,b)=>b[1].cost - a[1].cost).slice(0,20);
+  // Nhà thầu quen mặt: >=3 gói
+  const familiar = Object.entries(stats.contractors)
+    .filter(([k,v])=>v.pkgs.size >= 3)
+    .map(([k,v])=>({name:k, pkgs:v.pkgs.size, plants:(stats.contractorPlants[k]?.size||1)}))
+    .sort((a,b)=>b.pkgs - a.pkgs)
+    .slice(0,20);
+  // Yearly
+  const yearly = Object.entries(stats.yearly).sort().map(([yr,set])=>({yr, count:set.size}));
+  const maxYr = yearly.length ? Math.max(...yearly.map(y=>y.count)) : 1;
+  // Brands & origins
+  const topBrands = Object.entries(stats.brands).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const topOrigins = Object.entries(stats.origins).sort((a,b)=>b[1]-a[1]).slice(0,20);
+
+  let html = `<div class="rep-head">
+    <div class="rep-logo">热</div>
+    <div style="flex:1;min-width:0">
+      <h1>${escHtml(title)}</h1>
+      <div class="rep-sub">MSC · TENDER ANALYSIS · ${dateStr}</div>
+    </div>
+    <div class="rep-actions">
+      <button class="rep-btn" onclick="printReport()">🖨 In / PDF</button>
+      <button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button>
+    </div>
+  </div>`;
+
+  // KPI grid
+  html += `<div class="rep-kpi-grid">
+    <div class="rep-kpi"><div class="rep-kpi-label">Tổng dòng VT</div><div class="rep-kpi-val">${stats.totalRows.toLocaleString('vi-VN')}</div><div class="rep-kpi-sub">rows</div></div>
+    <div class="rep-kpi"><div class="rep-kpi-label">Số gói thầu</div><div class="rep-kpi-val">${stats.totalPkgs.toLocaleString('vi-VN')}</div><div class="rep-kpi-sub">TBMT duy nhất</div></div>
+    <div class="rep-kpi"><div class="rep-kpi-label">Tổng giá trị</div><div class="rep-kpi-val">${fcRep(stats.totalValue)}</div><div class="rep-kpi-sub">VND</div></div>
+    <div class="rep-kpi"><div class="rep-kpi-label">Vượt dự toán</div><div class="rep-kpi-val">${stats.overrun.length}</div><div class="rep-kpi-sub">gói</div></div>
+    ${isAllPlants?`<div class="rep-kpi"><div class="rep-kpi-label">Nhà máy</div><div class="rep-kpi-val">${Object.keys(stats.plants).length}</div><div class="rep-kpi-sub">khác nhau</div></div>`:''}
+    <div class="rep-kpi"><div class="rep-kpi-label">Nhà thầu</div><div class="rep-kpi-val">${Object.keys(stats.contractors).length.toLocaleString('vi-VN')}</div><div class="rep-kpi-sub">có trúng thầu</div></div>
+  </div>`;
+
+  // Phân bố nhà máy (chỉ all)
+  if(isAllPlants && topPlants.length){
+    html += `<div class="rep-section"><h2>Phân bố theo nhà máy (Top ${topPlants.length})</h2><table>
+      <thead><tr><th>#</th><th>Nhà máy</th><th>Số gói</th><th>Dòng VT</th><th></th></tr></thead><tbody>`;
+    topPlants.forEach(([nm,d],i)=>{
+      const pct = (d.pkgs.size/maxPkgs*100).toFixed(0);
+      html += `<tr><td>${i+1}</td><td>${escHtml(nm)}</td><td class="rep-num">${d.pkgs.size}</td><td class="rep-num">${d.rows}</td><td><div class="rep-bar"><div class="rep-bar-fill" style="width:${pct}%"></div></div></td></tr>`;
     });
-    if(cont.error){
-      alert('Lỗi: '+cont.error);
-      btns.forEach(b=>{b.disabled=false; b.textContent='✏️ Thử viết tiếp';});
+    html += `</tbody></table></div>`;
+  }
+
+  // 2 cột: yearly + vật tư/dịch vụ
+  html += `<div class="rep-cols2">
+    <div class="rep-section"><h2>Phân bố theo năm</h2><table>
+      <thead><tr><th>Năm</th><th>Số gói</th><th></th></tr></thead><tbody>`;
+  yearly.forEach(y=>{
+    const pct = (y.count/maxYr*100).toFixed(0);
+    html += `<tr><td><b>${y.yr}</b></td><td class="rep-num">${y.count.toLocaleString('vi-VN')}</td><td><div class="rep-bar"><div class="rep-bar-fill" style="width:${pct}%"></div></div></td></tr>`;
+  });
+  html += `</tbody></table></div>
+    <div class="rep-section"><h2>Vật tư vs Dịch vụ</h2><table>
+      <thead><tr><th>Loại</th><th>Số dòng</th><th>Giá trị</th></tr></thead><tbody>
+      <tr><td><span class="rep-tag">VẬT TƯ</span></td><td class="rep-num">${stats.matVsService.vt.rows.toLocaleString('vi-VN')}</td><td class="rep-num">${fcRep(stats.matVsService.vt.cost)}</td></tr>
+      <tr><td><span class="rep-tag s">DỊCH VỤ</span></td><td class="rep-num">${stats.matVsService.dv.rows.toLocaleString('vi-VN')}</td><td class="rep-num">${fcRep(stats.matVsService.dv.cost)}</td></tr>
+      <tr><td><b>Tổng</b></td><td class="rep-num"><b>${stats.totalRows.toLocaleString('vi-VN')}</b></td><td class="rep-num"><b>${fcRep(stats.matVsService.vt.cost + stats.matVsService.dv.cost)}</b></td></tr>
+    </tbody></table></div>
+  </div>`;
+
+  // Top nhà thầu theo giá trị
+  if(topContractors.length){
+    html += `<div class="rep-section"><h2>Top ${topContractors.length} nhà thầu theo giá trị</h2><table>
+      <thead><tr><th>#</th><th>Nhà thầu</th><th>Tổng giá trị</th><th>Số gói</th></tr></thead><tbody>`;
+    topContractors.forEach(([nm,d],i)=>{
+      html += `<tr><td>${i+1}</td><td>${escHtml(nm)}</td><td class="rep-num">${fcRep(d.cost)}</td><td class="rep-num">${d.pkgs.size}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  // Nhà thầu "quen mặt" (chỉ cho all-plants)
+  if(isAllPlants && familiar.length){
+    html += `<div class="rep-section"><h2>Nhà thầu "quen mặt" (≥3 gói)</h2><table>
+      <thead><tr><th>#</th><th>Nhà thầu</th><th>Số gói</th><th>Số NM</th></tr></thead><tbody>`;
+    familiar.forEach((f,i)=>{
+      html += `<tr><td>${i+1}</td><td>${escHtml(f.name)} <span class="rep-tag">${f.plants} NM</span></td><td class="rep-num">${f.pkgs}</td><td class="rep-num">${f.plants}</td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  // Vượt dự toán
+  if(stats.overrun.length){
+    const top30 = stats.overrun.slice(0, isAllPlants?30:15);
+    html += `<div class="rep-section"><h2>Gói vượt dự toán (Top ${top30.length})</h2><table>
+      <thead><tr><th>#</th>${isAllPlants?'<th>Nhà máy</th>':''}<th>Gói</th><th>Dự toán</th><th>Giá trúng</th><th>Vượt</th></tr></thead><tbody>`;
+    top30.forEach((r,i)=>{
+      html += `<tr><td>${i+1}</td>${isAllPlants?`<td>${escHtml(r.nm)}</td>`:''}<td><div class="rep-tg rep-small">${escHtml((r.ten_goi||'').substring(0,140))}${(r.ten_goi||'').length>140?'…':''}</div></td><td class="rep-num">${fcRep(r.dt)}</td><td class="rep-num">${fcRep(r.tt)}</td><td class="rep-num"><span class="rep-red">+${r.pct.toFixed(1)}%</span></td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  // Top hãng + xuất xứ (2 cột)
+  html += `<div class="rep-cols2">
+    <div class="rep-section"><h2>Top ${topBrands.length} hãng SX</h2><table>
+      <thead><tr><th>#</th><th>Hãng</th><th>SL</th></tr></thead><tbody>`;
+  topBrands.forEach(([k,v],i)=>{
+    html += `<tr><td>${i+1}</td><td>${escHtml(k.substring(0,70))}</td><td class="rep-num">${v.toLocaleString('vi-VN')}</td></tr>`;
+  });
+  html += `</tbody></table></div>
+    <div class="rep-section"><h2>Top ${topOrigins.length} xuất xứ</h2><table>
+      <thead><tr><th>#</th><th>Quốc gia / vùng</th><th>SL</th></tr></thead><tbody>`;
+  topOrigins.forEach(([k,v],i)=>{
+    html += `<tr><td>${i+1}</td><td>${escHtml(k)}</td><td class="rep-num">${v.toLocaleString('vi-VN')}</td></tr>`;
+  });
+  html += `</tbody></table></div>
+  </div>`;
+
+  html += `<div class="rep-foot">Generated by Tool Phân tích Tín hiệu Nhiệt điện · ${dateStr}</div>`;
+  return html;
+}
+
+function showReportLoading(title, msg){
+  const wrap = document.getElementById('repWrap');
+  wrap.innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1><div class="rep-sub">Đang tải dữ liệu...</div></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div>
+    <div class="rep-section"><div class="rep-loading"><div class="rep-sp"></div><div>${escHtml(msg)}</div><div class="rep-loading-prog" id="repProg"></div></div></div>`;
+  document.getElementById('repModal').classList.add('open');
+}
+
+function closeReport(){
+  document.getElementById('repModal').classList.remove('open');
+}
+
+function printReport(){
+  const wrap = document.getElementById('repWrap');
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Noto+Serif:ital,wght@1,500&display=swap" rel="stylesheet">
+    <style>${document.querySelector('style').innerHTML}</style></head>
+    <body><div class="rep-container"><div class="rep-wrap">${wrap.innerHTML}</div></div>
+    <script>setTimeout(()=>window.print(),800)<\/script></body></html>`);
+  w.document.close();
+}
+
+// ============ NÚT 3: REPORT NHÀ MÁY ĐANG CHỌN ============
+async function runReportPlant(){
+  const plant=getP(), year=document.getElementById('ySel').value;
+  if(!plant){alert('Chọn hoặc nhập tên nhà máy trước khi xem report');return;}
+  const title = `Báo cáo: ${plant}${year?' · '+year:''}`;
+  showReportLoading(title, 'Đang tải dữ liệu nhà máy...');
+  try{
+    let rows;
+    if(lastFastResult && lastFastResult.plant===plant && lastFastResult.year===year){
+      rows = lastFastResult.rows;
+    } else {
+      rows = await fetchPlantRows(plant, year);
+      // Cache
+      const byP = processRows(rows);
+      lastFastResult = {plant, year, rows, byP};
+    }
+    if(!rows.length){
+      document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Không tìm thấy dữ liệu cho "${plant}"${year?' năm '+year:''}.</div>`;
       return;
     }
-    const contText = (cont.analysis||'').trim();
-    if(!contText){
-      alert('AI không trả thêm nội dung');
-      btns.forEach(b=>{b.disabled=false; b.textContent='✏️ Thử viết tiếp';});
-      return;
-    }
-
-    // === CHẶN DUPLICATE ===
-    // Nếu response mới là bản viết lại từ đầu (heading #, "1. TÌNH TRẠNG", v.v.)
-    // → Worker backend chưa hỗ trợ continuation → hiển thị cảnh báo thay vì ghép
-    if(s.isDuplicateRestart(contText, s.currentText)){
-      // Render lại với banner đỏ cảnh báo, KHÔNG ghép
-      const html2 = s.md2h(s.currentText);
-      aiB.innerHTML = `<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${s.rows_count.toLocaleString()} dòng · ${s.plants_count} nhà máy</span></div><div class="aib-body"><p>${html2}</p></div>
-        <div style="padding:12px 18px;border-top:1px dashed var(--bd);background:var(--dgb);color:var(--dg)">
-          <div style="font-weight:700;font-size:12px;margin-bottom:4px">⛔ Không viết tiếp được — Worker backend chưa hỗ trợ continuation</div>
-          <div style="font-size:11.5px;line-height:1.55;color:#7c1d1d">
-            Khi bấm "Viết tiếp", Worker phân tích lại từ đầu (bắt đầu bằng "# PHÂN TÍCH..." / "1. TÌNH TRẠNG...") thay vì viết tiếp từ chỗ cắt.
-            Hệ thống đã chặn việc ghép để tránh nội dung lặp 2-3 lần.<br>
-            <strong>Cách khắc phục (cần sửa backend):</strong> Worker <code style="background:rgba(0,0,0,.05);padding:1px 4px;border-radius:3px;font-size:10.5px">/analyze</code> cần check <code style="background:rgba(0,0,0,.05);padding:1px 4px;border-radius:3px;font-size:10.5px">req.continuation === true</code>, và khi đó dùng prompt khác: "Đây là phần đã viết, viết tiếp từ chỗ cắt, KHÔNG lặp lại".
-            Hoặc đơn giản hơn: tăng <code style="background:rgba(0,0,0,.05);padding:1px 4px;border-radius:3px;font-size:10.5px">max_tokens</code> trong Worker lên 8000+.
-          </div>
-          <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
-            <button class="btn-sm btn-o" onclick="forceAppendContinuation()" style="font-size:11px">🔓 Ghép bất chấp (không khuyến nghị)</button>
-            <span style="font-size:10.5px;color:#7c1d1d">— sẽ tạo bài có đoạn lặp</span>
-          </div>
-        </div>`;
-      // Lưu response mới để nếu user bấm "Ghép bất chấp" thì có dữ liệu dùng
-      window._pendingContinuation = contText;
-      return;
-    }
-
-    // === SMART MERGE ===
-    // Không phải duplicate → ghép, cắt overlap nếu có
-    s.currentText = s.smartMerge(s.currentText, contText);
-
-    // Render lại
-    const stillCut = s.isCutOff(s.currentText);
-    const html2 = s.md2h(s.currentText);
-    const continueBtn = stillCut
-      ? `<div style="padding:10px 18px 14px;border-top:1px dashed var(--bd);background:var(--wnb);display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:12px;color:#664d03;flex:1;min-width:200px">⚠ Vẫn chưa hoàn tất (${s.currentText.length.toLocaleString()} ký tự). Bấm để viết tiếp:</span><button class="btn btn-sm" onclick="continueAnalysis()">✏️ Thử viết tiếp</button></div>`
-      : '';
-    aiB.innerHTML = `<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${s.rows_count.toLocaleString()} dòng · ${s.plants_count} nhà máy${s.extra_flag?' + bổ sung':''} · ${s.currentText.length.toLocaleString()} ký tự · đã ghép</span></div><div class="aib-body"><p>${html2}</p></div>${continueBtn}`;
+    const stats = buildReportStats(rows);
+    document.getElementById('repWrap').innerHTML = renderReportHTML(title, stats, false, plant);
   }catch(e){
-    alert('Lỗi: '+e.message);
-    btns.forEach(b=>{b.disabled=false; b.textContent='✏️ Thử viết tiếp';});
+    document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Lỗi: ${escHtml(e.message)}</div>`;
   }
 }
 
-// Nếu user cố tình muốn ghép bất chấp (sau cảnh báo duplicate)
-function forceAppendContinuation(){
-  const s = window._analyzeState;
-  const contText = window._pendingContinuation;
-  if(!s || !contText){ alert('Không có dữ liệu'); return; }
-  if(!confirm('Ghép phần này vào sẽ tạo ra bài có đoạn lặp lại. Tiếp tục?')) return;
-  s.currentText = s.smartMerge(s.currentText, '\n\n---\n\n' + contText);
-  window._pendingContinuation = null;
-  const aiB = document.getElementById('aiB');
-  const html2 = s.md2h(s.currentText);
-  aiB.innerHTML = `<div class="aih"><span class="aiht">◈ Phân tích chi tiết theo năm</span><span class="aihs">${s.rows_count.toLocaleString()} dòng · ${s.plants_count} nhà máy · đã ghép (có đoạn lặp)</span></div><div class="aib-body"><p>${html2}</p></div>`;
+// ============ NÚT 4: REPORT CHUNG (TOÀN BỘ 41 NHÀ MÁY) ============
+// Strategy: chạy parallel theo từng nhà máy trong PLANTS list (max 8 concurrent)
+async function runReportAll(){
+  const year=document.getElementById('ySel').value;
+  const title = `Báo cáo tổng hợp toàn bộ nhà máy${year?' · '+year:''}`;
+  showReportLoading(title, 'Đang tải data từ ' + PLANTS.length + ' nhà máy (parallel)...');
+  const prog = document.getElementById('repProg');
+  try{
+    const allRows = [];
+    let done = 0;
+    const concurrency = 6;
+    const queue = [...PLANTS];
+    async function worker(){
+      while(queue.length){
+        const p = queue.shift();
+        try{
+          const rows = await fetchPlantRows(p, year);
+          allRows.push(...rows);
+        }catch(e){
+          console.warn('Lỗi tải '+p+':', e.message);
+        }
+        done++;
+        if(prog) prog.textContent = `${done}/${PLANTS.length} nhà máy · ${allRows.length.toLocaleString('vi-VN')} dòng`;
+      }
+    }
+    await Promise.all(Array(concurrency).fill(0).map(()=>worker()));
+    if(!allRows.length){
+      document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Không tải được dữ liệu nào. Vui lòng kiểm tra kết nối hoặc thử lại.</div>`;
+      return;
+    }
+    if(prog) prog.textContent = 'Đang xử lý số liệu ' + allRows.length.toLocaleString('vi-VN') + ' dòng...';
+    // Tính stats
+    const stats = buildReportStats(allRows);
+    document.getElementById('repWrap').innerHTML = renderReportHTML(title, stats, true, null);
+  }catch(e){
+    document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Lỗi: ${escHtml(e.message)}</div>`;
+  }
 }
 
-document.getElementById('pIn').addEventListener('keydown',e=>{if(e.key==='Enter')run();});
+// ============ KEY HANDLERS ============
+document.getElementById('pIn').addEventListener('keydown',e=>{if(e.key==='Enter')runFast();});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape' && document.getElementById('repModal').classList.contains('open')) closeReport();
+});
 window.addEventListener('load',initDropdown);
 </script>
 </body>
