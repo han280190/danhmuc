@@ -364,14 +364,16 @@ textarea.cta{height:60px;resize:vertical;font-size:12px;font-family:var(--mono)}
 <script>
 const W = 'https://danhmuc-search.han280190.workers.dev';
 
-// ============ DANH SÁCH NHÀ MÁY NHIỆT ĐIỆN ============
+// ============ DANH SÁCH NHÀ MÁY — 32 tên unique, chính xác theo ten_nha_may trong DB ============
 const PLANTS = [
-  'Cao Ngạn','Điện Cà Mau','Điện Sơn Động','Điện Uông Bí','Điện Vũng Áng 2',
-  'Đông Triều','Duyên Hải 1','Duyên Hải 2','Hải Phòng','Long Phú 1',
-  'Mông Dương','Na Dương','Nghi Sơn','Nhiệt điện Cẩm Phả','Nhiệt điện Cần Thơ',
-  'Nhiệt điện Quảng Ninh','Nhiệt điện Quảng Trạch','Nhơn Trạch 1','Ninh Bình',
-  'Nông Sơn','Phả Lại 1','Phú Mỹ 1','Phú Mỹ 3','Sông Hậu 1',
-  'Thái Bình 1','Thái Bình 2','Vĩnh Tân 1','Vĩnh Tân 2','Vĩnh Tân 4',
+  'Cao Ngạn','Cà Mau','Duyên Hải 1','Duyên Hải 2',
+  'Hải Phòng','Mông Dương','Na Dương','Nghi Sơn',
+  'Nhiệt điện Cần Thơ','Nhiệt điện Cẩm Phả','Nhiệt điện Quảng Ninh','Nhơn Trạch 1',
+  'Ninh Bình','Nông Sơn','Phú Mỹ 1','Phú Mỹ 2',
+  'Phú Mỹ 3','Phả Lại 1','Quảng Trạch','Sông Hậu 1',
+  'Sơn Động','Thái Bình','Thái Bình 1','Thái Bình 2',
+  'Uông Bí','Vĩnh Tân 1','Vĩnh Tân 2','Vĩnh Tân 4',
+  'Vũng Áng 1','Điện Cà Mau','điện Uông Bí','Đông Triều',
 ];
 
 // Cụm nhà máy dùng chung đơn vị vận hành
@@ -385,33 +387,37 @@ const CLUSTERS = [
 
 let DB = [
   {n:'Cao Ngạn',r:'Thái Nguyên',mw:115,y:2007,u:2,epc:'Harbin Power Engineering',tb:'Harbin',boi:'Harbin',gen:'Harbin',note:'Toàn bộ Harbin'},
-  {n:'Điện Cà Mau',r:'Cà Mau',mw:1500,y:2008,u:2,epc:'LILAMA',tb:'',boi:'',gen:'',note:'Turbo gas'},
-  {n:'Điện Sơn Động',r:'Bắc Giang',mw:220,y:2011,u:2,epc:'Shanghai EPC Co.',tb:'Beijing Beizhong N110-8.92/535',boi:'Harbin HG-433/9.8',gen:'',note:'EPC Shanghai'},
-  {n:'Điện Uông Bí',r:'Quảng Ninh',mw:630,y:1961,u:2,epc:'Chengda (mở rộng)',tb:'',boi:'',gen:'',note:'Vận hành 1961 — lâu đời nhất VN'},
-  {n:'Đông Triều',r:'Quảng Ninh',mw:440,y:2012,u:2,epc:'Wuhan Kaidi',tb:'Dongfang N226-16.7/538/538',boi:'Foster Wheeler CFB',gen:'Shanghai Electric QFNS-220-2',note:'MÁY PHÁT SHANGHAI ELECTRIC'},
-  {n:'Duyên Hải 1',r:'Trà Vinh',mw:1245,y:2015,u:2,epc:'Dongfang Electric (DEC)',tb:'Dongfang N622-16.67/538/538',boi:'B&W',gen:'',note:'EPC Dongfang, tuabin Dongfang. Dùng chung SCVH với DH2'},
+  {n:'Cà Mau',r:'Cà Mau',mw:750,y:2008,u:2,epc:'LILAMA',tb:'',boi:'',gen:'',note:'Turbo gas. DB có cả "Cà Mau" và "Điện Cà Mau"'},
+  {n:'Điện Cà Mau',r:'Cà Mau',mw:750,y:2008,u:2,epc:'LILAMA',tb:'',boi:'',gen:'',note:'Turbo gas'},
+  {n:'Duyên Hải 1',r:'Trà Vinh',mw:1245,y:2015,u:2,epc:'Dongfang Electric (DEC)',tb:'Dongfang N622-16.67/538/538',boi:'B&W',gen:'',note:'EPC Dongfang. Dùng chung SCVH với DH2'},
   {n:'Duyên Hải 2',r:'Trà Vinh',mw:1200,y:2021,u:2,epc:'China Huadian Engineering (CHEC)',tb:'',boi:'',gen:'',note:'BOT Trung Quốc 2021'},
   {n:'Hải Phòng',r:'Hải Phòng',mw:1200,y:2000,u:4,epc:'Marubeni + Dongfang Electric',tb:'',boi:'Dongfang DG996/17.45',gen:'',note:'Lò hơi Dongfang, vận hành 2000'},
-  {n:'Long Phú 1',r:'Sóc Trăng',mw:1200,y:0,u:2,epc:'PTSC + Power Machines (Nga)',tb:'',boi:'',gen:'',note:'Chưa vận hành'},
   {n:'Mông Dương',r:'Quảng Ninh',mw:1242,y:2015,u:2,epc:'Doosan',tb:'',boi:'',gen:'',note:'BOT AES, Doosan'},
   {n:'Na Dương',r:'Lạng Sơn',mw:110,y:2006,u:2,epc:'Marubeni + Sumitomo',tb:'Fuji Electric',boi:'Foster Wheeler CFB',gen:'Fuji Electric',note:'Thiết bị Nhật, CFB boiler'},
   {n:'Nghi Sơn',r:'Thanh Hóa',mw:600,y:2013,u:2,epc:'Marubeni',tb:'',boi:'',gen:'',note:'EPC Marubeni'},
-  {n:'Nhiệt điện Cẩm Phả',r:'Quảng Ninh',mw:600,y:2009,u:2,epc:'Harbin Electric International',tb:'Harbin N340-16.77/538',boi:'Harbin (thiết kế Foster Wheeler)',gen:'Harbin QFSN-340-2',note:'Toàn bộ Harbin'},
   {n:'Nhiệt điện Cần Thơ',r:'Cần Thơ',mw:188,y:2009,u:2,epc:'',tb:'',boi:'',gen:'',note:''},
-  {n:'Nhiệt điện Quảng Ninh',r:'Quảng Ninh',mw:600,y:2010,u:2,epc:'Shanghai Electric (SEC)',tb:'',boi:'SBWL SG-995/17.5-M728',gen:'',note:'EPC SHANGHAI ELECTRIC'},
-  {n:'Nhiệt điện Quảng Trạch',r:'Quảng Bình',mw:1200,y:2025,u:2,epc:'Liên danh MC–HDEC–CC1',tb:'',boi:'',gen:'',note:'Mới 2025'},
+  {n:'Nhiệt điện Cẩm Phả',r:'Quảng Ninh',mw:600,y:2009,u:2,epc:'Harbin Electric International',tb:'Harbin N340-16.77/538',boi:'Harbin (Foster Wheeler)',gen:'Harbin QFSN-340-2',note:'Toàn bộ Harbin'},
+  {n:'Nhiệt điện Quảng Ninh',r:'Quảng Ninh',mw:600,y:2010,u:2,epc:'Shanghai Electric (SEC)',tb:'',boi:'SBWL SG-995/17.5-M728',gen:'',note:'EPC Shanghai Electric'},
   {n:'Nhơn Trạch 1',r:'Đồng Nai',mw:450,y:2009,u:1,epc:'LILAMA',tb:'',boi:'',gen:'',note:'Turbo gas'},
   {n:'Ninh Bình',r:'Ninh Bình',mw:100,y:1974,u:4,epc:'',tb:'',boi:'',gen:'',note:'Vận hành 1974 — cực cũ'},
   {n:'Nông Sơn',r:'Quảng Nam',mw:30,y:2015,u:1,epc:'China National Heavy Machinery',tb:'CCJEC',boi:'Jinan Boiler',gen:'',note:'Nhỏ 30MW'},
-  {n:'Phả Lại 1',r:'Hải Dương',mw:440,y:1983,u:4,epc:'',tb:'LMZ (K100-90-7)',boi:'BKZ + Mitsui Babcock',gen:'',note:'Tuabin LMZ Nga, vận hành 1983'},
   {n:'Phú Mỹ 1',r:'Bà Rịa-VT',mw:1090,y:2002,u:4,epc:'ABB',tb:'',boi:'',gen:'',note:'Turbo gas ABB'},
+  {n:'Phú Mỹ 2',r:'Bà Rịa-VT',mw:440,y:2000,u:1,epc:'Siemens',tb:'',boi:'',gen:'',note:'Turbo gas'},
   {n:'Phú Mỹ 3',r:'Bà Rịa-VT',mw:715,y:2004,u:1,epc:'Siemens',tb:'',boi:'',gen:'',note:'BOT Siemens turbo gas'},
+  {n:'Phả Lại 1',r:'Hải Dương',mw:440,y:1983,u:4,epc:'',tb:'LMZ (K100-90-7)',boi:'BKZ + Mitsui Babcock',gen:'',note:'Tuabin LMZ Nga, vận hành 1983'},
+  {n:'Quảng Trạch',r:'Quảng Bình',mw:1200,y:2025,u:2,epc:'Liên danh MC–HDEC–CC1',tb:'',boi:'',gen:'',note:'Mới 2025'},
   {n:'Sông Hậu 1',r:'Hậu Giang',mw:1200,y:2022,u:2,epc:'Doosan',tb:'',boi:'Doosan',gen:'Doosan Enerbility',note:'Toàn bộ Doosan, mới 2022'},
+  {n:'Sơn Động',r:'Bắc Giang',mw:220,y:2011,u:2,epc:'Shanghai EPC Co.',tb:'Beijing Beizhong N110-8.92/535',boi:'Harbin HG-433/9.8',gen:'',note:'EPC Shanghai'},
+  {n:'Thái Bình',r:'Thái Bình',mw:600,y:2017,u:2,epc:'Marubeni',tb:'',boi:'',gen:'',note:'EPC Marubeni'},
   {n:'Thái Bình 1',r:'Thái Bình',mw:600,y:2017,u:2,epc:'Marubeni',tb:'',boi:'',gen:'',note:'EPC Marubeni'},
   {n:'Thái Bình 2',r:'Thái Bình',mw:1200,y:2023,u:2,epc:'PVC',tb:'',boi:'',gen:'Toshiba',note:'Mới 2023'},
-  {n:'Vĩnh Tân 1',r:'Bình Thuận',mw:1240,y:2018,u:2,epc:'Guangdong Electric Power Design',tb:'Dongfang N620-24.2/566/566',boi:'',gen:'Dongfang QFSN-620-2-22',note:'BOT TQ, Dongfang. Ít public vật tư, tên gói thường tiếng Anh'},
-  {n:'Vĩnh Tân 2',r:'Bình Thuận',mw:1244,y:2014,u:2,epc:'Shanghai Electric',tb:'',boi:'',gen:'',note:'EPC SHANGHAI ELECTRIC, vận hành 2014. Dùng chung SCVH với VT4'},
-  {n:'Vĩnh Tân 4',r:'Bình Thuận',mw:1200,y:2018,u:2,epc:'Doosan + Mitsubishi',tb:'Toshiba',boi:'Doosan',gen:'Toshiba',note:'Toshiba/Doosan hiện đại, vận hành 2018. Dùng chung SCVH với VT2'},
+  {n:'Uông Bí',r:'Quảng Ninh',mw:630,y:1961,u:2,epc:'Chengda (mở rộng)',tb:'',boi:'',gen:'',note:'Vận hành 1961 — lâu đời nhất VN'},
+  {n:'điện Uông Bí',r:'Quảng Ninh',mw:630,y:1961,u:2,epc:'Chengda (mở rộng)',tb:'',boi:'',gen:'',note:'Vận hành 1961 — lâu đời nhất VN'},
+  {n:'Vũng Áng 1',r:'Hà Tĩnh',mw:1200,y:2015,u:2,epc:'Doosan Heavy Industries',tb:'Doosan',boi:'Doosan',gen:'Doosan',note:'Top 3 số gói toàn DB. EPC Doosan Hàn Quốc'},
+  {n:'Vĩnh Tân 1',r:'Bình Thuận',mw:1240,y:2018,u:2,epc:'Guangdong Electric Power Design',tb:'Dongfang N620-24.2/566/566',boi:'',gen:'Dongfang QFSN-620-2-22',note:'BOT TQ, Dongfang. Tên gói thường tiếng Anh'},
+  {n:'Vĩnh Tân 2',r:'Bình Thuận',mw:1244,y:2014,u:2,epc:'Shanghai Electric',tb:'',boi:'',gen:'',note:'EPC Shanghai Electric, vận hành 2014. Dùng chung SCVH với VT4'},
+  {n:'Vĩnh Tân 4',r:'Bình Thuận',mw:1200,y:2018,u:2,epc:'Doosan + Mitsubishi',tb:'Toshiba',boi:'Doosan',gen:'Toshiba',note:'Toshiba/Doosan, vận hành 2018. Dùng chung SCVH với VT2'},
+  {n:'Đông Triều',r:'Quảng Ninh',mw:440,y:2012,u:2,epc:'Wuhan Kaidi',tb:'Dongfang N226-16.7/538/538',boi:'Foster Wheeler CFB',gen:'Shanghai Electric QFNS-220-2',note:'Máy phát Shanghai Electric'},
 ];
 
 const SCFG = {
@@ -1135,45 +1141,67 @@ async function runReportPlant(){
   }
 }
 
-// ============ NÚT 4: REPORT CHUNG (TOÀN BỘ 41 NHÀ MÁY) ============
-// Strategy: chạy parallel theo từng nhà máy trong PLANTS list (max 8 concurrent)
+// ============ NÚT 4: REPORT CHUNG (TOÀN BỘ) ============
+// Strategy V4: pagination qua /dump endpoint (admin) hoặc nhiều batch qua /search
+// Lấy đủ 270k rows → group by ten_nha_may → countifs/sumifs tại client
 async function runReportAll(){
-  const year=document.getElementById('ySel').value;
+  const year = document.getElementById('ySel').value;
   const title = `Báo cáo tổng hợp toàn bộ nhà máy${year?' · '+year:''}`;
-  showReportLoading(title, 'Đang tải data từ ' + PLANTS.length + ' nhà máy (limit 50k/NM, có thể mất 1-3 phút)...');
+  showReportLoading(title, 'Đang tải toàn bộ data theo batch...');
   const prog = document.getElementById('repProg');
   try{
     const allRows = [];
-    let done = 0;
-    // Concurrency thấp vì mỗi request giờ trả về tối đa 50k rows (~5-10MB)
-    const concurrency = 3;
-    const queue = [...PLANTS];
-    const errors = [];
-    async function worker(){
-      while(queue.length){
-        const p = queue.shift();
-        try{
-          const rows = await fetchPlantRows(p, year);
-          allRows.push(...rows);
-        }catch(e){
-          errors.push(p+': '+e.message);
-          console.warn('Lỗi tải '+p+':', e.message);
-        }
-        done++;
-        if(prog) prog.textContent = `${done}/${PLANTS.length} nhà máy · ${allRows.length.toLocaleString('vi-VN')} dòng${errors.length?' · '+errors.length+' lỗi':''}`;
+    const BATCH = 50000;
+
+    if(year){
+      // Nếu lọc theo năm: 1 batch đủ vì mỗi năm ~2k-3k gói
+      PLANTS.forEach(p => {});
+      const ps = [];
+      PLANTS.forEach(p => ps.push('g1=' + encodeURIComponent(p)));
+      ps.push('g2=' + encodeURIComponent(year));
+      ps.push('limit=' + BATCH);
+      ps.push('cols=' + SAFE_COLS);
+      if(prog) prog.textContent = 'Tải dữ liệu năm ' + year + '...';
+      const res = await fetch(W + '/search?' + ps.join('&'));
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const body = await res.json();
+      if(body.error) throw new Error(body.error);
+      allRows.push(...(body.data||[]));
+    } else {
+      // Không lọc năm: dùng /dump với pagination để lấy đủ 270k rows
+      // /dump trả về tất cả không cần keyword, phân trang bằng offset
+      let offset = 0;
+      let total = null;
+      let batchNum = 0;
+      while(true){
+        batchNum++;
+        if(prog) prog.textContent = `Batch ${batchNum}: offset ${offset.toLocaleString('vi-VN')}${total?' / '+total.toLocaleString('vi-VN'):''}  · đã có ${allRows.length.toLocaleString('vi-VN')} dòng`;
+        const dumpUrl = W + `/dump?limit=${BATCH}&offset=${offset}`;
+        const res = await fetch(dumpUrl, {
+          headers: { 'X-Admin-Secret': 'abc123' }
+        });
+        if(!res.ok) throw new Error('HTTP ' + res.status + ' khi gọi /dump');
+        const body = await res.json();
+        if(body.error) throw new Error('/dump lỗi: ' + body.error);
+        const rows = body.data || [];
+        if(offset === 0 && body.total) total = body.total;
+        allRows.push(...rows);
+        if(rows.length < BATCH) break; // hết data
+        offset += rows.length;
+        if(batchNum > 20) break; // safety cap: 20 * 50k = 1M rows max
       }
     }
-    await Promise.all(Array(concurrency).fill(0).map(()=>worker()));
+
     if(!allRows.length){
-      document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Không tải được dữ liệu nào. Vui lòng kiểm tra kết nối hoặc thử lại.</div>`;
+      document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Không có dữ liệu.</div>`;
       return;
     }
-    if(prog) prog.textContent = 'Đang xử lý số liệu ' + allRows.length.toLocaleString('vi-VN') + ' dòng...';
-    // Tính stats
+    if(prog) prog.textContent = `Tính toán ${allRows.length.toLocaleString('vi-VN')} dòng...`;
+    // buildReportStats tự group by ten_nha_may (unique/countifs/sumifs)
     const stats = buildReportStats(allRows);
     document.getElementById('repWrap').innerHTML = renderReportHTML(title, stats, true, null);
   }catch(e){
-    document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Lỗi: ${escHtml(e.message)}</div>`;
+    document.getElementById('repWrap').innerHTML = `<div class="rep-head"><div class="rep-logo">热</div><div style="flex:1"><h1>${escHtml(title)}</h1></div><button class="rep-btn rep-btn-o" onclick="closeReport()">Đóng</button></div><div class="rep-err">Lỗi: ${escHtml(e.message)}<br><small>Tip: /dump cần X-Admin-Secret đúng. Kiểm tra ADMIN_SECRET trong Worker.</small></div>`;
   }
 }
 
