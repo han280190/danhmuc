@@ -732,15 +732,34 @@ function md2h(txt){
 }
 
 // ============ FETCH DATA (dùng chung cho fast/ai) ============
+// CHÚ Ý: chỉ dùng các cột đã verify tồn tại trong DB của Worker.
+// Nếu DB của bạn có thêm cột (vd: nha_thau_trung_thau, gia_du_toan, gia_trung_thau)
+// → thêm vào SAFE_COLS bên dưới để bật tab "Vượt dự toán" + "Top nhà thầu trúng" trong report.
+const SAFE_COLS = 'ten_nha_may,tbmt,ten_goi,publicdate,danh_muc_hang_hoa,ky_ma_hieu,nhan_hieu,hang_san_xuat,xuat_xu_2,xuat_xu_quoc_gia_vung_lanh_tho_san_xuat,don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co,thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co,search_text';
+
 async function fetchPlantRows(plant, year){
   const ps=['g1='+encodeURIComponent(plant)];
   if(year)ps.push('g2='+encodeURIComponent(year));
   ps.push('limit=5000');
-  // Lấy đủ cột cho cả tín hiệu, stats và report
-  ps.push('cols=ten_nha_may,tbmt,ten_goi,publicdate,danh_muc_hang_hoa,ky_ma_hieu,nhan_hieu,hang_san_xuat,xuat_xu_2,xuat_xu_quoc_gia_vung_lanh_tho_san_xuat,don_gia_du_thau_da_bao_gom_thue_phi_le_phi_neu_co,thanh_tien_da_bao_gom_thue_phi_le_phi_neu_co,nha_thau_trung_thau,gia_du_toan,gia_trung_thau,search_text');
-  const res=await fetch(W+'/search?'+ps.join('&'));
-  const body=await res.json();
-  return body.data||[];
+  ps.push('cols=' + SAFE_COLS);
+  const url = W+'/search?'+ps.join('&');
+  try{
+    const res = await fetch(url);
+    if(!res.ok){
+      const txt = await res.text().catch(()=>'(không đọc được response)');
+      console.warn('[fetchPlantRows] HTTP '+res.status+' cho '+plant+'. URL:', url, '| Response:', txt.substring(0,300));
+      throw new Error('HTTP '+res.status+': '+txt.substring(0,150));
+    }
+    const body = await res.json();
+    if(body.error){
+      console.warn('[fetchPlantRows] API error cho '+plant+':', body.error);
+      throw new Error('API: '+body.error);
+    }
+    return body.data || [];
+  } catch(e) {
+    console.error('[fetchPlantRows] Lỗi cho '+plant+':', e.message, '| URL:', url);
+    throw e;
+  }
 }
 
 function processRows(rows){
@@ -779,7 +798,7 @@ async function runFast(){
   try{
     out.innerHTML=`<div class="card"><div class="sk" style="width:40%;height:15px;margin-bottom:10px"></div><div class="sk" style="width:75%"></div><div class="sk" style="width:55%"></div></div>`;
     const rows = await fetchPlantRows(plant, year);
-    if(!rows.length){out.innerHTML=`<div class="err">Không tìm thấy dữ liệu cho "${plant}"${year?' năm '+year:''}.</div>`;return;}
+    if(!rows.length){out.innerHTML=`<div class="err">Không tìm thấy dữ liệu cho "${plant}"${year?' năm '+year:''}.<br><br>Mở DevTools (F12) → tab Console để xem chi tiết lỗi nếu có.</div>`;return;}
     document.getElementById('stTx').textContent=`Phân tích ${rows.length} dòng...`;
     const byP=processRows(rows);
     lastFastResult = {plant, year, rows, byP};
@@ -1091,6 +1110,7 @@ async function runReportAll(){
     let done = 0;
     const concurrency = 6;
     const queue = [...PLANTS];
+    const errors = [];
     async function worker(){
       while(queue.length){
         const p = queue.shift();
@@ -1098,10 +1118,11 @@ async function runReportAll(){
           const rows = await fetchPlantRows(p, year);
           allRows.push(...rows);
         }catch(e){
+          errors.push(p+': '+e.message);
           console.warn('Lỗi tải '+p+':', e.message);
         }
         done++;
-        if(prog) prog.textContent = `${done}/${PLANTS.length} nhà máy · ${allRows.length.toLocaleString('vi-VN')} dòng`;
+        if(prog) prog.textContent = `${done}/${PLANTS.length} nhà máy · ${allRows.length.toLocaleString('vi-VN')} dòng${errors.length?' · '+errors.length+' lỗi':''}`;
       }
     }
     await Promise.all(Array(concurrency).fill(0).map(()=>worker()));
