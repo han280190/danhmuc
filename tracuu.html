@@ -10,7 +10,6 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Serif:ital,wght@1,500&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Warm light palette inspired by 热电词典 */
     --bg: #fbf6ed;
     --bg2: #f7efe2;
     --paper: #ffffff;
@@ -21,31 +20,21 @@
     --text2: #5e554a;
     --text3: #8a7f70;
     --text4: #b4a895;
-
-    /* Accent system — warm orange/amber */
     --accent: #d97706;
     --accent2: #b45309;
     --accent-bg: #fff4e1;
     --accent-line: #fbd6a3;
-
-    /* Highlight (mark) — pale yellow-orange */
     --hl-bg: #ffe7c2;
     --hl-text: #92400e;
-
-    /* Reading green for success/values */
     --ink: #15803d;
     --ink2: #14532d;
     --ink-bg: #ecfdf5;
-
-    /* Red for exclude */
     --red: #b91c1c;
     --red-bg: #fef2f2;
     --red-line: #fecaca;
-
     --mono: 'JetBrains Mono', ui-monospace, monospace;
     --sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     --serif: 'Noto Serif', Georgia, serif;
-
     --r: 8px;
     --r2: 12px;
   }
@@ -65,9 +54,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ======================================================
-     TOP BAR — sticky, chứa cả nút tìm kiếm
-     ====================================================== */
   .topbar {
     background: rgba(251, 246, 237, 0.92);
     backdrop-filter: blur(14px) saturate(140%);
@@ -81,421 +67,202 @@
     top: 0;
     z-index: 100;
   }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    flex-shrink: 0;
-  }
+  .brand { display: flex; align-items: center; gap: 11px; flex-shrink: 0; }
   .logo-mark {
     width: 36px; height: 36px;
     border-radius: 10px;
     background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
     display: flex; align-items: center; justify-content: center;
-    color: #fff;
-    flex-shrink: 0;
+    color: #fff; flex-shrink: 0;
     box-shadow: 0 6px 20px rgba(217, 119, 6, 0.3);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   .logo-mark::after {
-    content: '热';
-    font-family: var(--serif);
-    font-size: 18px;
-    font-weight: 600;
-    font-style: normal;
+    content: '热'; font-family: var(--serif);
+    font-size: 18px; font-weight: 600; font-style: normal;
   }
   .brand-text { line-height: 1.15; min-width: 0; }
   .brand-title {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: -0.015em;
-    color: var(--text);
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    white-space: nowrap;
+    font-size: 14px; font-weight: 700; letter-spacing: -0.015em;
+    color: var(--text); display: flex; align-items: baseline;
+    gap: 6px; white-space: nowrap;
   }
   .brand-title .vi-sub {
-    font-family: var(--serif);
-    font-style: italic;
-    color: var(--accent);
-    font-weight: 500;
-    font-size: 12px;
+    font-family: var(--serif); font-style: italic;
+    color: var(--accent); font-weight: 500; font-size: 12px;
   }
   .brand-sub {
-    font-family: var(--mono);
-    font-size: 9px;
-    color: var(--text3);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-top: 2px;
-    white-space: nowrap;
+    font-family: var(--mono); font-size: 9px; color: var(--text3);
+    letter-spacing: 0.18em; text-transform: uppercase; margin-top: 2px; white-space: nowrap;
   }
 
-  /* Nút TÌM KIẾM trong topbar — gọn vừa */
   .topbar-search {
     background: linear-gradient(135deg, #f97316 0%, #d97706 100%);
-    color: #fff;
-    border: none;
-    border-radius: 9px;
-    padding: 0 18px;
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    cursor: pointer;
-    height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+    color: #fff; border: none; border-radius: 9px;
+    padding: 0 18px; font-family: var(--sans); font-size: 13px;
+    font-weight: 700; letter-spacing: 0.02em; cursor: pointer;
+    height: 38px; display: flex; align-items: center; justify-content: center;
+    gap: 7px; transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
     box-shadow: 0 3px 12px rgba(217, 119, 6, 0.28);
-    margin-left: auto;       /* Đẩy về bên phải, gần stat-mini */
-    flex-shrink: 0;
-    white-space: nowrap;
+    margin-left: auto; flex-shrink: 0; white-space: nowrap;
   }
   .topbar-search:hover { box-shadow: 0 5px 18px rgba(217, 119, 6, 0.4); }
   .topbar-search:active { transform: translateY(1px); }
   .topbar-search:disabled { opacity: 0.55; cursor: not-allowed; }
   .topbar-search .spinner {
     width: 12px; height: 12px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
+    border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+    border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
   }
   .topbar-search.loading .spinner { display: block; }
   .topbar-search.loading .btn-txt { display: none; }
-  .topbar-search.loading::after {
-    content: 'Đang tìm...';
-    font-size: 12.5px;
-  }
+  .topbar-search.loading::after { content: 'Đang tìm...'; font-size: 12.5px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .stat-mini {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--text2);
-    background: var(--paper);
-    border: 1px solid var(--line);
-    padding: 5px 11px;
-    border-radius: 20px;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.04);
-    flex-shrink: 0;
+    font-family: var(--mono); font-size: 10.5px; color: var(--text2);
+    background: var(--paper); border: 1px solid var(--line);
+    padding: 5px 11px; border-radius: 20px; white-space: nowrap;
+    display: flex; align-items: center; gap: 7px;
+    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.04); flex-shrink: 0;
   }
   .stat-mini::before {
-    content: '';
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--ink);
-    box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
-    animation: pulse 2.4s ease-in-out infinite;
-    flex-shrink: 0;
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--ink); box-shadow: 0 0 8px rgba(21, 128, 61, 0.5);
+    animation: pulse 2.4s ease-in-out infinite; flex-shrink: 0;
   }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
   .stat-mini b { color: var(--accent); font-weight: 700; }
   .stat-mini .stat-label { color: var(--text3); font-size: 9.5px; letter-spacing: 0.06em; }
 
-  /* ======================================================
-     SEARCH PANEL — 4 columns × 5 rows, no labels
-     ====================================================== */
-  .panel {
-    padding: 16px 16px 0;
-  }
+  .panel { padding: 16px 16px 0; }
   .columns {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
   }
   .col {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: var(--r2);
-    padding: 9px;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--r2); padding: 9px;
     transition: border-color 0.2s, box-shadow 0.2s;
-    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.03);
-    position: relative;
+    box-shadow: 0 1px 2px rgba(120, 80, 30, 0.03); position: relative;
   }
   .col::before {
-    content: '';
-    position: absolute;
-    top: 9px; left: 9px;
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0.5;
+    content: ''; position: absolute; top: 9px; left: 9px;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: var(--accent); opacity: 0.5;
   }
   .col.exclude::before { background: var(--red); }
-
-  .col:focus-within {
-    border-color: var(--accent-line);
-    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.1);
-  }
-  .col.exclude:focus-within {
-    border-color: var(--red-line);
-    box-shadow: 0 4px 14px rgba(185, 28, 28, 0.08);
-  }
+  .col:focus-within { border-color: var(--accent-line); box-shadow: 0 4px 14px rgba(217, 119, 6, 0.1); }
+  .col.exclude:focus-within { border-color: var(--red-line); box-shadow: 0 4px 14px rgba(185, 28, 28, 0.08); }
 
   .field-input {
-    width: 100%;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 13.5px;
-    padding: 7px 10px 7px 18px;
-    margin-bottom: 3px;
-    outline: none;
-    transition: all 0.15s;
-    height: 32px;
-    font-weight: 500;
+    width: 100%; background: transparent;
+    border: 1px solid transparent; border-radius: 6px;
+    color: var(--text); font-family: var(--sans); font-size: 13.5px;
+    padding: 7px 10px 7px 18px; margin-bottom: 3px;
+    outline: none; transition: all 0.15s; height: 32px; font-weight: 500;
   }
   .field-input:last-child { margin-bottom: 0; }
-  .field-input::placeholder {
-    color: var(--text4);
-    font-size: 12.5px;
-    font-weight: 400;
-    font-style: italic;
-  }
-  .field-input:focus {
-    background: var(--accent-bg);
-    border-color: var(--accent-line);
-  }
-  .col.exclude .field-input:focus {
-    background: var(--red-bg);
-    border-color: var(--red-line);
-  }
-  .field-input:not(:placeholder-shown) {
-    background: var(--paper2);
-    border-color: var(--line);
-  }
-  .col:not(.exclude) .field-input:not(:placeholder-shown) {
-    color: var(--accent2);
-    font-weight: 600;
-  }
-  .col.exclude .field-input:not(:placeholder-shown) {
-    color: var(--red);
-    font-weight: 600;
-  }
+  .field-input::placeholder { color: var(--text4); font-size: 12.5px; font-weight: 400; font-style: italic; }
+  .field-input:focus { background: var(--accent-bg); border-color: var(--accent-line); }
+  .col.exclude .field-input:focus { background: var(--red-bg); border-color: var(--red-line); }
+  .field-input:not(:placeholder-shown) { background: var(--paper2); border-color: var(--line); }
+  .col:not(.exclude) .field-input:not(:placeholder-shown) { color: var(--accent2); font-weight: 600; }
+  .col.exclude .field-input:not(:placeholder-shown) { color: var(--red); font-weight: 600; }
 
-  /* ======================================================
-     ACTION BAR — chỉ còn limit + utilities
-     ====================================================== */
   .action-bar {
-    display: flex;
-    gap: 8px;
-    padding: 10px 16px 0;
-    align-items: center;
-    justify-content: flex-end;
+    display: flex; gap: 8px; padding: 10px 16px 0;
+    align-items: center; justify-content: flex-end;
   }
   .action-bar .info-text {
-    flex: 1;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--text3);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    flex: 1; font-family: var(--mono); font-size: 10.5px;
+    color: var(--text3); letter-spacing: 0.05em; text-transform: uppercase;
   }
-
   .meta-input {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: var(--r);
-    color: var(--text);
-    font-family: var(--mono);
-    font-size: 12px;
-    padding: 0 10px;
-    height: 38px;
-    text-align: center;
-    width: 70px;
-    outline: none;
-    transition: border-color 0.15s;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--r); color: var(--text); font-family: var(--mono);
+    font-size: 12px; padding: 0 10px; height: 38px;
+    text-align: center; width: 70px; outline: none; transition: border-color 0.15s;
   }
   .meta-input:focus { border-color: var(--accent-line); }
-
   .icon-btn {
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: var(--r);
-    color: var(--text2);
-    height: 38px;
-    width: 38px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-family: var(--mono);
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: var(--r); color: var(--text2); height: 38px; width: 38px;
+    cursor: pointer; transition: all 0.15s; display: flex;
+    align-items: center; justify-content: center; font-size: 15px; font-family: var(--mono);
   }
   .icon-btn:hover { border-color: var(--accent-line); color: var(--accent); background: var(--accent-bg); }
   .icon-btn:active { transform: scale(0.95); }
 
-  /* ======================================================
-     RESULTS BAR
-     ====================================================== */
   .results-bar {
-    padding: 18px 16px 10px;
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 10px;
+    padding: 18px 16px 10px; display: flex;
+    align-items: baseline; justify-content: space-between; gap: 10px;
   }
   .results-info {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--text3);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
+    font-family: var(--mono); font-size: 10.5px; color: var(--text3);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    display: flex; align-items: baseline; gap: 8px;
   }
   .results-info b {
-    color: var(--accent);
-    font-size: 22px;
-    font-family: var(--sans);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    text-transform: none;
+    color: var(--accent); font-size: 22px; font-family: var(--sans);
+    font-weight: 700; letter-spacing: -0.02em; text-transform: none;
   }
-  .results-info-divider {
-    color: var(--text4);
-    margin: 0 4px;
-  }
-  .results-time {
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--text4);
-    letter-spacing: 0.05em;
-  }
+  .results-time { font-family: var(--mono); font-size: 10px; color: var(--text4); letter-spacing: 0.05em; }
 
-  /* ======================================================
-     RESULT TABLE — content-based widths, scroll on overflow
-     ====================================================== */
   .table-wrap {
-    margin: 0 16px 100px;
-    background: var(--paper);
-    border: 1px solid var(--line);
-    border-radius: var(--r2);
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(120, 80, 30, 0.06);
+    margin: 0 16px 100px; background: var(--paper);
+    border: 1px solid var(--line); border-radius: var(--r2);
+    overflow: hidden; box-shadow: 0 4px 20px rgba(120, 80, 30, 0.06);
   }
-  .table-scroll {
-    overflow-x: auto;
-    overflow-y: visible;
-    max-width: 100%;
-  }
+  .table-scroll { overflow-x: auto; overflow-y: visible; max-width: 100%; }
   .table-scroll::-webkit-scrollbar { height: 10px; width: 10px; }
   .table-scroll::-webkit-scrollbar-track { background: var(--paper2); }
   .table-scroll::-webkit-scrollbar-thumb {
-    background: var(--line2); border-radius: 5px;
-    border: 2px solid var(--paper2);
+    background: var(--line2); border-radius: 5px; border: 2px solid var(--paper2);
   }
   .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent-line); }
 
-  table {
-    border-collapse: collapse;
-    font-size: 13px;
-    width: 100%;
-    table-layout: auto;
-  }
+  table { border-collapse: collapse; font-size: 13px; width: 100%; table-layout: auto; }
   thead {
     background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
-    position: sticky;
-    top: 0;
-    z-index: 5;
+    position: sticky; top: 0; z-index: 5;
   }
   thead th {
-    padding: 13px 14px;
-    text-align: left;
-    font-family: var(--mono);
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    color: var(--accent2);
-    text-transform: uppercase;
-    white-space: nowrap;
-    border-bottom: 2px solid var(--accent-line);
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.1s;
-    vertical-align: middle;
+    padding: 13px 14px; text-align: left; font-family: var(--mono);
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--accent2);
+    text-transform: uppercase; white-space: nowrap; border-bottom: 2px solid var(--accent-line);
+    cursor: pointer; user-select: none; transition: background 0.1s; vertical-align: middle;
   }
   thead th:hover { background: var(--accent-bg); }
   thead th.sorted { color: var(--accent); background: rgba(251, 191, 36, 0.15); }
   thead th .sort-i { margin-left: 5px; opacity: 0.4; font-size: 9px; }
   thead th.sorted .sort-i { opacity: 1; }
 
-  tbody tr {
-    border-bottom: 1px solid var(--line);
-    transition: background 0.1s;
-  }
+  tbody tr { border-bottom: 1px solid var(--line); transition: background 0.1s; }
   tbody tr:last-child { border-bottom: none; }
   tbody tr:nth-child(even) { background: var(--paper2); }
   tbody tr:hover { background: var(--accent-bg) !important; }
 
   tbody td {
-    padding: 11px 13px;
-    color: var(--text);
-    vertical-align: top;
-    line-height: 1.5;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: pre-wrap;       /* GIỮ \n từ database */
+    padding: 11px 13px; color: var(--text); vertical-align: top;
+    line-height: 1.5; word-wrap: break-word; overflow-wrap: break-word;
+    white-space: pre-wrap;
   }
   td.num {
-    width: 38px;
-    text-align: center;
-    font-family: var(--mono);
-    color: var(--text4);
-    font-size: 11px;
-    font-weight: 500;
-    background: var(--paper2);
-    white-space: nowrap;
+    width: 38px; text-align: center; font-family: var(--mono);
+    color: var(--text4); font-size: 11px; font-weight: 500;
+    background: var(--paper2); white-space: nowrap;
   }
-  td.mono {
-    font-family: var(--mono);
-    font-size: 11.5px;
-    color: var(--text2);
-    white-space: nowrap;
-  }
+  td.mono { font-family: var(--mono); font-size: 11.5px; color: var(--text2); white-space: nowrap; }
   td.price {
-    font-family: var(--mono);
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--ink);
-    text-align: right;
-    white-space: nowrap;
+    font-family: var(--mono); font-size: 12.5px; font-weight: 700;
+    color: var(--ink); text-align: right; white-space: nowrap;
   }
   td.price.warm { color: var(--accent); }
   td.empty { color: var(--text4); font-style: italic; font-size: 11px; white-space: nowrap; }
 
-  /* Sticky cột # — giữ vì nhỏ, tiện đối chiếu STT khi scroll */
-  thead th.num-th,
-  tbody td.num {
-    position: sticky;
-    left: 0;
-    z-index: 4;
-  }
-  thead th.num-th {
-    z-index: 7;
-    background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%);
-  }
+  thead th.num-th, tbody td.num { position: sticky; left: 0; z-index: 4; }
+  thead th.num-th { z-index: 7; background: linear-gradient(to bottom, var(--accent-bg) 0%, var(--bg2) 100%); }
 
-  /* ❗ ĐÃ BỎ STICKY cho cột Tên gói (col-tengoi) và cột Danh mục (col-danhmuc)
-     trên CẢ desktop và mobile theo yêu cầu — để khi vuốt ngang xem được hết các cột,
-     không bị tên gói + danh mục che kín màn hình điện thoại. */
-
-  /* Specific column widths — chặt hơn để giá lên trước */
   .col-tengoi   { min-width: 220px; max-width: 320px; }
   .col-danhmuc  { min-width: 160px; max-width: 240px; }
   .col-cauhinh  { min-width: 200px; max-width: 320px; }
@@ -508,109 +275,47 @@
 
   td.col-tengoi { font-size: 12.5px; }
   td.col-tengoi .head {
-    font-weight: 600;
-    color: var(--text);
-    display: block;
-    margin-bottom: 4px;
-    line-height: 1.45;
+    font-weight: 600; color: var(--text); display: block;
+    margin-bottom: 4px; line-height: 1.45;
   }
   td.col-tengoi .meta {
-    display: block;
-    font-size: 11px;
-    color: var(--text2);
-    line-height: 1.55;
-    padding-left: 8px;
-    border-left: 2px solid var(--accent-line);
-    margin-top: 2px;
+    display: block; font-size: 11px; color: var(--text2); line-height: 1.55;
+    padding-left: 8px; border-left: 2px solid var(--accent-line); margin-top: 2px;
   }
   td.col-tengoi .meta-key {
-    color: var(--text3);
-    font-weight: 500;
-    font-size: 10.5px;
-    margin-right: 3px;
-    text-transform: lowercase;
-    font-variant: all-small-caps;
-    letter-spacing: 0.04em;
+    color: var(--text3); font-weight: 500; font-size: 10.5px; margin-right: 3px;
+    text-transform: lowercase; font-variant: all-small-caps; letter-spacing: 0.04em;
   }
-
   td.col-cauhinh { font-size: 12px; line-height: 1.5; }
-  td.col-cauhinh .head {
-    display: block;
-    color: var(--text);
-  }
+  td.col-cauhinh .head { display: block; color: var(--text); }
 
   mark {
-    background: var(--hl-bg);
-    color: var(--hl-text);
-    border-radius: 3px;
-    padding: 1px 3px;
-    font-weight: 600;
-    font-style: normal;
+    background: var(--hl-bg); color: var(--hl-text); border-radius: 3px;
+    padding: 1px 3px; font-weight: 600; font-style: normal;
     box-shadow: 0 1px 0 rgba(217, 119, 6, 0.15);
   }
 
-  /* ======================================================
-     PLACEHOLDER & ERROR
-     ====================================================== */
-  .placeholder {
-    padding: 80px 30px;
-    text-align: center;
-    color: var(--text2);
-  }
+  .placeholder { padding: 80px 30px; text-align: center; color: var(--text2); }
   .placeholder-mark {
-    width: 64px; height: 64px;
-    margin: 0 auto 20px;
-    border: 1.5px dashed var(--accent-line);
-    border-radius: 16px;
+    width: 64px; height: 64px; margin: 0 auto 20px;
+    border: 1.5px dashed var(--accent-line); border-radius: 16px;
     display: flex; align-items: center; justify-content: center;
-    color: var(--accent);
-    font-size: 26px;
-    font-family: var(--serif);
-    background: var(--paper);
+    color: var(--accent); font-size: 26px; font-family: var(--serif); background: var(--paper);
   }
-  .placeholder-title {
-    font-size: 17px;
-    color: var(--text);
-    font-weight: 700;
-    margin-bottom: 8px;
-    letter-spacing: -0.01em;
-  }
-  .placeholder-sub {
-    font-size: 12.5px;
-    color: var(--text2);
-    line-height: 1.8;
-    max-width: 360px;
-    margin: 0 auto;
-  }
+  .placeholder-title { font-size: 17px; color: var(--text); font-weight: 700; margin-bottom: 8px; letter-spacing: -0.01em; }
+  .placeholder-sub { font-size: 12.5px; color: var(--text2); line-height: 1.8; max-width: 360px; margin: 0 auto; }
   .placeholder-sub kbd {
-    font-family: var(--mono);
-    background: var(--paper);
-    border: 1px solid var(--line);
-    padding: 2px 7px;
-    border-radius: 4px;
-    font-size: 10.5px;
-    color: var(--accent);
-    font-weight: 600;
-    box-shadow: 0 1px 0 var(--line2);
+    font-family: var(--mono); background: var(--paper); border: 1px solid var(--line);
+    padding: 2px 7px; border-radius: 4px; font-size: 10.5px; color: var(--accent);
+    font-weight: 600; box-shadow: 0 1px 0 var(--line2);
   }
-
   .err {
-    background: var(--red-bg);
-    border: 1px solid var(--red-line);
-    border-radius: var(--r);
-    padding: 11px 16px;
-    color: var(--red);
-    font-size: 12.5px;
-    margin: 12px 16px;
-    font-family: var(--mono);
-    display: flex;
-    gap: 10px;
-    align-items: center;
+    background: var(--red-bg); border: 1px solid var(--red-line);
+    border-radius: var(--r); padding: 11px 16px; color: var(--red);
+    font-size: 12.5px; margin: 12px 16px; font-family: var(--mono);
+    display: flex; gap: 10px; align-items: center;
   }
 
-  /* ======================================================
-     RESPONSIVE
-     ====================================================== */
   @media (max-width: 900px) {
     .columns { grid-template-columns: repeat(2, 1fr); }
     .panel { padding: 14px 12px 0; }
@@ -619,32 +324,27 @@
     body { font-size: 13.5px; }
     .topbar { padding: 8px 10px; gap: 8px; }
     .brand { gap: 8px; }
-    .brand-text { display: none; }    /* Mobile: chỉ giữ logo để tiết kiệm chỗ */
+    .brand-text { display: none; }
     .logo-mark { width: 34px; height: 34px; }
     .logo-mark::after { font-size: 16px; }
     .topbar-search { height: 34px; font-size: 12.5px; padding: 0 14px; }
     .stat-mini { font-size: 10px; padding: 4px 8px; }
     .stat-mini .stat-label { display: none; }
-
     .panel { padding: 10px 10px 0; }
     .columns { grid-template-columns: 1fr; gap: 8px; }
     .col { padding: 8px; }
     .field-input { font-size: 13px; height: 30px; padding: 6px 9px 6px 16px; }
-
     .action-bar { padding: 8px 10px 0; }
     .action-bar .info-text { display: none; }
     .icon-btn:nth-child(4) { display: none; }
     .meta-input, .icon-btn { height: 36px; }
-
     .results-bar { padding: 12px 12px 6px; }
     .results-info b { font-size: 19px; }
-
     .table-wrap { margin: 0 10px 80px; border-radius: 10px; }
     table { font-size: 12.5px; }
     thead th { padding: 11px 11px; font-size: 9.5px; }
     tbody td { padding: 10px 11px; }
     td.num { width: 32px; font-size: 10.5px; padding: 10px 4px; }
-
     .col-tengoi   { min-width: 180px; max-width: 240px; }
     .col-danhmuc  { min-width: 130px; max-width: 200px; }
     .col-cauhinh  { min-width: 180px; max-width: 280px; }
@@ -656,7 +356,6 @@
   @media (max-width: 380px) {
     .topbar { padding: 7px 8px; }
     .topbar-search { font-size: 12.5px; padding: 0 10px; }
-    .topbar-search .btn-txt::after { content: ''; }
     .stat-mini { padding: 3px 7px; }
   }
 </style>
@@ -680,7 +379,6 @@
 
 <div class="panel">
   <div class="columns">
-
     <div class="col exclude">
       <input class="field-input ex" placeholder="loại trừ 1" autocomplete="off" autocapitalize="off">
       <input class="field-input ex" placeholder="loại trừ 2" autocomplete="off" autocapitalize="off">
@@ -688,7 +386,6 @@
       <input class="field-input ex" placeholder="loại trừ 4" autocomplete="off" autocapitalize="off">
       <input class="field-input ex" placeholder="loại trừ 5" autocomplete="off" autocapitalize="off">
     </div>
-
     <div class="col">
       <input class="field-input g1" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
       <input class="field-input g1" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
@@ -696,7 +393,6 @@
       <input class="field-input g1" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
       <input class="field-input g1" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
     </div>
-
     <div class="col">
       <input class="field-input g2" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
       <input class="field-input g2" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
@@ -704,7 +400,6 @@
       <input class="field-input g2" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
       <input class="field-input g2" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
     </div>
-
     <div class="col">
       <input class="field-input g3" placeholder="từ khoá 1" autocomplete="off" autocapitalize="off">
       <input class="field-input g3" placeholder="từ khoá 2" autocomplete="off" autocapitalize="off">
@@ -712,7 +407,6 @@
       <input class="field-input g3" placeholder="từ khoá 4" autocomplete="off" autocapitalize="off">
       <input class="field-input g3" placeholder="từ khoá 5" autocomplete="off" autocapitalize="off">
     </div>
-
   </div>
 </div>
 
@@ -744,6 +438,7 @@
 // ============================================================
 const CF_WORKER_URL = 'https://danhmuc-search.han280190.workers.dev';
 
+// Các cột hiển thị — KHÔNG đổi thứ tự, chỉ thêm/bớt nếu cần
 const RESULT_COLS = [
   { key: 'ten_goi',                                                 label: 'Tên gói',           cls: 'col-tengoi'  },
   { key: 'stt',                                                     label: 'STT',               cls: 'mono'        },
@@ -762,12 +457,17 @@ const RESULT_COLS = [
   { key: 'time_cap',                                                label: 'Time cấp',          cls: 'mono'        }
 ];
 
+// Các cột server cần trả về (gồm cả cột dùng cho client-filter)
+const SERVER_COLS = RESULT_COLS.map(c => c.key).concat([
+  'search_text', 'ten_nha_may', 'tbmt'
+]);
+
 let lastResults = [];
 let lastKws = [];
 let sortState = { col: null, asc: true };
 
 // ============================================================
-// NORMALIZATION — bỏ dấu, bỏ khoảng trắng, lowercase
+// NORMALIZATION
 // ============================================================
 function stripVietnameseTones(str) {
   if (!str) return '';
@@ -777,14 +477,71 @@ function stripVietnameseTones(str) {
     .replace(/đ/g, 'd').replace(/Đ/g, 'D');
 }
 
-function normalizeStrong(str) {
-  return stripVietnameseTones(str)
-    .toLowerCase()
-    .replace(/[\s\-_.,;:/\\()[\]{}'"]+/g, '');
+// Dùng để match keyword trong haystack (giữ khoảng trắng, chỉ bỏ dấu + lowercase)
+function normalizeSoft(str) {
+  return stripVietnameseTones(String(str || '')).toLowerCase();
 }
 
-function normalizeSoft(str) {
-  return stripVietnameseTones(String(str)).toLowerCase();
+// ============================================================
+// BUILD QUERY PARAMS — gửi cả từ gốc VÀ không dấu lên server
+// ============================================================
+function buildQueryParts(groups, groupKeys) {
+  const parts = [];
+  groups.forEach((grp, idx) => {
+    if (!grp.length) return;
+    const key = groupKeys[idx];
+    grp.forEach(kw => {
+      // Luôn gửi từ gốc (có dấu) — server FTS xử lý tốt tiếng Việt
+      parts.push(key + '=' + encodeURIComponent(kw));
+      // Đồng thời gửi thêm variant không dấu — đề phòng data không dấu trong DB
+      const noDiacritics = stripVietnameseTones(kw).toLowerCase();
+      if (noDiacritics !== kw.toLowerCase()) {
+        parts.push(key + '=' + encodeURIComponent(noDiacritics));
+      }
+    });
+  });
+  return parts;
+}
+
+// ============================================================
+// CLIENT-SIDE FILTER — dùng normalizeSoft (giữ khoảng trắng)
+// Đây là filter chính xác sau khi server đã trả về broad results
+// ============================================================
+function clientFilter(serverData, groups, excludeKws) {
+  // Lấy haystack từ TOÀN BỘ trường hữu ích — bao gồm ten_nha_may
+  function getHaystack(row) {
+    return normalizeSoft([
+      row.search_text           || '',
+      row.ten_goi               || '',
+      row.ten_nha_may           || '',
+      row.tbmt                  || '',
+      row.danh_muc_hang_hoa     || '',
+      row.ky_ma_hieu            || '',
+      row.nhan_hieu             || '',
+      row.hang_san_xuat         || '',
+      row.cau_hinh_tinh_nang_ky_thuat_co_ban || '',
+      row.xuat_xu_quoc_gia_vung_lanh_tho_san_xuat || '',
+      row.xuat_xu_2             || '',
+      row.nam_san_xuat          || ''
+    ].join(' '));
+  }
+
+  const activeGroups = groups.filter(g => g.length);
+
+  return serverData.filter(row => {
+    const haystack = getHaystack(row);
+
+    // Mỗi group (cột) dùng OR bên trong, AND giữa các cột
+    const allGroupsMatch = activeGroups.every(grp =>
+      grp.some(kw => haystack.includes(normalizeSoft(kw)))
+    );
+    if (!allGroupsMatch) return false;
+
+    // Loại trừ: nếu bất kỳ exclude keyword nào khớp thì bỏ
+    if (excludeKws.some(kw => haystack.includes(normalizeSoft(kw)))) return false;
+
+    return true;
+  });
 }
 
 // ============================================================
@@ -819,12 +576,11 @@ function highlight(text, kws) {
   const original = String(text);
   const normalized = normalizeSoft(original);
 
+  // Map từng ký tự normalize về vị trí gốc
   const charMap = [];
   for (let i = 0; i < original.length; i++) {
     const norm = normalizeSoft(original[i]);
-    for (let j = 0; j < norm.length; j++) {
-      charMap.push(i);
-    }
+    for (let j = 0; j < norm.length; j++) charMap.push(i);
   }
 
   const sorted = [...new Set(kws)].sort((a, b) => b.length - a.length);
@@ -837,7 +593,8 @@ function highlight(text, kws) {
       const found = normalized.indexOf(nkw, pos);
       if (found === -1) break;
       const startOrig = charMap[found];
-      const endOrig = charMap[found + nkw.length - 1] + 1;
+      const endIdx    = found + nkw.length - 1;
+      const endOrig   = endIdx < charMap.length ? charMap[endIdx] + 1 : undefined;
       if (startOrig !== undefined && endOrig !== undefined) {
         ranges.push([startOrig, endOrig]);
       }
@@ -851,15 +608,11 @@ function highlight(text, kws) {
   const merged = [ranges[0]];
   for (let i = 1; i < ranges.length; i++) {
     const last = merged[merged.length - 1];
-    if (ranges[i][0] <= last[1]) {
-      last[1] = Math.max(last[1], ranges[i][1]);
-    } else {
-      merged.push(ranges[i]);
-    }
+    if (ranges[i][0] <= last[1]) last[1] = Math.max(last[1], ranges[i][1]);
+    else merged.push(ranges[i]);
   }
 
-  let result = '';
-  let cursor = 0;
+  let result = '', cursor = 0;
   merged.forEach(([s, e]) => {
     result += escapeHtml(original.substring(cursor, s));
     result += '<mark>' + escapeHtml(original.substring(s, e)) + '</mark>';
@@ -881,9 +634,7 @@ function formatTenGoi(text, kws) {
     const clean = line.replace(/^_+/, '').trim();
     const m = clean.match(/^([^:]+):\s*(.+)$/);
     if (m) {
-      const key = highlight(m[1].trim(), kws);
-      const val = highlight(m[2].trim(), kws);
-      return `<span class="meta"><span class="meta-key">${key}:</span>${val}</span>`;
+      return `<span class="meta"><span class="meta-key">${highlight(m[1].trim(), kws)}:</span>${highlight(m[2].trim(), kws)}</span>`;
     }
     return `<span class="meta">${highlight(clean, kws)}</span>`;
   }).join('');
@@ -910,30 +661,31 @@ async function loadCount() {
 }
 
 // ============================================================
-// SEARCH
+// SEARCH — V2: song song 2 request, merge rồi filter đúng
 // ============================================================
 async function doSearch() {
-  const a = readGroup('ex');
-  const b = readGroup('g1');
-  const c = readGroup('g2');
-  const d = readGroup('g3');
+  const exKws = readGroup('ex');
+  const g1    = readGroup('g1');
+  const g2    = readGroup('g2');
+  const g3    = readGroup('g3');
 
-  if (!b.length && !c.length && !d.length) {
+  if (!g1.length && !g2.length && !g3.length) {
     showError('Cần ít nhất 1 từ khoá ở cột 2, 3 hoặc 4');
     return;
   }
 
-  const limit = Math.min(parseInt(document.getElementById('limit').value) || 200, 2000);
+  const limit    = Math.min(parseInt(document.getElementById('limit').value) || 200, 2000);
+  const serverLimit = Math.min(limit * 8, 5000); // lấy nhiều hơn để client filter
+  const colsParam = SERVER_COLS.join(',');
 
-  const parts = [];
-  b.forEach(k => parts.push('g1=' + encodeURIComponent(k)));
-  c.forEach(k => parts.push('g2=' + encodeURIComponent(k)));
-  d.forEach(k => parts.push('g3=' + encodeURIComponent(k)));
+  const groups    = [g1, g2, g3];
+  const groupKeys = ['g1', 'g2', 'g3'];
 
-  parts.push('limit=' + Math.min(limit * 5, 5000));
-  parts.push('cols=' + RESULT_COLS.map(c => c.key).concat(['search_text']).join(','));
-
-  const url = CF_WORKER_URL + '/search?' + parts.join('&');
+  // --- Request 1: gửi từ khoá gốc có dấu + không dấu (buildQueryParts đã gộp)
+  const parts1 = buildQueryParts(groups, groupKeys);
+  parts1.push('limit=' + serverLimit);
+  parts1.push('cols=' + colsParam);
+  const url1 = CF_WORKER_URL + '/search?' + parts1.join('&');
 
   const btn = document.getElementById('search-btn');
   btn.disabled = true;
@@ -942,49 +694,41 @@ async function doSearch() {
 
   const t0 = performance.now();
   try {
+    // Fetch — một request duy nhất đã bao gồm cả dạng có dấu và không dấu
     let serverData = [];
-    let serverMs = null;
+    let serverMs   = null;
 
     try {
-      const res = await fetch(url);
+      const res = await fetch(url1);
       if (res.ok) {
         const body = await res.json();
         if (body.data) {
           serverData = body.data;
-          serverMs = body.elapsed;
+          serverMs   = body.elapsed;
         }
       }
-    } catch(e) {}
+    } catch(e) { /* network error — xử lý bên dưới */ }
 
-    if (serverData.length < 50 && (b.length || c.length || d.length)) {
-      const altParts = [];
-      const allGroups = [b, c, d];
-      const allGroupKeys = ['g1', 'g2', 'g3'];
-      let hasAlt = false;
-      allGroups.forEach((grp, idx) => {
+    // Nếu server trả về ít hơn 20 kết quả, thử thêm 1 request
+    // với từng từ đơn tách ra (fallback cho keyword nhiều từ)
+    if (serverData.length < 20) {
+      const parts2 = [];
+      groups.forEach((grp, idx) => {
         if (!grp.length) return;
-        const variants = new Set();
+        const key = groupKeys[idx];
         grp.forEach(kw => {
-          variants.add(kw);
-          variants.add(stripVietnameseTones(kw));
-          variants.add(stripVietnameseTones(kw).toLowerCase());
-          const words = stripVietnameseTones(kw).toLowerCase().split(/\s+/).filter(w => w.length >= 3);
-          words.forEach(w => variants.add(w));
-        });
-        variants.forEach(v => {
-          if (v && v.length >= 2) {
-            altParts.push(allGroupKeys[idx] + '=' + encodeURIComponent(v));
-            hasAlt = true;
-          }
+          // Tách thành từng từ đơn (≥2 ký tự) — gửi riêng từng từ trong cùng group
+          const words = stripVietnameseTones(kw).toLowerCase()
+            .split(/\s+/).filter(w => w.length >= 2);
+          words.forEach(w => parts2.push(key + '=' + encodeURIComponent(w)));
         });
       });
 
-      if (hasAlt) {
-        altParts.push('limit=' + Math.min(limit * 5, 5000));
-        altParts.push('cols=' + RESULT_COLS.map(c => c.key).concat(['search_text']).join(','));
-        const altUrl = CF_WORKER_URL + '/search?' + altParts.join('&');
+      if (parts2.length) {
+        parts2.push('limit=' + serverLimit);
+        parts2.push('cols=' + colsParam);
         try {
-          const res2 = await fetch(altUrl);
+          const res2 = await fetch(CF_WORKER_URL + '/search?' + parts2.join('&'));
           if (res2.ok) {
             const body2 = await res2.json();
             if (body2.data && body2.data.length > serverData.length) {
@@ -996,37 +740,13 @@ async function doSearch() {
       }
     }
 
-    const groups = [b, c, d].filter(g => g.length);
-    const filtered = serverData.filter(row => {
-      const haystack = normalizeStrong(
-        [
-          row.search_text || '',
-          row.ten_goi || '',
-          row.danh_muc_hang_hoa || '',
-          row.ky_ma_hieu || '',
-          row.nhan_hieu || '',
-          row.hang_san_xuat || '',
-          row.cau_hinh_tinh_nang_ky_thuat_co_ban || '',
-          row.xuat_xu_quoc_gia_vung_lanh_tho_san_xuat || '',
-          row.xuat_xu_2 || '',
-          row.nam_san_xuat || ''
-        ].join(' ')
-      );
-
-      const allGroupsMatch = groups.every(grp => {
-        return grp.some(kw => haystack.includes(normalizeStrong(kw)));
-      });
-      if (!allGroupsMatch) return false;
-
-      const noExclude = !a.some(kw => haystack.includes(normalizeStrong(kw)));
-      return noExclude;
-    });
-
+    // --- Client-side filter chính xác ---
+    const filtered  = clientFilter(serverData, groups, exKws);
     const finalData = filtered.slice(0, limit);
 
     const elapsed = ((performance.now() - t0) / 1000).toFixed(2);
     lastResults = finalData;
-    lastKws = [...b, ...c, ...d];
+    lastKws     = [...g1, ...g2, ...g3];
     renderTable(finalData, elapsed, serverMs);
   } catch(e) {
     showError('Lỗi kết nối: ' + e.message);
@@ -1060,18 +780,17 @@ function renderTable(data, elapsed, serverMs) {
   let head = '<tr><th class="num-th">#</th>';
   RESULT_COLS.forEach(col => {
     const sorted = sortState.col === col.key;
-    let thCls = sorted ? 'sorted ' : '';
-    thCls += col.cls;
+    const thCls  = (sorted ? 'sorted ' : '') + col.cls;
     head += `<th class="${thCls.trim()}" onclick="sortBy('${col.key}')">${col.label}<span class="sort-i">${sorted ? (sortState.asc ? '▲' : '▼') : '↕'}</span></th>`;
   });
   head += '</tr>';
 
   let rows = '';
   data.forEach((row, i) => {
-    rows += `<tr>`;
+    rows += '<tr>';
     rows += `<td class="num">${i + 1}</td>`;
     RESULT_COLS.forEach(col => {
-      const raw = row[col.key];
+      const raw     = row[col.key];
       const isPrice = col.cls.includes('price');
       const isEmpty = raw === null || raw === undefined || raw === '';
 
@@ -1082,11 +801,10 @@ function renderTable(data, elapsed, serverMs) {
       } else if (col.key === 'ten_goi') {
         rows += `<td class="${col.cls}">${formatTenGoi(String(raw), lastKws)}</td>`;
       } else {
-        const highlighted = highlight(String(raw), lastKws);
-        rows += `<td class="${col.cls}">${highlighted}</td>`;
+        rows += `<td class="${col.cls}">${highlight(String(raw), lastKws)}</td>`;
       }
     });
-    rows += `</tr>`;
+    rows += '</tr>';
   });
 
   out.innerHTML = `
@@ -1129,10 +847,7 @@ function sortBy(key) {
 // EXPORT CSV
 // ============================================================
 function exportCSV() {
-  if (!lastResults.length) {
-    showError('Chưa có kết quả để xuất');
-    return;
-  }
+  if (!lastResults.length) { showError('Chưa có kết quả để xuất'); return; }
   const headers = RESULT_COLS.map(c => c.label);
   const csvRows = [headers.join(',')];
   lastResults.forEach(row => {
@@ -1142,10 +857,10 @@ function exportCSV() {
     });
     csvRows.push(r.join(','));
   });
-  const csv = '\ufeff' + csvRows.join('\n');
+  const csv  = '\ufeff' + csvRows.join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
   a.download = `tracuu_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
 }
@@ -1160,27 +875,21 @@ function clearAll() {
 // ============================================================
 function showError(msg) {
   clearError();
-  const c = document.getElementById('results-container');
+  const c   = document.getElementById('results-container');
   const err = document.createElement('div');
   err.className = 'err';
-  err.id = 'err-msg';
+  err.id        = 'err-msg';
   err.innerHTML = `<span style="font-size:14px">⚠</span> ${msg}`;
   c.prepend(err);
 }
-function clearError() {
-  document.getElementById('err-msg')?.remove();
-}
+function clearError() { document.getElementById('err-msg')?.remove(); }
 
 // ============================================================
 // KEY HANDLERS
 // ============================================================
 document.querySelectorAll('.field-input, #limit').forEach(el => {
   el.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      el.blur();
-      doSearch();
-    }
+    if (e.key === 'Enter') { e.preventDefault(); el.blur(); doSearch(); }
   });
 });
 
